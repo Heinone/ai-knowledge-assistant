@@ -32,3 +32,6 @@ data/evals/latest_eval_results.json
 
 # Private notes
 docs/
+
+# Node modules
+node_modules/

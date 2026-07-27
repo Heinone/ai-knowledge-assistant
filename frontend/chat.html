@@ -1,205 +1,230 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aster & Loom — Customer Assistant</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body class="customer-chat-page">
-  <div class="customer-chat-shell">
-    <header class="customer-chat-header">
-      <a class="brand" href="chat.html">
-        <span class="logo">S</span>
-        <span>Ster by Aster & Loom</span>
-      </a>
-      <span class="badge badge-success">Online</span>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <main class="customer-chat-main">
-      <section class="customer-chat-card">
-        <div class="customer-chat-title">
-          <h1>Aster & Loom Customer Care</h1>
-          <p>Ask about materials, production, shipping, returns, or the latest collection.</p>
-        </div>
+    <title id="pageTitle"></title>
 
-        <div id="messages" class="customer-messages"></div>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-        <form id="chatForm" class="customer-input-wrap">
-          <input
-            id="questionInput"
-            class="customer-input"
-            type="text"
-            placeholder="Type your question..."
-            autocomplete="off"
-          />
-          <button id="sendButton" class="btn customer-send" type="submit">Send</button>
-        </form>
-      </section>
-    </main>
-  </div>
+  <body class="customer-chat-page">
+    <div class="customer-chat-shell">
+      <header class="customer-chat-header">
+        <a class="brand" href="chat.html">
+          <span id="logo" class="logo"></span>
+          <span id="assistantBrand"></span>
+        </a>
 
-  <script src="api.js"></script>
-<script>
-  const messages = document.getElementById("messages");
-  const chatForm = document.getElementById("chatForm");
-  const questionInput = document.getElementById("questionInput");
-  const sendButton = document.getElementById("sendButton");
+        <span class="badge badge-success"> Online </span>
+      </header>
 
-  const conversationHistory = [];
+      <main class="customer-chat-main">
+        <section class="customer-chat-card">
+          <div class="customer-chat-title">
+            <h1 id="chatTitle"></h1>
+            <p id="chatSubtitle"></p>
+          </div>
 
-  addMessage(
-    "assistant",
-    "Hello, thank you for considering Aster & Loom. I'm Ster, your AI assistant. How can I help you today?"
-  );
+          <div id="messages" class="customer-messages"></div>
 
-  window.addEventListener("load", () => {
-    questionInput.focus();
-  });
+          <form id="chatForm" class="customer-input-wrap">
+            <input
+              id="questionInput"
+              class="customer-input"
+              type="text"
+              placeholder="Type your question..."
+              autocomplete="off"
+            />
 
-  function addMessage(role, text) {
-    const message = document.createElement("div");
-    message.className = `customer-message ${role}`;
-    message.textContent = text;
+            <button id="sendButton" class="btn customer-send" type="submit">
+              Send
+            </button>
+          </form>
+        </section>
+      </main>
+    </div>
 
-    messages.appendChild(message);
-    messages.scrollTop = messages.scrollHeight;
-  }
+    <script src="config.js"></script>
+    <script src="api.js"></script>
 
-  function addLoadingMessage() {
-    const message = document.createElement("div");
-    message.className = "customer-message assistant loading";
-    message.id = "loadingMessage";
-    message.textContent = "One moment — I'm checking Aster & Loom information...";
+    <script>
+      const messages = document.getElementById("messages");
+      const chatForm = document.getElementById("chatForm");
+      const questionInput = document.getElementById("questionInput");
+      const sendButton = document.getElementById("sendButton");
 
-    messages.appendChild(message);
-    messages.scrollTop = messages.scrollHeight;
-  }
+      const conversationHistory = [];
 
-  function removeLoadingMessage() {
-    const loading = document.getElementById("loadingMessage");
+      // Apply configuration
 
-    if (loading) {
-      loading.remove();
-    }
-  }
+      document.title = COMPANY_CONFIG.pageTitle;
 
-  function buildContextualQuestion(currentQuestion) {
-  const lower = currentQuestion.toLowerCase();
+      document.getElementById("pageTitle").textContent =
+        COMPANY_CONFIG.pageTitle;
 
-  const followUpPatterns = [
-    "it",
-    "that",
-    "this",
-    "they",
-    "them",
-    "those",
-    "the shirt",
-    "the hoodie",
-    "the pants",
-    "what about",
-    "how about",
-    "tell me more",
-    "more about",
-    "what kind",
-    "which one",
-    "what size",
-    "how should i wash",
-    "how do i wash",
-    "is it",
-    "are they",
-  ];
+      document.getElementById("logo").textContent = COMPANY_CONFIG.logoText;
 
-  const looksLikeFollowUp = followUpPatterns.some((pattern) =>
-    lower.includes(pattern)
-  );
+      document.getElementById("assistantBrand").textContent =
+        `${COMPANY_CONFIG.assistantName} by ${COMPANY_CONFIG.companyName}`;
 
-  if (!looksLikeFollowUp || conversationHistory.length === 0) {
-    return currentQuestion;
-  }
+      document.getElementById("chatTitle").textContent =
+        `${COMPANY_CONFIG.companyName} ${COMPANY_CONFIG.assistantRole}`;
 
-  const recentHistory = conversationHistory
-    .slice(-4)
-    .map((message) => `${message.role}: ${message.text}`)
-    .join("\n");
+      document.getElementById("chatSubtitle").textContent =
+        COMPANY_CONFIG.chatSubtitle;
 
-  return `
+      addMessage("assistant", COMPANY_CONFIG.welcomeMessage);
+
+      window.addEventListener("load", () => {
+        questionInput.focus();
+      });
+
+      function addMessage(role, text) {
+        const message = document.createElement("div");
+
+        message.className = `customer-message ${role}`;
+        message.textContent = text;
+
+        messages.appendChild(message);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function addLoadingMessage() {
+        const message = document.createElement("div");
+
+        message.className = "customer-message assistant loading";
+        message.id = "loadingMessage";
+        message.textContent = COMPANY_CONFIG.loadingMessage;
+
+        messages.appendChild(message);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function removeLoadingMessage() {
+        const loading = document.getElementById("loadingMessage");
+
+        if (loading) {
+          loading.remove();
+        }
+      }
+
+      function buildContextualQuestion(currentQuestion) {
+        const lower = currentQuestion.toLowerCase();
+
+        const followUpPatterns = [
+          "it",
+          "that",
+          "this",
+          "they",
+          "them",
+          "those",
+          "what about",
+          "how about",
+          "tell me more",
+          "more about",
+          "what kind",
+          "which one",
+          "is it",
+          "are they",
+        ];
+
+        const looksLikeFollowUp = followUpPatterns.some((pattern) =>
+          lower.includes(pattern),
+        );
+
+        if (!looksLikeFollowUp || conversationHistory.length === 0) {
+          return currentQuestion;
+        }
+
+        const recentHistory = conversationHistory
+          .slice(-2)
+          .map((message) => `${message.role}: ${message.text}`)
+          .join("\n");
+
+        return `
 Conversation so far:
 ${recentHistory}
 
 Customer's latest question:
 ${currentQuestion}
 
-Answer the latest customer question using the uploaded company documents. Use the conversation only to understand references like "that", "it", "they", "the shirt", or other follow-up wording.
+Answer the latest customer question using the available knowledge base.
+
+Use the conversation only to understand references such as "it", "that", or "they".
 `.trim();
-}
+      }
 
-  function customerFriendlyAnswer(answer) {
-    const refusal =
-      "I could not find enough information in the provided documents to answer that confidently.";
+      function customerFriendlyAnswer(answer) {
+        const refusal =
+          "I could not find enough information to answer that confidently.";
 
-    if (answer.trim() === refusal) {
-      return (
-        "I don't have enough information about that in the Aster & Loom materials I can access. " +
-        "You can ask about products, materials, manufacturing, shipping, returns, or the latest collection."
-      );
-    }
+        if (answer.trim() === refusal) {
+          return COMPANY_CONFIG.fallbackMessage;
+        }
 
-    return answer;
-  }
+        return answer;
+      }
 
-  async function handleQuestion(question) {
-    const cleanQuestion = question.trim();
+      async function handleQuestion(question) {
+        const cleanQuestion = question.trim();
 
-    if (!cleanQuestion) {
-      return;
-    }
+        if (!cleanQuestion) {
+          return;
+        }
 
-    addMessage("user", cleanQuestion);
-    conversationHistory.push({
-      role: "Customer",
-      text: cleanQuestion,
-    });
+        addMessage("user", cleanQuestion);
 
-    questionInput.value = "";
-    questionInput.disabled = true;
-    sendButton.disabled = true;
-    sendButton.textContent = "Sending";
+        conversationHistory.push({
+          role: "Customer",
+          text: cleanQuestion,
+        });
 
-    addLoadingMessage();
+        questionInput.value = "";
+        questionInput.disabled = true;
+        sendButton.disabled = true;
+        sendButton.textContent = "Sending";
 
-    try {
-      const contextualQuestion = buildContextualQuestion(cleanQuestion);
-      const result = await askQuestion(contextualQuestion);
-      const cleanAnswer = customerFriendlyAnswer(
-        result.answer || "I'm sorry, I couldn't answer that question."
-      );
+        addLoadingMessage();
 
-      removeLoadingMessage();
-      addMessage("assistant", cleanAnswer);
+        try {
+          const contextualQuestion = buildContextualQuestion(cleanQuestion);
 
-      conversationHistory.push({
-        role: "Ster",
-        text: cleanAnswer,
+          const result = await askQuestion(contextualQuestion);
+
+          const cleanAnswer = customerFriendlyAnswer(
+            result.answer || "I could not answer that question.",
+          );
+
+          removeLoadingMessage();
+
+          addMessage("assistant", cleanAnswer);
+
+          conversationHistory.push({
+            role: COMPANY_CONFIG.assistantName,
+            text: cleanAnswer,
+          });
+        } catch (error) {
+          removeLoadingMessage();
+
+          addMessage(
+            "assistant",
+            "Sorry, something went wrong while answering. Please try again.",
+          );
+        } finally {
+          questionInput.disabled = false;
+          sendButton.disabled = false;
+          sendButton.textContent = "Send";
+          questionInput.focus();
+        }
+      }
+
+      chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        await handleQuestion(questionInput.value);
       });
-    } catch (error) {
-      removeLoadingMessage();
-      addMessage(
-        "assistant",
-        "Sorry, something went wrong while answering. Please try again."
-      );
-    } finally {
-      questionInput.disabled = false;
-      sendButton.disabled = false;
-      sendButton.textContent = "Send";
-      questionInput.focus();
-    }
-  }
-
-  chatForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    await handleQuestion(questionInput.value);
-  });
-</script>
-</body>
+    </script>
+  </body>
 </html>
