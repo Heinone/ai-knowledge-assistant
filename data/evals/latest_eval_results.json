@@ -3,11 +3,11 @@
     "id": "refund_used_boots",
     "type": "answerable",
     "question": "Can I return hiking boots after using them once?",
-    "passed": false,
-    "contains_ok": false,
+    "passed": true,
+    "contains_ok": true,
     "source_ok": true,
     "refusal_ok": true,
-    "answer": "If you\u2019ve used the boots, they aren\u2019t eligible for a refund unless they\u2019re defective. If you believe they\u2019re defective, please submit a warranty/return claim with proof of purchase \u2014 approved claims can lead to repair, replacement, or store credit. Refunds (when applicable) are processed to the original payment method within 5 business days after inspection.",
+    "answer": "No \u2014 used hiking boots aren\u2019t eligible for a refund just because they were worn once. Returns for a full refund apply only to unused products within 30 days of purchase.\n\nIf the boots are defective, you can file a warranty claim. NordicTrail offers a 1\u2011year limited warranty for manufacturing defects (e.g., broken zippers, faulty buckles, torn seams, defective stitching). You\u2019ll need proof of purchase; approved claims may result in repair, replacement, or store credit. Refunds are processed to the original payment method after inspection when applicable.",
     "sources": [
       "refund_policy.txt",
       "long_support_policy.txt",
@@ -22,7 +22,7 @@
     "contains_ok": true,
     "source_ok": true,
     "refusal_ok": true,
-    "answer": "Shipping to Indonesia usually takes 7\u201314 business days. You\u2019ll receive a tracking number by email after your order ships.",
+    "answer": "Shipping to Indonesia usually takes 7 to 14 business days.",
     "sources": [
       "shipping_policy.txt"
     ]
@@ -35,7 +35,7 @@
     "contains_ok": true,
     "source_ok": true,
     "refusal_ok": true,
-    "answer": "Yes. NordicTrail Gear\u2019s 1-year limited warranty covers broken zippers when the damage is due to a manufacturing defect. Customers must provide proof of purchase when submitting a claim; approved claims may be repaired, replaced, or issued store credit.",
+    "answer": "Yes. Broken zippers are covered under NordicTrail Gear\u2019s 1-year limited warranty when the failure is due to a manufacturing defect. Customers must provide proof of purchase when submitting a claim. If approved, the remedy may be repair, replacement, or store credit.",
     "sources": [
       "warranty_policy.txt",
       "warranty_policy.pdf",
@@ -50,7 +50,7 @@
     "contains_ok": true,
     "source_ok": true,
     "refusal_ok": true,
-    "answer": "I could not find enough information in the provided documents to answer that confidently.",
+    "answer": "I could not find enough information to answer that confidently.",
     "sources": [
       "warranty_policy.pdf",
       "warranty_policy.txt",
@@ -65,7 +65,7 @@
     "contains_ok": true,
     "source_ok": true,
     "refusal_ok": true,
-    "answer": "I could not find enough information in the provided documents to answer that confidently.",
+    "answer": "I could not find enough information to answer that confidently.",
     "sources": []
   },
   {
@@ -76,7 +76,7 @@
     "contains_ok": true,
     "source_ok": true,
     "refusal_ok": true,
-    "answer": "I can help \u2014 could you tell me three quick details?\n\n1) Is the jacket unused or has it been worn?  \n2) When did you purchase it (within 30 days)?  \n3) If it\u2019s used, do you believe it\u2019s defective (manufacturing issue like torn seams, broken zipper, faulty stitching)?\n\nQuick summary of outcomes: unused jackets returned within 30 days get a full refund; used jackets are only refundable if defective. Refunds are issued to the original payment method within 5 business days after inspection.",
+    "answer": "Maybe \u2014 it depends.\n\n- If the jacket is unused and you return it within 30 days of purchase, you can get a full refund.\n- If the jacket has been used, it is only eligible for a refund if it\u2019s defective.\n- Items returned after 30 days are not eligible.\n\nIf you do return it and it\u2019s accepted, refunds are processed to the original payment method within 5 business days after inspection.\n\nDo you know whether the jacket is unused, defective, or when you bought it?",
     "sources": [
       "refund_policy.txt",
       "long_support_policy.txt",

@@ -70,7 +70,7 @@ def run_eval_case(case: dict) -> dict:
 def main():
     print("Building local index...")
     build_index_from_directory(
-        path="data/raw/nordictrail",
+        path="data/raw/test_fixtures/nordictrail",
         chunk_size=512,
         chunk_overlap=50,
     )

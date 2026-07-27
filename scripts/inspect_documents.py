@@ -4,7 +4,7 @@ load_dotenv()
 
 from llama_index.core import SimpleDirectoryReader
 
-documents = SimpleDirectoryReader("data/raw/nordictrail").load_data()
+documents = SimpleDirectoryReader("data/raw/test_fixtures/nordictrail").load_data()
 
 print(f"Loaded documents: {len(documents)}")
 

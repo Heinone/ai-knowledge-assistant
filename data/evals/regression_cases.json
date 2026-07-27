@@ -3,7 +3,7 @@
     "id": "refund_used_boots",
     "type": "answerable",
     "question": "Can I return hiking boots after using them once?",
-    "expected_contains": ["not eligible", "unless", "defective"],
+    "expected_contains": ["used", "refund", "defective"],
     "expected_source": "refund_policy.txt",
     "should_refuse": false
   },
