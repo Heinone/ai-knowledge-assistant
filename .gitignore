@@ -28,3 +28,6 @@ htmlcov/
 
 # Local processed data
 data/processed/
+
+# Private notes
+docs/
