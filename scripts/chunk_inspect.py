@@ -5,7 +5,7 @@ load_dotenv()
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SentenceSplitter
 
-documents = SimpleDirectoryReader("data/raw/test_fixtures/nordictrail").load_data()
+documents = SimpleDirectoryReader("tests/fixtures/nordictrail").load_data()
 
 chunk_sizes = [128, 256, 512, 1024]
 

@@ -10,7 +10,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 api_key = os.getenv("OPENAI_API_KEY")
 print("OPENAI_API_KEY loaded:", api_key is not None)
 
-documents = SimpleDirectoryReader("data/raw/test_fixtures/nordictrail").load_data()
+documents = SimpleDirectoryReader("tests/fixtures/nordictrail").load_data()
 print(f"Loaded documents: {len(documents)}")
 
 index = VectorStoreIndex.from_documents(

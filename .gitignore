@@ -28,6 +28,7 @@ htmlcov/
 
 # Local processed data
 data/processed/
+data/evals/latest_eval_results.json
 
 # Private notes
 docs/
