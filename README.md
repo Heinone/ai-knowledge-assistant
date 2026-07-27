@@ -220,6 +220,10 @@ python3 -m http.server 5500
 Open:
 
 ```
+http://localhost:5500/admin.html
+```
+Upload the knowledge documents (Current support for txt,md and pdf files). Then navigate to:
+```
 http://localhost:5500/chat.html
 ```
 
