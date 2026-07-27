@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env
+
+# macOS
+.DS_Store
+
+# Local uploads / runtime data
+data/uploads/
+
+# Local development artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Local processed data
+data/processed/

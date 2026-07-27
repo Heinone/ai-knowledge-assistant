@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aster & Loom — Customer Assistant</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="customer-chat-page">
+  <div class="customer-chat-shell">
+    <header class="customer-chat-header">
+      <a class="brand" href="chat.html">
+        <span class="logo">S</span>
+        <span>Ster by Aster & Loom</span>
+      </a>
+      <span class="badge badge-success">Online</span>
+    </header>
+
+    <main class="customer-chat-main">
+      <section class="customer-chat-card">
+        <div class="customer-chat-title">
+          <h1>Aster & Loom Customer Care</h1>
+          <p>Ask about materials, production, shipping, returns, or the latest collection.</p>
+        </div>
+
+        <div id="messages" class="customer-messages"></div>
+
+        <form id="chatForm" class="customer-input-wrap">
+          <input
+            id="questionInput"
+            class="customer-input"
+            type="text"
+            placeholder="Type your question..."
+            autocomplete="off"
+          />
+          <button id="sendButton" class="btn customer-send" type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+<script>
+  const messages = document.getElementById("messages");
+  const chatForm = document.getElementById("chatForm");
+  const questionInput = document.getElementById("questionInput");
+  const sendButton = document.getElementById("sendButton");
+
+  const conversationHistory = [];
+
+  addMessage(
+    "assistant",
+    "Hello, thank you for considering Aster & Loom. I'm Ster, your AI assistant. How can I help you today?"
+  );
+
+  window.addEventListener("load", () => {
+    questionInput.focus();
+  });
+
+  function addMessage(role, text) {
+    const message = document.createElement("div");
+    message.className = `customer-message ${role}`;
+    message.textContent = text;
+
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function addLoadingMessage() {
+    const message = document.createElement("div");
+    message.className = "customer-message assistant loading";
+    message.id = "loadingMessage";
+    message.textContent = "One moment — I'm checking Aster & Loom information...";
+
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function removeLoadingMessage() {
+    const loading = document.getElementById("loadingMessage");
+
+    if (loading) {
+      loading.remove();
+    }
+  }
+
+  function buildContextualQuestion(currentQuestion) {
+  const lower = currentQuestion.toLowerCase();
+
+  const followUpPatterns = [
+    "it",
+    "that",
+    "this",
+    "they",
+    "them",
+    "those",
+    "the shirt",
+    "the hoodie",
+    "the pants",
+    "what about",
+    "how about",
+    "tell me more",
+    "more about",
+    "what kind",
+    "which one",
+    "what size",
+    "how should i wash",
+    "how do i wash",
+    "is it",
+    "are they",
+  ];
+
+  const looksLikeFollowUp = followUpPatterns.some((pattern) =>
+    lower.includes(pattern)
+  );
+
+  if (!looksLikeFollowUp || conversationHistory.length === 0) {
+    return currentQuestion;
+  }
+
+  const recentHistory = conversationHistory
+    .slice(-4)
+    .map((message) => `${message.role}: ${message.text}`)
+    .join("\n");
+
+  return `
+Conversation so far:
+${recentHistory}
+
+Customer's latest question:
+${currentQuestion}
+
+Answer the latest customer question using the uploaded company documents. Use the conversation only to understand references like "that", "it", "they", "the shirt", or other follow-up wording.
+`.trim();
+}
+
+  function customerFriendlyAnswer(answer) {
+    const refusal =
+      "I could not find enough information in the provided documents to answer that confidently.";
+
+    if (answer.trim() === refusal) {
+      return (
+        "I don't have enough information about that in the Aster & Loom materials I can access. " +
+        "You can ask about products, materials, manufacturing, shipping, returns, or the latest collection."
+      );
+    }
+
+    return answer;
+  }
+
+  async function handleQuestion(question) {
+    const cleanQuestion = question.trim();
+
+    if (!cleanQuestion) {
+      return;
+    }
+
+    addMessage("user", cleanQuestion);
+    conversationHistory.push({
+      role: "Customer",
+      text: cleanQuestion,
+    });
+
+    questionInput.value = "";
+    questionInput.disabled = true;
+    sendButton.disabled = true;
+    sendButton.textContent = "Sending";
+
+    addLoadingMessage();
+
+    try {
+      const contextualQuestion = buildContextualQuestion(cleanQuestion);
+      const result = await askQuestion(contextualQuestion);
+      const cleanAnswer = customerFriendlyAnswer(
+        result.answer || "I'm sorry, I couldn't answer that question."
+      );
+
+      removeLoadingMessage();
+      addMessage("assistant", cleanAnswer);
+
+      conversationHistory.push({
+        role: "Ster",
+        text: cleanAnswer,
+      });
+    } catch (error) {
+      removeLoadingMessage();
+      addMessage(
+        "assistant",
+        "Sorry, something went wrong while answering. Please try again."
+      );
+    } finally {
+      questionInput.disabled = false;
+      sendButton.disabled = false;
+      sendButton.textContent = "Send";
+      questionInput.focus();
+    }
+  }
+
+  chatForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await handleQuestion(questionInput.value);
+  });
+</script>
+</body>
+</html>

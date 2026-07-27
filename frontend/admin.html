@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Knowledge Assistant — Setup</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="admin.html">
+          <span class="logo">AI</span>
+          <span>AI Knowledge Assistant</span>
+        </a>
+
+        <nav class="nav">
+          <a class="active" href="admin.html">Setup</a>
+          <a href="chat.html">Chat</a>
+          <a href="#" aria-disabled="true">GitHub</a>
+          <span class="badge">Demo</span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>Knowledge Base Setup</h1>
+        <p>
+          Upload PDF, TXT, or Markdown files. Ster will use the indexed content
+          as the source of truth for Aster & Loom customer questions.
+        </p>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="card-body">
+            <h2>Upload documents</h2>
+            <p>Add the files Ster should use when answering customer questions.</p>
+
+            <div id="uploadZone" class="upload-zone">
+              <strong>Drag and drop files here</strong>
+              <span>or choose files from your computer</span>
+
+              <div class="button-row" style="justify-content:center;">
+                <label class="btn btn-secondary" for="fileInput">Choose files</label>
+              </div>
+
+              <input
+                id="fileInput"
+                class="file-input"
+                type="file"
+                multiple
+                accept=".pdf,.txt,.md"
+              />
+
+              <div class="format-row">
+                <span class="format-chip">PDF</span>
+                <span class="format-chip">TXT</span>
+                <span class="format-chip">MD</span>
+              </div>
+            </div>
+
+            <div id="selectedFiles" class="file-list" hidden>
+              <h3>Selected files</h3>
+              <div id="selectedFileRows"></div>
+
+              <div class="button-row">
+                <button id="processButton" class="btn">Process documents</button>
+                <button id="clearButton" class="btn btn-secondary">Clear selection</button>
+              </div>
+            </div>
+
+            <div id="uploadNotice"></div>
+
+            <div id="indexedDocuments" class="file-list" hidden>
+              <h3>Indexed documents</h3>
+              <div id="indexedFileRows"></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="card">
+          <div class="card-body">
+            <h2>Assistant settings</h2>
+            <p>Customer-facing demo configuration.</p>
+
+            <div class="settings-list">
+              <div class="status-row">
+                <span>Company</span>
+                <strong>Aster & Loom</strong>
+              </div>
+
+              <div class="status-row">
+                <span>Assistant</span>
+                <strong>Ster</strong>
+              </div>
+
+              <div class="status-row">
+                <span>Mode</span>
+                <strong>Customer support</strong>
+              </div>
+
+              <div class="status-row">
+                <span>Visible citations</span>
+                <strong>Hidden</strong>
+              </div>
+
+              <div class="status-row">
+                <span>Status</span>
+                <span class="badge badge-success">Ready after upload</span>
+              </div>
+            </div>
+
+            <div class="notice" style="background:#f8fafc;color:#475569;">
+              Sources are still returned by the API for verification, but hidden
+              from the customer chat experience.
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    const uploadZone = document.getElementById("uploadZone");
+    const fileInput = document.getElementById("fileInput");
+    const selectedFiles = document.getElementById("selectedFiles");
+    const selectedFileRows = document.getElementById("selectedFileRows");
+    const processButton = document.getElementById("processButton");
+    const clearButton = document.getElementById("clearButton");
+    const uploadNotice = document.getElementById("uploadNotice");
+    const indexedDocuments = document.getElementById("indexedDocuments");
+    const indexedFileRows = document.getElementById("indexedFileRows");
+
+    let files = [];
+
+    function renderSelectedFiles() {
+      selectedFileRows.innerHTML = "";
+
+      if (files.length === 0) {
+        selectedFiles.hidden = true;
+        return;
+      }
+
+      selectedFiles.hidden = false;
+
+      files.forEach((file, index) => {
+        const row = document.createElement("div");
+        row.className = "file-row";
+
+        row.innerHTML = `
+          <div>
+            <strong>${file.name}</strong>
+            <div class="file-meta">${formatBytes(file.size)}</div>
+          </div>
+          <button class="remove-btn" type="button" data-index="${index}">Remove</button>
+        `;
+
+        selectedFileRows.appendChild(row);
+      });
+
+      document.querySelectorAll(".remove-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          const index = Number(button.dataset.index);
+          files.splice(index, 1);
+          renderSelectedFiles();
+        });
+      });
+    }
+
+    function setNotice(type, message) {
+      uploadNotice.innerHTML = `
+        <div class="notice notice-${type}">
+          ${message}
+        </div>
+      `;
+    }
+
+    function renderIndexedFiles(results) {
+      indexedFileRows.innerHTML = "";
+
+      results.forEach((result) => {
+        const row = document.createElement("div");
+        row.className = "file-row";
+
+        row.innerHTML = `
+          <div>
+            <strong>${result.filename}</strong>
+            <div class="file-meta">${result.documents_loaded} document loaded</div>
+          </div>
+          <span class="badge badge-success">Indexed</span>
+        `;
+
+        indexedFileRows.appendChild(row);
+      });
+
+      indexedDocuments.hidden = false;
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    function addFiles(fileList) {
+      const accepted = Array.from(fileList).filter((file) => {
+        const name = file.name.toLowerCase();
+        return name.endsWith(".pdf") || name.endsWith(".txt") || name.endsWith(".md");
+      });
+
+      files = [...files, ...accepted];
+      renderSelectedFiles();
+
+      if (accepted.length !== fileList.length) {
+        setNotice("error", "Some files were skipped. Only PDF, TXT, and MD files are supported.");
+      }
+    }
+
+    fileInput.addEventListener("change", (event) => {
+      addFiles(event.target.files);
+    });
+
+    uploadZone.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      uploadZone.classList.add("drag-over");
+    });
+
+    uploadZone.addEventListener("dragleave", () => {
+      uploadZone.classList.remove("drag-over");
+    });
+
+    uploadZone.addEventListener("drop", (event) => {
+      event.preventDefault();
+      uploadZone.classList.remove("drag-over");
+      addFiles(event.dataTransfer.files);
+    });
+
+    clearButton.addEventListener("click", () => {
+      files = [];
+      fileInput.value = "";
+      uploadNotice.innerHTML = "";
+      renderSelectedFiles();
+    });
+
+    processButton.addEventListener("click", async () => {
+      if (files.length === 0) {
+        setNotice("error", "Choose at least one document first.");
+        return;
+      }
+
+      processButton.disabled = true;
+      processButton.textContent = "Processing documents...";
+      setNotice("success", "Uploading and indexing documents...");
+
+      try {
+        const result = await uploadDocuments(files);
+
+        storeUploadSummary(result);
+
+        setNotice(
+          "success",
+          `${result.files_processed} documents indexed successfully. You can now open the chat.`
+        );
+
+        renderIndexedFiles(result.results);
+      } catch (error) {
+        setNotice("error", error.message);
+      } finally {
+        processButton.disabled = false;
+        processButton.textContent = "Process documents";
+      }
+    });
+  </script>
+</body>
+</html>
