@@ -1,0 +1,14 @@
+{
+  "company_name": "Aster & Loom",
+  "assistant": {
+    "name": "Ster",
+    "role": "Customer Care Assistant"
+  },
+  "greeting": {
+    "enabled": true,
+    "message": "Hello, I'm Ster from Aster & Loom. How can I help you today?"
+  },
+  "assistant_mode": "customer_support",
+  "refusal_message": "I could not find enough information to answer that confidently."
+  
+}

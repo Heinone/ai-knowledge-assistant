@@ -7,22 +7,27 @@ load_dotenv()
 from llama_index.llms.openai import OpenAI
 
 from app.llm.openai_provider import OpenAIProvider
-from app.config import VECTOR_STORE, COMPANY_NAME, ENABLE_GREETING
+from app.config.env_config import VECTOR_STORE
+from app.config.company_config import load_company_config
 from app.services.session_service import should_send_greeting
 from app.services.answer_validation_service import validate_answer
 from app.services.ingestion_service import get_index
 from app.services.prompt_builder import build_rag_prompt
 from app.services.usage_service import record_usage
 from app.vector_store.supabase_store import SupabaseVectorStore
-from app.constants import REFUSAL_TEXT
 
 MIN_SOURCE_SCORE = 0.30
 
 
 def _with_optional_greeting(answer: str) -> str:
-    if ENABLE_GREETING and should_send_greeting():
+    company = load_company_config()
+
+    greeting = company.get("greeting", {})
+
+    if greeting.get("enabled") and should_send_greeting():
         return (
-            f"Hello, welcome to {COMPANY_NAME} chat. I'm your AI assistant.\n\n"
+            greeting.get("message", "")
+            + "\n\n"
             + answer
         )
 
@@ -34,6 +39,9 @@ def _answer_with_sources(
     sources: list[dict],
     retrieval_ms: float | None = None,
 ) -> dict:
+
+    company = load_company_config()
+
     total_start = time.perf_counter()
 
     top_score = sources[0]["score"] if sources else None
@@ -55,7 +63,7 @@ def _answer_with_sources(
             }
         )
 
-        answer = REFUSAL_TEXT
+        answer = company["refusal_message"]
 
         return {
             "answer": _with_optional_greeting(answer),
@@ -65,7 +73,7 @@ def _answer_with_sources(
     prompt = build_rag_prompt(
         question=question,
         context_chunks=sources,
-        company_name=COMPANY_NAME,
+        company_name=company["company_name"],
     )
 
     provider = OpenAIProvider()
@@ -257,13 +265,13 @@ def stream_answer_question(question: str):
     top_score = sources[0]["score"] if sources else None
 
     if top_score is None or top_score < MIN_SOURCE_SCORE:
-        yield REFUSAL_TEXT
+        yield company["refusal_message"]
         return
 
     prompt = build_rag_prompt(
         question=question,
         context_chunks=sources,
-        company_name=COMPANY_NAME,
+        company_name=company["company_name"],
     )
 
     provider = OpenAIProvider()
