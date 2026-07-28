@@ -59,7 +59,9 @@
 
       // Apply configuration
 
-      document.title = COMPANY_CONFIG.pageTitle;
+      await loadCompanyConfig();
+
+      document.title = `${COMPANY_CONFIG.company_name} — ${COMPANY_CONFIG.assistant.title}`;
 
       document.getElementById("pageTitle").textContent =
         COMPANY_CONFIG.pageTitle;

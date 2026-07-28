@@ -1,30 +1,50 @@
-const COMPANY_CONFIG = {
-  companyName: "Aster & Loom",
+let COMPANY_CONFIG = null;
 
-  assistantName: "Ster",
-  assistantRole: "Customer Care",
+async function loadCompanyConfig() {
+  const response = await fetch(
+    "../data/company/company.json"
+  );
 
-  logoText: "S",
+  if (!response.ok) {
+    throw new Error("Could not load company configuration");
+  }
 
-  mode: "Customer support",
+  COMPANY_CONFIG = await response.json();
 
-  pageTitle: "Aster & Loom — Customer Assistant",
+  applyBranding();
 
-  chatTitle: "Aster & Loom Customer Care",
+  return COMPANY_CONFIG;
+}
 
-  chatSubtitle:
-    "Ask about products, materials, production, shipping, returns, or availability.",
+function applyBranding() {
+  const colors = COMPANY_CONFIG.branding?.colors;
 
-  welcomeMessage:
-    "Hello, thank you for considering Aster & Loom. I'm Ster, your AI assistant. How can I help you today?",
+  if (!colors) {
+    return;
+  }
 
-  loadingMessage: "One moment — I'm checking the available information...",
+  document.documentElement.style.setProperty(
+    "--primary-color",
+    colors.primary
+  );
 
-  fallbackMessage:
-    "I don't have enough information about that. You can ask about products, materials, manufacturing, shipping, returns, or other company information.",
+  document.documentElement.style.setProperty(
+    "--secondary-color",
+    colors.secondary
+  );
 
-  uploadDescription:
-    "Upload PDF, TXT, or Markdown files. The assistant will use indexed content as the source of truth for customer questions.",
+  document.documentElement.style.setProperty(
+    "--accent-color",
+    colors.accent
+  );
 
-  visibleCitations: "Hidden",
-};
+  document.documentElement.style.setProperty(
+    "--background-color",
+    colors.background
+  );
+
+  document.documentElement.style.setProperty(
+    "--text-color",
+    colors.text
+  );
+}

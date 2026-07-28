@@ -1,0 +1,95 @@
+{
+  "company_id": "vertex_systems",
+  "company_name": "Vertex Systems",
+  "description": "A technology company building enterprise software solutions and internal engineering platforms.",
+  "industry": "Software and technology",
+  "website": "https://example.com",
+  "locations": [
+    "Helsinki, Finland"
+  ],
+
+  "assistant": {
+    "name": "Vertex AI",
+    "title": "Internal Knowledge Assistant",
+    "default_language": "English",
+    "supported_languages": [
+      "English"
+    ]
+  },
+
+  "modes": {
+    "customer_support": {
+      "enabled": false,
+      "default": false
+    },
+    "internal_knowledge": {
+      "enabled": true,
+      "default": true
+    }
+  },
+
+  "branding": {
+    "assets": {
+      "logo": "logo.png",
+      "favicon": "favicon.ico",
+      "assistant_avatar": "assistant_avatar.png"
+    },
+    "colors": {
+      "primary": "#0F172A",
+      "secondary": "#334155",
+      "accent": "#38BDF8",
+      "background": "#F8FAFC",
+      "text": "#111827"
+    },
+    "fonts": {
+      "heading": "Inter",
+      "body": "Inter"
+    },
+    "ui_theme": "technical"
+  },
+
+  "conversation": {
+    "tone": "professional and direct",
+    "response_length": "concise",
+    "emoji_usage": "never",
+    "formality_level": "professional",
+    "greeting": {
+      "enabled": true,
+      "message": "Hello, I'm Vertex AI, your internal knowledge assistant. How can I help?"
+    }
+  },
+
+  "internal_knowledge": {
+    "enabled": true,
+    "chat_headline": "Vertex Systems Internal Knowledge Base",
+    "chat_description": "Find company procedures, technical documentation, engineering knowledge, and internal processes.",
+    "placeholder": "Ask about internal processes, documentation, or company information...",
+    "loading_message": "Searching Vertex Systems knowledge base...",
+    "support_contacts": {
+      "name": "Internal Helpdesk",
+      "email": "helpdesk@example.com",
+      "phone": "+358 10 123 4567"
+    },
+    "escalation_contacts": {
+      "name": "Engineering Operations",
+      "email": "engineering-ops@example.com"
+    },
+    "fallback_message": "I could not find enough information in the knowledge base to answer this confidently."
+  },
+
+  "prompts": {
+    "internal_knowledge": "internal_knowledge.txt"
+  },
+
+  "knowledge_bases": {
+    "internal_knowledge": {
+      "documents_path": "documents/internal_knowledge"
+    }
+  },
+
+  "visibility": {
+    "internal_knowledge": {
+      "show_citations": true
+    }
+  }
+}
