@@ -50,183 +50,196 @@
     <script src="api.js"></script>
 
     <script>
-      const messages = document.getElementById("messages");
-      const chatForm = document.getElementById("chatForm");
-      const questionInput = document.getElementById("questionInput");
-      const sendButton = document.getElementById("sendButton");
+            const messages = document.getElementById("messages");
+            const chatForm = document.getElementById("chatForm");
+            const questionInput = document.getElementById("questionInput");
+            const sendButton = document.getElementById("sendButton");
 
-      const conversationHistory = [];
+            const conversationHistory = [];
 
-      // Apply configuration
+            async function initializeChat() {
+              await loadCompanyConfig();
 
-      await loadCompanyConfig();
+        document.title =
+          `${COMPANY_CONFIG.company_name} — ${COMPANY_CONFIG.assistant.title}`;
 
-      document.title = `${COMPANY_CONFIG.company_name} — ${COMPANY_CONFIG.assistant.title}`;
+        document.getElementById("pageTitle").textContent =
+          document.title;
 
-      document.getElementById("pageTitle").textContent =
-        COMPANY_CONFIG.pageTitle;
+        document.getElementById("logo").textContent =
+          COMPANY_CONFIG.company_name.charAt(0);
 
-      document.getElementById("logo").textContent = COMPANY_CONFIG.logoText;
+        document.getElementById("assistantBrand").textContent =
+          `${COMPANY_CONFIG.assistant.name} by ${COMPANY_CONFIG.company_name}`;
 
-      document.getElementById("assistantBrand").textContent =
-        `${COMPANY_CONFIG.assistantName} by ${COMPANY_CONFIG.companyName}`;
+        document.getElementById("chatTitle").textContent =
+          COMPANY_CONFIG.customer_support.chat_headline;
 
-      document.getElementById("chatTitle").textContent =
-        `${COMPANY_CONFIG.companyName} ${COMPANY_CONFIG.assistantRole}`;
+        document.getElementById("chatSubtitle").textContent =
+          COMPANY_CONFIG.customer_support.chat_description;
 
-      document.getElementById("chatSubtitle").textContent =
-        COMPANY_CONFIG.chatSubtitle;
+        questionInput.placeholder =
+          COMPANY_CONFIG.customer_support.placeholder;
 
-      addMessage("assistant", COMPANY_CONFIG.welcomeMessage);
+              if (
+              COMPANY_CONFIG.conversation?.greeting?.enabled
+            ) {
+              addMessage(
+                "assistant",
+                COMPANY_CONFIG.conversation.greeting.message
+              );
+            }
 
-      window.addEventListener("load", () => {
-        questionInput.focus();
-      });
+      initializeChat();
 
-      function addMessage(role, text) {
-        const message = document.createElement("div");
+            window.addEventListener("load", () => {
+              questionInput.focus();
+            });
 
-        message.className = `customer-message ${role}`;
-        message.textContent = text;
+            function addMessage(role, text) {
+              const message = document.createElement("div");
 
-        messages.appendChild(message);
-        messages.scrollTop = messages.scrollHeight;
-      }
+              message.className = `customer-message ${role}`;
+              message.textContent = text;
 
-      function addLoadingMessage() {
-        const message = document.createElement("div");
+              messages.appendChild(message);
+              messages.scrollTop = messages.scrollHeight;
+            }
 
-        message.className = "customer-message assistant loading";
-        message.id = "loadingMessage";
-        message.textContent = COMPANY_CONFIG.loadingMessage;
+            function addLoadingMessage() {
+              const message = document.createElement("div");
 
-        messages.appendChild(message);
-        messages.scrollTop = messages.scrollHeight;
-      }
+              message.className = "customer-message assistant loading";
+              message.id = "loadingMessage";
+              message.textContent = COMPANY_CONFIG.customer_support.loading_message;
 
-      function removeLoadingMessage() {
-        const loading = document.getElementById("loadingMessage");
+              messages.appendChild(message);
+              messages.scrollTop = messages.scrollHeight;
+            }
 
-        if (loading) {
-          loading.remove();
-        }
-      }
+            function removeLoadingMessage() {
+              const loading = document.getElementById("loadingMessage");
 
-      function buildContextualQuestion(currentQuestion) {
-        const lower = currentQuestion.toLowerCase();
+              if (loading) {
+                loading.remove();
+              }
+            }
 
-        const followUpPatterns = [
-          "it",
-          "that",
-          "this",
-          "they",
-          "them",
-          "those",
-          "what about",
-          "how about",
-          "tell me more",
-          "more about",
-          "what kind",
-          "which one",
-          "is it",
-          "are they",
-        ];
+            function buildContextualQuestion(currentQuestion) {
+              const lower = currentQuestion.toLowerCase();
 
-        const looksLikeFollowUp = followUpPatterns.some((pattern) =>
-          lower.includes(pattern),
-        );
+              const followUpPatterns = [
+                "it",
+                "that",
+                "this",
+                "they",
+                "them",
+                "those",
+                "what about",
+                "how about",
+                "tell me more",
+                "more about",
+                "what kind",
+                "which one",
+                "is it",
+                "are they",
+              ];
 
-        if (!looksLikeFollowUp || conversationHistory.length === 0) {
-          return currentQuestion;
-        }
+              const looksLikeFollowUp = followUpPatterns.some((pattern) =>
+                lower.includes(pattern),
+              );
 
-        const recentHistory = conversationHistory
-          .slice(-2)
-          .map((message) => `${message.role}: ${message.text}`)
-          .join("\n");
+              if (!looksLikeFollowUp || conversationHistory.length === 0) {
+                return currentQuestion;
+              }
 
-        return `
-Conversation so far:
-${recentHistory}
+              const recentHistory = conversationHistory
+                .slice(-2)
+                .map((message) => `${message.role}: ${message.text}`)
+                .join("\n");
 
-Customer's latest question:
-${currentQuestion}
+              return `
+      Conversation so far:
+      ${recentHistory}
 
-Answer the latest customer question using the available knowledge base.
+      Latest user question:
+      ${currentQuestion}
 
-Use the conversation only to understand references such as "it", "that", or "they".
-`.trim();
-      }
+      Answer the latest user question using the available knowledge base.
 
-      function customerFriendlyAnswer(answer) {
-        const refusal =
-          "I could not find enough information to answer that confidently.";
+      Use the conversation only to understand references such as "it", "that", or "they".
+      `.trim();
+            }
 
-        if (answer.trim() === refusal) {
-          return COMPANY_CONFIG.fallbackMessage;
-        }
+            function customerFriendlyAnswer(answer) {
+              const refusal =
+                "I could not find enough information to answer that confidently.";
 
-        return answer;
-      }
+              if (answer.trim() === refusal) {
+                return COMPANY_CONFIG.customer_support.fallback_message;
+              }
 
-      async function handleQuestion(question) {
-        const cleanQuestion = question.trim();
+              return answer;
+            }
 
-        if (!cleanQuestion) {
-          return;
-        }
+            async function handleQuestion(question) {
+              const cleanQuestion = question.trim();
 
-        addMessage("user", cleanQuestion);
+              if (!cleanQuestion) {
+                return;
+              }
 
-        conversationHistory.push({
-          role: "Customer",
-          text: cleanQuestion,
-        });
+              addMessage("user", cleanQuestion);
 
-        questionInput.value = "";
-        questionInput.disabled = true;
-        sendButton.disabled = true;
-        sendButton.textContent = "Sending";
+              conversationHistory.push({
+                role: "User",
+                text: cleanQuestion,
+              });
 
-        addLoadingMessage();
+              questionInput.value = "";
+              questionInput.disabled = true;
+              sendButton.disabled = true;
+              sendButton.textContent = "Sending";
 
-        try {
-          const contextualQuestion = buildContextualQuestion(cleanQuestion);
+              addLoadingMessage();
 
-          const result = await askQuestion(contextualQuestion);
+              try {
+                const contextualQuestion = buildContextualQuestion(cleanQuestion);
 
-          const cleanAnswer = customerFriendlyAnswer(
-            result.answer || "I could not answer that question.",
-          );
+                const result = await askQuestion(contextualQuestion);
 
-          removeLoadingMessage();
+                const cleanAnswer = customerFriendlyAnswer(
+                  result.answer || "I could not answer that question.",
+                );
 
-          addMessage("assistant", cleanAnswer);
+                removeLoadingMessage();
 
-          conversationHistory.push({
-            role: COMPANY_CONFIG.assistantName,
-            text: cleanAnswer,
-          });
-        } catch (error) {
-          removeLoadingMessage();
+                addMessage("assistant", cleanAnswer);
 
-          addMessage(
-            "assistant",
-            "Sorry, something went wrong while answering. Please try again.",
-          );
-        } finally {
-          questionInput.disabled = false;
-          sendButton.disabled = false;
-          sendButton.textContent = "Send";
-          questionInput.focus();
-        }
-      }
+                conversationHistory.push({
+                  role: COMPANY_CONFIG.assistant.name,
+                  text: cleanAnswer,
+                });
+              } catch (error) {
+                removeLoadingMessage();
 
-      chatForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+                addMessage(
+                  "assistant",
+                  "Sorry, something went wrong while answering. Please try again.",
+                );
+              } finally {
+                questionInput.disabled = false;
+                sendButton.disabled = false;
+                sendButton.textContent = "Send";
+                questionInput.focus();
+              }
+            }
 
-        await handleQuestion(questionInput.value);
-      });
+            chatForm.addEventListener("submit", async (event) => {
+              event.preventDefault();
+
+              await handleQuestion(questionInput.value);
+            });
     </script>
   </body>
 </html>
