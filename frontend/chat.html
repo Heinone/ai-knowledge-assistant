@@ -57,29 +57,49 @@
 
             const conversationHistory = [];
 
+              let activeMode;
+
+
+            function getActiveMode() {
+              const params = new URLSearchParams(window.location.search);
+
+              const requestedMode = params.get("mode");
+
+              if (
+                requestedMode &&
+                COMPANY_CONFIG.modes[requestedMode]?.enabled
+              ) {
+                return requestedMode;
+              }
+
+              return COMPANY_CONFIG.default_mode;
+            }
+
             async function initializeChat() {
               await loadCompanyConfig();
 
-        document.title =
-          `${COMPANY_CONFIG.company_name} — ${COMPANY_CONFIG.assistant.title}`;
+              activeMode = getActiveMode();
 
-        document.getElementById("pageTitle").textContent =
-          document.title;
+              document.title =
+                `${COMPANY_CONFIG.company_name} — ${COMPANY_CONFIG.assistant.title}`;
 
-        document.getElementById("logo").textContent =
-          COMPANY_CONFIG.company_name.charAt(0);
+              document.getElementById("pageTitle").textContent =
+                document.title;
 
-        document.getElementById("assistantBrand").textContent =
-          `${COMPANY_CONFIG.assistant.name} by ${COMPANY_CONFIG.company_name}`;
+              document.getElementById("logo").textContent =
+                COMPANY_CONFIG.company_name.charAt(0);
 
-        document.getElementById("chatTitle").textContent =
-          COMPANY_CONFIG.customer_support.chat_headline;
+              document.getElementById("assistantBrand").textContent =
+                `${COMPANY_CONFIG.assistant.name} by ${COMPANY_CONFIG.company_name}`;
 
-        document.getElementById("chatSubtitle").textContent =
-          COMPANY_CONFIG.customer_support.chat_description;
+              document.getElementById("chatTitle").textContent =
+                COMPANY_CONFIG[activeMode].chat_headline;
 
-        questionInput.placeholder =
-          COMPANY_CONFIG.customer_support.placeholder;
+              document.getElementById("chatSubtitle").textContent =
+                COMPANY_CONFIG[activeMode].chat_description;
+
+              questionInput.placeholder =
+                COMPANY_CONFIG[activeMode].placeholder;
 
               if (
               COMPANY_CONFIG.conversation?.greeting?.enabled
@@ -89,7 +109,7 @@
                 COMPANY_CONFIG.conversation.greeting.message
               );
             }
-
+      }
       initializeChat();
 
             window.addEventListener("load", () => {
@@ -111,7 +131,7 @@
 
               message.className = "customer-message assistant loading";
               message.id = "loadingMessage";
-              message.textContent = COMPANY_CONFIG.customer_support.loading_message;
+              message.textContent = COMPANY_CONFIG[activeMode].loading_message;
 
               messages.appendChild(message);
               messages.scrollTop = messages.scrollHeight;
@@ -176,7 +196,7 @@
                 "I could not find enough information to answer that confidently.";
 
               if (answer.trim() === refusal) {
-                return COMPANY_CONFIG.customer_support.fallback_message;
+                return COMPANY_CONFIG[activeMode].fallback_message;
               }
 
               return answer;

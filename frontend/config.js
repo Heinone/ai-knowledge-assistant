@@ -1,7 +1,7 @@
 let COMPANY_CONFIG = null;
 
 async function loadCompanyConfig() {
-  const response = await fetch("../data/company/company.json");
+  const response = await fetch("http://localhost:8000/config/company.json");
 
   if (!response.ok) {
     throw new Error("Could not load company configuration");
@@ -21,19 +21,28 @@ function applyBranding() {
     return;
   }
 
-  document.documentElement.style.setProperty("--primary-color", colors.primary);
+  document.documentElement.style.setProperty(
+    "--primary",
+    colors.primary,
+  );
 
   document.documentElement.style.setProperty(
-    "--secondary-color",
+    "--secondary",
     colors.secondary,
   );
 
-  document.documentElement.style.setProperty("--accent-color", colors.accent);
+  document.documentElement.style.setProperty(
+    "--accent",
+    colors.accent,
+  );
 
   document.documentElement.style.setProperty(
-    "--background-color",
+    "--bg",
     colors.background,
   );
 
-  document.documentElement.style.setProperty("--text-color", colors.text);
+  document.documentElement.style.setProperty(
+    "--text",
+    colors.text,
+  );
 }

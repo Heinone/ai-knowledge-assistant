@@ -3,23 +3,22 @@
   "company_name": "Aster & Loom",
   "description": "A premium sustainable clothing company focused on timeless garments, responsible materials, and transparent production.",
   "industry": "Fashion and apparel",
-
   "assistant": {
     "name": "Ster",
     "title": "AI Assistant",
     "default_language": "English"
   },
-
   "modes": {
     "customer_support": {
       "enabled": true,
       "default": true
     },
     "internal_knowledge": {
-      "enabled": false
+      "enabled": false,
+      "default": false
     }
   },
-
+  "default_mode": "customer_support",
   "branding": {
     "assets": {
       "logo": "logo.png",
@@ -39,7 +38,6 @@
     },
     "ui_theme": "premium"
   },
-
   "conversation": {
     "tone": "friendly and helpful",
     "response_length": "concise",
@@ -49,7 +47,6 @@
       "message": "Hello, I'm Ster from Aster & Loom. How can I help you today?"
     }
   },
-
   "customer_support": {
     "chat_headline": "Aster & Loom Customer Care",
     "chat_description": "Find information about our products, materials, production, policies, care instructions, and latest collections.",
@@ -70,20 +67,20 @@
     },
     "fallback_message": "I could not find enough information to answer that confidently."
   },
-
   "prompts": {
     "customer_support": "customer_support.txt"
   },
-
   "knowledge_bases": {
     "customer_support": {
       "documents_path": "documents/customer_support"
     }
   },
-
   "visibility": {
     "customer_support": {
       "show_citations": false
+    },
+    "internal_knowledge": {
+        "show_citations": true
     }
   }
 }

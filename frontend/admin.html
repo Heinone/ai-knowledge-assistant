@@ -31,7 +31,10 @@
         <section class="hero">
           <h1>Knowledge Base Setup</h1>
 
-          <p id="uploadDescription"></p>
+          <p>
+            Upload PDF, TXT, or Markdown files. The assistant will use indexed
+            content as its knowledge source.
+          </p>
         </section>
 
         <section class="grid">
@@ -101,7 +104,7 @@
             <div class="card-body">
               <h2>Assistant settings</h2>
 
-              <p>Customer-facing configuration.</p>
+              <p>Current assistant configuration</p>
 
               <div class="settings-list">
                 <div class="status-row">
@@ -145,37 +148,181 @@
     <script src="api.js"></script>
 
     <script>
-      document.getElementById("logo").textContent = COMPANY_CONFIG.logoText;
-
-      document.getElementById("assistantBrand").textContent =
-        `${COMPANY_CONFIG.assistantName} by ${COMPANY_CONFIG.companyName}`;
-
-      document.getElementById("uploadDescription").textContent =
-        COMPANY_CONFIG.uploadDescription;
-
-      document.getElementById("companyName").textContent =
-        COMPANY_CONFIG.companyName;
-
-      document.getElementById("assistantName").textContent =
-        COMPANY_CONFIG.assistantName;
-
-      document.getElementById("assistantMode").textContent =
-        COMPANY_CONFIG.mode;
-
-      document.getElementById("citationMode").textContent =
-        COMPANY_CONFIG.visibleCitations;
-
-      const uploadZone = document.getElementById("uploadZone");
-      const fileInput = document.getElementById("fileInput");
-      const selectedFiles = document.getElementById("selectedFiles");
-      const selectedFileRows = document.getElementById("selectedFileRows");
-      const processButton = document.getElementById("processButton");
-      const clearButton = document.getElementById("clearButton");
-      const uploadNotice = document.getElementById("uploadNotice");
-      const indexedDocuments = document.getElementById("indexedDocuments");
-      const indexedFileRows = document.getElementById("indexedFileRows");
-
       let files = [];
+
+      async function startAdmin() {
+        try {
+          await initializeAdmin();
+          initializeUpload();
+        } catch (error) {
+          console.error("Admin initialization failed:", error);
+
+          document.body.insertAdjacentHTML(
+            "afterbegin",
+            `
+      <div class="notice notice-error">
+        Could not load company configuration.
+      </div>
+      `,
+          );
+        }
+      }
+
+      startAdmin();
+
+      async function initializeAdmin() {
+        await loadCompanyConfig();
+
+        const enabledModes = Object.keys(COMPANY_CONFIG.modes)
+          .filter((mode) => COMPANY_CONFIG.modes[mode].enabled)
+          .join(", ");
+
+        document.getElementById("logo").textContent =
+          COMPANY_CONFIG.company_name.charAt(0);
+
+        document.getElementById("assistantBrand").textContent =
+          `${COMPANY_CONFIG.assistant.name} by ${COMPANY_CONFIG.company_name}`;
+
+        document.getElementById("companyName").textContent =
+          COMPANY_CONFIG.company_name;
+
+        document.getElementById("assistantName").textContent =
+          COMPANY_CONFIG.assistant.name;
+
+        document.getElementById("assistantMode").textContent = enabledModes;
+
+        const currentVisibility =
+          COMPANY_CONFIG.visibility?.[COMPANY_CONFIG.default_mode];
+
+        document.getElementById("citationMode").textContent =
+          currentVisibility?.show_citations ? "Visible" : "Hidden";
+      }
+
+      function initializeUpload() {
+        const uploadZone = document.getElementById("uploadZone");
+        const fileInput = document.getElementById("fileInput");
+        const selectedFiles = document.getElementById("selectedFiles");
+        const selectedFileRows = document.getElementById("selectedFileRows");
+        const processButton = document.getElementById("processButton");
+        const clearButton = document.getElementById("clearButton");
+        const uploadNotice = document.getElementById("uploadNotice");
+        const indexedDocuments = document.getElementById("indexedDocuments");
+        const indexedFileRows = document.getElementById("indexedFileRows");
+
+        let dragCounter = 0;
+
+        // Prevent browser opening files outside the upload area
+        document.body.addEventListener(
+          "dragover",
+          (event) => {
+            event.preventDefault();
+          },
+          false,
+        );
+
+        document.body.addEventListener(
+          "drop",
+          (event) => {
+            if (!uploadZone.contains(event.target)) {
+              event.preventDefault();
+            }
+          },
+          false,
+        );
+
+        // Upload zone handlers
+        uploadZone.addEventListener("dragenter", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          dragCounter++;
+
+          uploadZone.classList.add("drag-over");
+        });
+
+        uploadZone.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          uploadZone.classList.add("drag-over");
+        });
+
+        uploadZone.addEventListener("dragleave", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          dragCounter--;
+
+          if (dragCounter <= 0) {
+            dragCounter = 0;
+            uploadZone.classList.remove("drag-over");
+          }
+        });
+
+        uploadZone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          dragCounter = 0;
+
+          uploadZone.classList.remove("drag-over");
+
+          console.log("Upload drop:", event.dataTransfer.files);
+
+          addFiles(event.dataTransfer.files);
+
+          setNotice(
+            "success",
+            `${event.dataTransfer.files.length} file(s) selected.`,
+          );
+        });
+        fileInput.addEventListener("change", (event) => {
+          addFiles(event.target.files);
+        });
+
+        clearButton.addEventListener("click", () => {
+          files = [];
+
+          fileInput.value = "";
+
+          uploadNotice.innerHTML = "";
+
+          renderSelectedFiles();
+        });
+
+        processButton.addEventListener("click", async () => {
+          if (files.length === 0) {
+            setNotice("error", "Choose at least one document first.");
+
+            return;
+          }
+
+          processButton.disabled = true;
+
+          processButton.textContent = "Processing documents...";
+
+          setNotice("success", "Uploading and indexing documents...");
+
+          try {
+            const result = await uploadDocuments(files);
+
+            storeUploadSummary(result);
+
+            setNotice(
+              "success",
+              `${result.files_processed} documents indexed successfully. You can now open the chat.`,
+            );
+
+            renderIndexedFiles(result.results);
+          } catch (error) {
+            setNotice("error", error.message);
+          } finally {
+            processButton.disabled = false;
+
+            processButton.textContent = "Process documents";
+          }
+        });
+      }
 
       function renderSelectedFiles() {
         selectedFileRows.innerHTML = "";
@@ -290,71 +437,6 @@
           );
         }
       }
-
-      fileInput.addEventListener("change", (event) => {
-        addFiles(event.target.files);
-      });
-
-      uploadZone.addEventListener("dragover", (event) => {
-        event.preventDefault();
-
-        uploadZone.classList.add("drag-over");
-      });
-
-      uploadZone.addEventListener("dragleave", () => {
-        uploadZone.classList.remove("drag-over");
-      });
-
-      uploadZone.addEventListener("drop", (event) => {
-        event.preventDefault();
-
-        uploadZone.classList.remove("drag-over");
-
-        addFiles(event.dataTransfer.files);
-      });
-
-      clearButton.addEventListener("click", () => {
-        files = [];
-
-        fileInput.value = "";
-
-        uploadNotice.innerHTML = "";
-
-        renderSelectedFiles();
-      });
-
-      processButton.addEventListener("click", async () => {
-        if (files.length === 0) {
-          setNotice("error", "Choose at least one document first.");
-
-          return;
-        }
-
-        processButton.disabled = true;
-
-        processButton.textContent = "Processing documents...";
-
-        setNotice("success", "Uploading and indexing documents...");
-
-        try {
-          const result = await uploadDocuments(files);
-
-          storeUploadSummary(result);
-
-          setNotice(
-            "success",
-            `${result.files_processed} documents indexed successfully. You can now open the chat.`,
-          );
-
-          renderIndexedFiles(result.results);
-        } catch (error) {
-          setNotice("error", error.message);
-        } finally {
-          processButton.disabled = false;
-
-          processButton.textContent = "Process documents";
-        }
-      });
     </script>
   </body>
 </html>

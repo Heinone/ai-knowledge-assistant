@@ -12,7 +12,13 @@ def validate_answer(
 ) -> dict:
 
     company = load_company_config()
-    refusal_message = company["refusal_message"]
+    refusal_message = (
+    company.get("customer_support", {})
+    .get(
+        "fallback_message",
+        "I could not find enough information to answer that confidently."
+    )
+)
 
     if not answer.strip():
         return {

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import health, chat, ingest, usage, documents
+from app.routes import health, chat, ingest, usage, documents, config
 
 app = FastAPI(title="Business Knowledge Base Agent")
 
@@ -22,3 +22,4 @@ app.include_router(chat.router)
 app.include_router(ingest.router)
 app.include_router(documents.router)
 app.include_router(usage.router)
+app.include_router(config.router)
