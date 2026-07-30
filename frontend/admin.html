@@ -45,10 +45,7 @@
           <section class="answerly-intro">
             <h1>Welcome to Answer.ly</h1>
 
-            <p>
-              Set up your company, upload your knowledge documents, and choose
-              how your AI assistant should behave.
-            </p>
+            <p>Your custom AI assistant setup in five minutes!</p>
           </section>
 
           <section class="answerly-setup-panel">
@@ -149,21 +146,205 @@
                   </div>
                   <div id="companyFormNotice"></div>
 
-<div class="form-actions">
-  <button class="btn" type="submit">
-    Create my assistant
-  </button>
-</div>
+                  <div class="form-actions">
+                    <button class="btn" type="submit">
+                      Create my assistant
+                    </button>
+                  </div>
                 </form>
-                <section id="extendedCompanySection" class="extended-company-section" hidden>
-  <h3>Extended company information</h3>
-  <p>
-    Basic company information completed. Additional customisation options will
-    appear here.
-  </p>
-</section>
               </div>
             </div>
+
+            <section
+              id="extendedCompanySection"
+              class="card extended-company-section"
+              hidden
+            >
+              <div class="card-body">
+                <div class="extended-section-heading">
+                  <h2>
+                    Customise your Answer.ly chat with your company branding
+                  </h2>
+
+                  <p>
+                    Add your logo and choose the colours used in the admin page
+                    and chat. These settings are optional.
+                  </p>
+                </div>
+
+                <div class="branding-section">
+                  <h3>Brand assets</h3>
+
+                  <div class="asset-grid">
+                    <div class="asset-field">
+                      <label for="companyLogoInput">Company logo</label>
+
+                      <input
+                        id="companyLogoInput"
+                        name="company_logo"
+                        type="file"
+                        accept=".png,.jpg,.jpeg,.webp"
+                      />
+
+                      <small>
+                        PNG, JPG, JPEG, or WebP. A wide or square logo works
+                        best.
+                      </small>
+                    </div>
+
+                    <div class="asset-field">
+                      <label for="companyFaviconInput">Favicon</label>
+
+                      <input
+                        id="companyFaviconInput"
+                        name="company_favicon"
+                        type="file"
+                        accept=".png,.ico"
+                      />
+
+                      <small>
+                        PNG or ICO. A square image is recommended.
+                      </small>
+                    </div>
+
+                    <div class="asset-field">
+                      <label for="assistantAvatarInput">Assistant avatar</label>
+
+                      <input
+                        id="assistantAvatarInput"
+                        name="assistant_avatar"
+                        type="file"
+                        accept=".png,.jpg,.jpeg,.webp"
+                      />
+
+                      <small>
+                        PNG, JPG, JPEG, or WebP. A square image works best.
+                      </small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="branding-section">
+                  <h3>Brand colours</h3>
+
+                  <p class="section-description">
+                    Choose a colour or enter a hexadecimal colour code.
+                  </p>
+
+                  <div class="color-grid">
+                    <div class="color-field">
+                      <label for="primaryColorText">Primary</label>
+
+                      <div class="color-control">
+                        <input
+                          id="primaryColorPicker"
+                          type="color"
+                          value="#12343B"
+                          aria-label="Choose primary colour"
+                        />
+
+                        <input
+                          id="primaryColorText"
+                          name="primary_color"
+                          type="text"
+                          value="#12343B"
+                          maxlength="7"
+                          inputmode="text"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="color-field">
+                      <label for="secondaryColorText">Secondary</label>
+
+                      <div class="color-control">
+                        <input
+                          id="secondaryColorPicker"
+                          type="color"
+                          value="#F8F7F3"
+                          aria-label="Choose secondary colour"
+                        />
+
+                        <input
+                          id="secondaryColorText"
+                          name="secondary_color"
+                          type="text"
+                          value="#F8F7F3"
+                          maxlength="7"
+                          inputmode="text"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="color-field">
+                      <label for="accentColorText">Accent</label>
+
+                      <div class="color-control">
+                        <input
+                          id="accentColorPicker"
+                          type="color"
+                          value="#2EC4B6"
+                          aria-label="Choose accent colour"
+                        />
+
+                        <input
+                          id="accentColorText"
+                          name="accent_color"
+                          type="text"
+                          value="#2EC4B6"
+                          maxlength="7"
+                          inputmode="text"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="color-field">
+                      <label for="backgroundColorText">Background</label>
+
+                      <div class="color-control">
+                        <input
+                          id="backgroundColorPicker"
+                          type="color"
+                          value="#F8FAFC"
+                          aria-label="Choose background colour"
+                        />
+
+                        <input
+                          id="backgroundColorText"
+                          name="background_color"
+                          type="text"
+                          value="#F8FAFC"
+                          maxlength="7"
+                          inputmode="text"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="color-field">
+                      <label for="textColorText">Text</label>
+
+                      <div class="color-control">
+                        <input
+                          id="textColorPicker"
+                          type="color"
+                          value="#111827"
+                          aria-label="Choose text colour"
+                        />
+
+                        <input
+                          id="textColorText"
+                          name="text_color"
+                          type="text"
+                          value="#111827"
+                          maxlength="7"
+                          inputmode="text"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
           </section>
         </div>
 
@@ -299,10 +480,11 @@
           await initializeAdmin();
 
           if (CONFIG_STATUS?.has_active_company === true) {
-  initializeUpload();
-} else {
-  initializeCompanySetupForm();
-}
+            initializeUpload();
+          } else {
+            initializeCompanySetupForm();
+            initializeBrandingFields();
+          }
         } catch (error) {
           console.error("Admin initialization failed:", error);
 
@@ -406,58 +588,104 @@
       }
 
       function initializeCompanySetupForm() {
-  const form = document.getElementById("companySetupForm");
-  const extendedSection = document.getElementById(
-    "extendedCompanySection",
-  );
+        const form = document.getElementById("companySetupForm");
+        const extendedSection = document.getElementById(
+          "extendedCompanySection",
+        );
 
-  const requiredFields = Array.from(
-    form.querySelectorAll("[required]"),
-  );
+        const requiredFields = Array.from(form.querySelectorAll("[required]"));
 
-  requiredFields.forEach((field) => {
-    const clearInvalidState = () => {
-      if (field.checkValidity()) {
-        field.classList.remove("field-invalid");
-        field.removeAttribute("aria-invalid");
+        requiredFields.forEach((field) => {
+          const clearInvalidState = () => {
+            if (field.checkValidity()) {
+              field.classList.remove("field-invalid");
+              field.removeAttribute("aria-invalid");
+            }
+          };
+
+          field.addEventListener("input", clearInvalidState);
+          field.addEventListener("change", clearInvalidState);
+        });
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          let firstInvalidField = null;
+
+          requiredFields.forEach((field) => {
+            const isValid = field.checkValidity();
+
+            field.classList.toggle("field-invalid", !isValid);
+
+            if (!isValid) {
+              field.setAttribute("aria-invalid", "true");
+              firstInvalidField ??= field;
+            } else {
+              field.removeAttribute("aria-invalid");
+            }
+          });
+
+          if (firstInvalidField) {
+            window.alert("Please fill out all the fields");
+            firstInvalidField.focus();
+            return;
+          }
+
+          extendedSection.hidden = false;
+          extendedSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+        requestAnimationFrame(() => {
+          document.getElementById("companyNameInput")?.focus();
+        });
       }
-    };
 
-    field.addEventListener("input", clearInvalidState);
-    field.addEventListener("change", clearInvalidState);
-  });
+      function initializeBrandingFields() {
+        const colorFields = [
+          ["primaryColorPicker", "primaryColorText"],
+          ["secondaryColorPicker", "secondaryColorText"],
+          ["accentColorPicker", "accentColorText"],
+          ["backgroundColorPicker", "backgroundColorText"],
+          ["textColorPicker", "textColorText"],
+        ];
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
+        const hexPattern = /^#[0-9A-Fa-f]{6}$/;
 
-    let firstInvalidField = null;
+        colorFields.forEach(([pickerId, textId]) => {
+          const picker = document.getElementById(pickerId);
+          const text = document.getElementById(textId);
 
-    requiredFields.forEach((field) => {
-      const isValid = field.checkValidity();
+          picker.addEventListener("input", () => {
+            text.value = picker.value.toUpperCase();
+            text.classList.remove("field-invalid");
+          });
 
-      field.classList.toggle("field-invalid", !isValid);
+          text.addEventListener("input", () => {
+            const value = text.value.trim();
 
-      if (!isValid) {
-        field.setAttribute("aria-invalid", "true");
-        firstInvalidField ??= field;
-      } else {
-        field.removeAttribute("aria-invalid");
+            if (hexPattern.test(value)) {
+              picker.value = value;
+              text.value = value.toUpperCase();
+              text.classList.remove("field-invalid");
+            }
+          });
+
+          text.addEventListener("blur", () => {
+            const value = text.value.trim();
+
+            if (!hexPattern.test(value)) {
+              text.classList.add("field-invalid");
+              return;
+            }
+
+            text.value = value.toUpperCase();
+            picker.value = value;
+            text.classList.remove("field-invalid");
+          });
+        });
       }
-    });
-
-    if (firstInvalidField) {
-      window.alert("Please fill out all the fields");
-      firstInvalidField.focus();
-      return;
-    }
-
-    extendedSection.hidden = false;
-    extendedSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  });
-}
 
       function initializeUpload() {
         const uploadZone = document.getElementById("uploadZone");
