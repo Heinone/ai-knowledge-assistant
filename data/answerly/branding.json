@@ -1,0 +1,11 @@
+{
+  "product_name": "Answer.ly",
+  "parent_company": "Kivi Labs",
+  "colors": {
+    "primary": "#12343B",
+    "secondary": "#F8F7F3",
+    "accent": "#2EC4B6",
+    "text": "#1F2937",
+    "success": "#4CAF7D"
+  }
+}

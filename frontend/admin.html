@@ -7,14 +7,27 @@
     <title>AI Knowledge Assistant — Setup</title>
 
     <link rel="stylesheet" href="styles.css" />
+    <link
+      id="favicon"
+      rel="icon"
+      type="image/png"
+      href="./assets/answerly_favicon.png"
+    />
   </head>
 
-  <body>
+  <body class="admin-page">
     <div class="app-shell">
-      <header class="topbar">
+      <header id="answerlyHeader" class="answerly-header" hidden>
+        <img src="./assets/answerly_header.png" alt="Answer.ly by Kivi Labs" />
+      </header>
+      <header id="companyTopbar" class="topbar" hidden>
         <div class="topbar-inner">
           <a class="brand" href="admin.html">
-            <span id="logo" class="logo"></span>
+            <span id="logo" class="logo">
+              <img id="brandLogo" alt="" hidden />
+              <span id="logoInitial"></span>
+            </span>
+
             <span id="assistantBrand"></span>
           </a>
 
@@ -27,120 +40,152 @@
         </div>
       </header>
 
-      <main class="container">
-        <section class="hero">
-          <h1>Knowledge Base Setup</h1>
+      <main class="container admin-main">
+        <div id="answerlySetupContent" hidden>
+          <section class="answerly-intro">
+            <h1>Welcome to Answer.ly</h1>
 
-          <p>
-            Upload PDF, TXT, or Markdown files. The assistant will use indexed
-            content as its knowledge source.
-          </p>
-        </section>
+            <p>
+              Set up your company, upload your knowledge documents, and choose
+              how your AI assistant should behave.
+            </p>
+          </section>
 
-        <section class="grid">
-          <div class="card">
-            <div class="card-body">
-              <h2>Upload documents</h2>
+          <section class="answerly-setup-panel">
+            <div class="card">
+              <div class="card-body">
+                <h2>Set up your company</h2>
 
-              <p>
-                Add the files the assistant should use when answering questions.
-              </p>
+                <p>
+                  Add your company information and customise your AI assistant.
+                </p>
 
-              <div id="uploadZone" class="upload-zone">
-                <strong> Drag and drop files here </strong>
-
-                <span> or choose files from your computer </span>
-
-                <div class="button-row" style="justify-content: center">
-                  <label class="btn btn-secondary" for="fileInput">
-                    Choose files
-                  </label>
+                <div id="companySetupForm">
+                  <!-- Form fields come next -->
                 </div>
-
-                <input
-                  id="fileInput"
-                  class="file-input"
-                  type="file"
-                  multiple
-                  accept=".pdf,.txt,.md"
-                />
-
-                <div class="format-row">
-                  <span class="format-chip"> PDF </span>
-
-                  <span class="format-chip"> TXT </span>
-
-                  <span class="format-chip"> MD </span>
-                </div>
-              </div>
-
-              <div id="selectedFiles" class="file-list" hidden>
-                <h3>Selected files</h3>
-
-                <div id="selectedFileRows"></div>
-
-                <div class="button-row">
-                  <button id="processButton" class="btn">
-                    Process documents
-                  </button>
-
-                  <button id="clearButton" class="btn btn-secondary">
-                    Clear selection
-                  </button>
-                </div>
-              </div>
-
-              <div id="uploadNotice"></div>
-
-              <div id="indexedDocuments" class="file-list" hidden>
-                <h3>Indexed documents</h3>
-
-                <div id="indexedFileRows"></div>
               </div>
             </div>
-          </div>
+          </section>
+        </div>
 
-          <aside class="card">
-            <div class="card-body">
-              <h2>Assistant settings</h2>
+        <div id="configuredAdminContent" hidden>
+          <section class="hero">
+            <h1 id="welcomeHeadline">Welcome to Answer.ly</h1>
 
-              <p>Current assistant configuration</p>
+            <p id="welcomeDescription">
+              Create your own chat for customer service or for your company's
+              internal use!
+            </p>
+          </section>
 
-              <div class="settings-list">
-                <div class="status-row">
-                  <span>Company</span>
-                  <strong id="companyName"></strong>
+          <section class="grid">
+            <div class="card">
+              <div class="card-body">
+                <h2>Upload documents</h2>
+
+                <p>
+                  Add the files the assistant should use when answering
+                  questions.
+                </p>
+
+                <div id="uploadZone" class="upload-zone">
+                  <strong> Drag and drop files here </strong>
+
+                  <span> or choose files from your computer </span>
+
+                  <div class="button-row" style="justify-content: center">
+                    <label class="btn btn-secondary" for="fileInput">
+                      Choose files
+                    </label>
+                  </div>
+
+                  <input
+                    id="fileInput"
+                    class="file-input"
+                    type="file"
+                    multiple
+                    accept=".pdf,.txt,.md"
+                  />
+
+                  <div class="format-row">
+                    <span class="format-chip"> PDF </span>
+
+                    <span class="format-chip"> TXT </span>
+
+                    <span class="format-chip"> MD </span>
+                  </div>
                 </div>
 
-                <div class="status-row">
-                  <span>Assistant</span>
-                  <strong id="assistantName"></strong>
+                <div id="selectedFiles" class="file-list" hidden>
+                  <h3>Selected files</h3>
+
+                  <div id="selectedFileRows"></div>
+
+                  <div class="button-row">
+                    <button id="processButton" class="btn">
+                      Process documents
+                    </button>
+
+                    <button id="clearButton" class="btn btn-secondary">
+                      Clear selection
+                    </button>
+                  </div>
                 </div>
 
-                <div class="status-row">
-                  <span>Mode</span>
-                  <strong id="assistantMode"></strong>
+                <div id="uploadNotice"></div>
+
+                <div id="indexedDocuments" class="file-list" hidden>
+                  <h3>Indexed documents</h3>
+
+                  <div id="indexedFileRows"></div>
                 </div>
-
-                <div class="status-row">
-                  <span>Visible citations</span>
-                  <strong id="citationMode"></strong>
-                </div>
-
-                <div class="status-row">
-                  <span> Status </span>
-
-                  <span class="badge badge-success"> Ready after upload </span>
-                </div>
-              </div>
-
-              <div class="notice" style="background: #f8fafc; color: #475569">
-                Sources are returned by the API for verification but hidden from
-                the customer chat experience.
               </div>
             </div>
-          </aside>
-        </section>
+
+            <aside class="card">
+              <div class="card-body">
+                <h2>Assistant settings</h2>
+
+                <p>Current assistant configuration</p>
+
+                <div class="settings-list">
+                  <div class="status-row">
+                    <span>Company</span>
+                    <strong id="companyName"></strong>
+                  </div>
+
+                  <div class="status-row">
+                    <span>Assistant</span>
+                    <strong id="assistantName"></strong>
+                  </div>
+
+                  <div class="status-row">
+                    <span>Mode</span>
+                    <strong id="assistantMode"></strong>
+                  </div>
+
+                  <div class="status-row">
+                    <span>Visible citations</span>
+                    <strong id="citationMode"></strong>
+                  </div>
+
+                  <div class="status-row">
+                    <span> Status </span>
+
+                    <span class="badge badge-success">
+                      Ready after upload
+                    </span>
+                  </div>
+                </div>
+
+                <div class="notice" style="background: #f8fafc; color: #475569">
+                  Sources are returned by the API for verification but hidden
+                  from the customer chat experience.
+                </div>
+              </div>
+            </aside>
+          </section>
+        </div>
       </main>
     </div>
 
@@ -153,7 +198,10 @@
       async function startAdmin() {
         try {
           await initializeAdmin();
-          initializeUpload();
+
+          if (CONFIG_STATUS?.has_active_company === true) {
+            initializeUpload();
+          }
         } catch (error) {
           console.error("Admin initialization failed:", error);
 
@@ -173,15 +221,68 @@
       async function initializeAdmin() {
         await loadCompanyConfig();
 
-        const enabledModes = Object.keys(COMPANY_CONFIG.modes)
-          .filter((mode) => COMPANY_CONFIG.modes[mode].enabled)
+        const hasActiveCompany = CONFIG_STATUS?.has_active_company === true;
+
+        const answerlyHeader = document.getElementById("answerlyHeader");
+
+        const companyTopbar = document.getElementById("companyTopbar");
+
+        const answerlySetupContent = document.getElementById(
+          "answerlySetupContent",
+        );
+
+        const configuredAdminContent = document.getElementById(
+          "configuredAdminContent",
+        );
+
+        document.body.classList.toggle(
+          "answerly-onboarding",
+          !hasActiveCompany,
+        );
+
+        document.body.classList.toggle("company-configured", hasActiveCompany);
+
+        answerlyHeader.hidden = hasActiveCompany;
+        companyTopbar.hidden = !hasActiveCompany;
+
+        answerlySetupContent.hidden = hasActiveCompany;
+        configuredAdminContent.hidden = !hasActiveCompany;
+
+        // Answer.ly onboarding mode
+        if (!hasActiveCompany) {
+          document.title = "Answer.ly — Company Setup";
+          return;
+        }
+
+        // Configured-company mode
+        const enabledModeKeys = Object.keys(COMPANY_CONFIG.modes).filter(
+          (mode) => COMPANY_CONFIG.modes[mode].enabled,
+        );
+
+        const enabledModeLabels = enabledModeKeys
+          .map((mode) =>
+            mode
+              .split("_")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" "),
+          )
           .join(", ");
 
-        document.getElementById("logo").textContent =
-          COMPANY_CONFIG.company_name.charAt(0);
+        const defaultMode =
+          COMPANY_CONFIG.default_mode ||
+          enabledModeKeys.find((mode) => COMPANY_CONFIG.modes[mode].default) ||
+          enabledModeKeys[0];
+
+        document.title = `${COMPANY_CONFIG.company_name} — Assistant Setup`;
 
         document.getElementById("assistantBrand").textContent =
           `${COMPANY_CONFIG.assistant.name} by ${COMPANY_CONFIG.company_name}`;
+
+        document.getElementById("welcomeHeadline").textContent =
+          `${COMPANY_CONFIG.company_name} Assistant Setup`;
+
+        document.getElementById("welcomeDescription").textContent =
+          "Upload company documents and manage how the AI assistant behaves.";
 
         document.getElementById("companyName").textContent =
           COMPANY_CONFIG.company_name;
@@ -189,13 +290,18 @@
         document.getElementById("assistantName").textContent =
           COMPANY_CONFIG.assistant.name;
 
-        document.getElementById("assistantMode").textContent = enabledModes;
+        document.getElementById("assistantMode").textContent =
+          enabledModeLabels || "Not configured";
 
-        const currentVisibility =
-          COMPANY_CONFIG.visibility?.[COMPANY_CONFIG.default_mode];
+        const currentVisibility = COMPANY_CONFIG.visibility?.[defaultMode];
 
         document.getElementById("citationMode").textContent =
           currentVisibility?.show_citations ? "Visible" : "Hidden";
+
+        applyBrandLogo(
+          document.getElementById("brandLogo"),
+          document.getElementById("logoInitial"),
+        );
       }
 
       function initializeUpload() {
@@ -322,24 +428,22 @@
             processButton.textContent = "Process documents";
           }
         });
-      }
+        function renderSelectedFiles() {
+          selectedFileRows.innerHTML = "";
 
-      function renderSelectedFiles() {
-        selectedFileRows.innerHTML = "";
+          if (files.length === 0) {
+            selectedFiles.hidden = true;
+            return;
+          }
 
-        if (files.length === 0) {
-          selectedFiles.hidden = true;
-          return;
-        }
+          selectedFiles.hidden = false;
 
-        selectedFiles.hidden = false;
+          files.forEach((file, index) => {
+            const row = document.createElement("div");
 
-        files.forEach((file, index) => {
-          const row = document.createElement("div");
+            row.className = "file-row";
 
-          row.className = "file-row";
-
-          row.innerHTML = `
+            row.innerHTML = `
           <div>
             <strong>${file.name}</strong>
             <div class="file-meta">${formatBytes(file.size)}</div>
@@ -354,37 +458,37 @@
           </button>
         `;
 
-          selectedFileRows.appendChild(row);
-        });
-
-        document.querySelectorAll(".remove-btn").forEach((button) => {
-          button.addEventListener("click", () => {
-            const index = Number(button.dataset.index);
-
-            files.splice(index, 1);
-
-            renderSelectedFiles();
+            selectedFileRows.appendChild(row);
           });
-        });
-      }
 
-      function setNotice(type, message) {
-        uploadNotice.innerHTML = `
+          document.querySelectorAll(".remove-btn").forEach((button) => {
+            button.addEventListener("click", () => {
+              const index = Number(button.dataset.index);
+
+              files.splice(index, 1);
+
+              renderSelectedFiles();
+            });
+          });
+        }
+
+        function setNotice(type, message) {
+          uploadNotice.innerHTML = `
         <div class="notice notice-${type}">
           ${message}
         </div>
       `;
-      }
+        }
 
-      function renderIndexedFiles(results) {
-        indexedFileRows.innerHTML = "";
+        function renderIndexedFiles(results) {
+          indexedFileRows.innerHTML = "";
 
-        results.forEach((result) => {
-          const row = document.createElement("div");
+          results.forEach((result) => {
+            const row = document.createElement("div");
 
-          row.className = "file-row";
+            row.className = "file-row";
 
-          row.innerHTML = `
+            row.innerHTML = `
           <div>
             <strong>${result.filename}</strong>
             <div class="file-meta">
@@ -397,44 +501,45 @@
           </span>
         `;
 
-          indexedFileRows.appendChild(row);
-        });
+            indexedFileRows.appendChild(row);
+          });
 
-        indexedDocuments.hidden = false;
-      }
-
-      function formatBytes(bytes) {
-        if (bytes < 1024) {
-          return `${bytes} B`;
+          indexedDocuments.hidden = false;
         }
 
-        if (bytes < 1024 * 1024) {
-          return `${(bytes / 1024).toFixed(1)} KB`;
+        function formatBytes(bytes) {
+          if (bytes < 1024) {
+            return `${bytes} B`;
+          }
+
+          if (bytes < 1024 * 1024) {
+            return `${(bytes / 1024).toFixed(1)} KB`;
+          }
+
+          return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
         }
 
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-      }
+        function addFiles(fileList) {
+          const accepted = Array.from(fileList).filter((file) => {
+            const name = file.name.toLowerCase();
 
-      function addFiles(fileList) {
-        const accepted = Array.from(fileList).filter((file) => {
-          const name = file.name.toLowerCase();
+            return (
+              name.endsWith(".pdf") ||
+              name.endsWith(".txt") ||
+              name.endsWith(".md")
+            );
+          });
 
-          return (
-            name.endsWith(".pdf") ||
-            name.endsWith(".txt") ||
-            name.endsWith(".md")
-          );
-        });
+          files = [...files, ...accepted];
 
-        files = [...files, ...accepted];
+          renderSelectedFiles();
 
-        renderSelectedFiles();
-
-        if (accepted.length !== fileList.length) {
-          setNotice(
-            "error",
-            "Some files were skipped. Only PDF, TXT, and MD files are supported.",
-          );
+          if (accepted.length !== fileList.length) {
+            setNotice(
+              "error",
+              "Some files were skipped. Only PDF, TXT, and MD files are supported.",
+            );
+          }
         }
       }
     </script>

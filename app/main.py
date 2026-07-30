@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes import health, chat, ingest, usage, documents, config
 
-app = FastAPI(title="Business Knowledge Base Agent")
+app = FastAPI(title="Answer.ly API")
 
 app.add_middleware(
     CORSMiddleware,

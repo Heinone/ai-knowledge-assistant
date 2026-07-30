@@ -14,6 +14,7 @@
   --border-strong: #cbd5e1;
 
   --soft-background: #eff6ff;
+  --answerly-shell: #0b2530;
 
   --success: #16a34a;
   --success-bg: #dcfce7;
@@ -107,6 +108,28 @@ input:disabled {
   display: grid;
   place-items: center;
   font-weight: 800;
+}
+
+.logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: contain;
+}
+
+.logo.has-image {
+  width: auto;
+  min-width: 36px;
+  max-width: 140px;
+  padding: 0;
+  background: transparent;
+}
+
+.logo.has-image img {
+  width: auto;
+  max-width: 140px;
+  height: 36px;
 }
 
 .nav {
@@ -517,6 +540,89 @@ body.customer-chat-page {
   color: white;
 }
 
+/* Answer.ly onboarding state */
+
+[hidden] {
+  display: none !important;
+}
+
+body.admin-page {
+  min-height: 100vh;
+}
+
+body.admin-page.answerly-onboarding,
+body.answerly-onboarding .app-shell,
+body.answerly-onboarding .answerly-header,
+body.answerly-onboarding .admin-main {
+  background-color: var(--answerly-shell);
+}
+
+.answerly-header {
+  padding: 30px 24px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.answerly-header img {
+  display: block;
+  width: min(760px, 92vw);
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+}
+
+body.answerly-onboarding .admin-main {
+  width: 100%;
+  max-width: none;
+  min-height: calc(100vh - 250px);
+  padding: 0 20px 48px;
+}
+
+.answerly-intro {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 38px;
+  text-align: center;
+}
+
+.answerly-intro h1 {
+  margin: 0 0 14px;
+  color: #2ec4b6;
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.answerly-intro p {
+  max-width: 760px;
+  margin: 0 auto;
+  color: #f8f7f3;
+  font-size: 18px;
+}
+
+.answerly-setup-panel {
+  max-width: 1120px;
+  min-height: 420px;
+  margin: 0 auto;
+  padding: 38px;
+  background: #f8f7f3;
+  border-radius: 28px;
+}
+
+.answerly-setup-panel .card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.16);
+}
+
+body.company-configured {
+  background: var(--bg);
+}
+
+body.company-configured .admin-main {
+  background: transparent;
+}
 /* Tablet */
 
 @media (max-width: 900px) {
@@ -689,6 +795,41 @@ body.customer-chat-page {
     width: auto;
     padding: 11px 16px;
   }
+
+  @media (max-width: 640px) {
+    .answerly-header {
+      min-height: auto;
+      padding: 20px 14px 10px;
+    }
+
+    .answerly-header img {
+      width: min(100%, 520px);
+      height: auto;
+      max-height: none;
+    }
+  }
+
+  body.answerly-onboarding .admin-main {
+    min-height: calc(100dvh - 180px);
+    padding: 0 10px 30px;
+  }
+
+  .answerly-intro {
+    padding: 24px 14px 30px;
+  }
+
+  .answerly-intro h1 {
+    font-size: 34px;
+  }
+
+  .answerly-intro p {
+    font-size: 16px;
+  }
+
+  .answerly-setup-panel {
+    padding: 18px;
+    border-radius: 22px;
+  }
 }
 
 /* Very small mobile */
@@ -716,5 +857,15 @@ body.customer-chat-page {
   .customer-send {
     padding-left: 13px;
     padding-right: 13px;
+  }
+  @media (max-width: 380px) {
+    .answerly-header {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .answerly-header img {
+      width: 100%;
+    }
   }
 }
