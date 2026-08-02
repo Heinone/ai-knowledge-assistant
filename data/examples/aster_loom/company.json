@@ -22,9 +22,9 @@
 
   "branding": {
     "assets": {
-      "logo": "logo.png",
-      "favicon": "favicon.ico",
-      "assistant_avatar": "assistant_avatar.png"
+      "logo": "assets/logo.png",
+      "favicon": "assets/favicon.png",
+      "assistant_avatar": "assets/assistant_avatar.png"
     },
     "colors": {
       "primary": "#243B36",

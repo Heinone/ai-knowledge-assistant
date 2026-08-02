@@ -30,9 +30,9 @@
 
   "branding": {
     "assets": {
-      "logo": "logo.png",
-      "favicon": "favicon.ico",
-      "assistant_avatar": "assistant_avatar.png"
+      "logo": "assets/logo.png",
+      "favicon": "assets/favicon.png",
+      "assistant_avatar": null
     },
     "colors": {
       "primary": "#0F172A",
