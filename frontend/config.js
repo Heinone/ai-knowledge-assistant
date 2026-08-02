@@ -66,16 +66,15 @@ function applyBranding() {
     ? COMPANY_CONFIG?.branding?.colors
     : ANSWERLY_BRANDING?.colors;
 
-  if (!colors) {
-    return;
+  if (colors) {
+    setBrandColor("--primary", colors.primary);
+    setBrandColor("--primary-dark", colors.primary_dark || colors.primary);
+    setBrandColor("--secondary", colors.secondary);
+    setBrandColor("--accent", colors.accent);
+    setBrandColor("--bg", colors.background || colors.secondary);
+    setBrandColor("--text", colors.text);
+    setBrandColor("--success", colors.success);
   }
-
-  setBrandColor("--primary", colors.primary);
-  setBrandColor("--secondary", colors.secondary);
-  setBrandColor("--accent", colors.accent);
-  setBrandColor("--bg", colors.background || colors.secondary);
-  setBrandColor("--text", colors.text);
-  setBrandColor("--success", colors.success);
 
   applyFavicon();
 }

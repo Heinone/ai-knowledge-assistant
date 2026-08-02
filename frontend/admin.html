@@ -20,6 +20,7 @@
       <header id="answerlyHeader" class="answerly-header" hidden>
         <img src="./assets/answerly_header.png" alt="Answer.ly by Kivi Labs" />
       </header>
+
       <header id="companyTopbar" class="topbar" hidden>
         <div class="topbar-inner">
           <a class="brand" href="admin.html">
@@ -57,10 +58,18 @@
                   Add your company information and customise your AI assistant.
                 </p>
 
+                <p class="setup-guidance">
+                  Start with the required company details. You can then finish
+                  setup with the default settings and move on to uploading
+                  knowledge documents, or add optional company details and
+                  branding before continuing.
+                </p>
+
                 <form id="companySetupForm" novalidate>
                   <div class="form-grid">
                     <div class="form-field">
-                      <label for="companyNameInput"> Company name </label>
+                      <label for="companyNameInput">Company name</label>
+
                       <input
                         id="companyNameInput"
                         name="company_name"
@@ -72,7 +81,8 @@
                     </div>
 
                     <div class="form-field">
-                      <label for="industryInput"> Industry </label>
+                      <label for="industryInput">Industry</label>
+
                       <input
                         id="industryInput"
                         name="industry"
@@ -83,7 +93,8 @@
                     </div>
 
                     <div class="form-field">
-                      <label for="assistantNameInput"> Assistant name </label>
+                      <label for="assistantNameInput">Assistant name</label>
+
                       <input
                         id="assistantNameInput"
                         name="assistant_name"
@@ -94,7 +105,8 @@
                     </div>
 
                     <div class="form-field">
-                      <label for="assistantTitleInput"> Assistant title </label>
+                      <label for="assistantTitleInput">Assistant title</label>
+
                       <input
                         id="assistantTitleInput"
                         name="assistant_title"
@@ -105,7 +117,8 @@
                     </div>
 
                     <div class="form-field">
-                      <label for="assistantModeInput"> Assistant use </label>
+                      <label for="assistantModeInput">Assistant use</label>
+
                       <select
                         id="assistantModeInput"
                         name="assistant_mode"
@@ -114,6 +127,7 @@
                         <option value="customer_support">
                           Customer service
                         </option>
+
                         <option value="internal_knowledge">
                           Internal company knowledge
                         </option>
@@ -121,18 +135,22 @@
                     </div>
 
                     <div class="form-field">
-                      <label for="toneInput"> Tone </label>
+                      <label for="toneInput">Tone</label>
+
                       <select id="toneInput" name="tone" required>
                         <option value="friendly">Friendly</option>
+
                         <option value="professional" selected>
                           Professional
                         </option>
+
                         <option value="formal">Formal</option>
                       </select>
                     </div>
 
                     <div class="form-field">
-                      <label for="responseLengthInput"> Response length </label>
+                      <label for="responseLengthInput">Response length</label>
+
                       <select
                         id="responseLengthInput"
                         name="response_length"
@@ -144,207 +162,283 @@
                       </select>
                     </div>
                   </div>
+
                   <div id="companyFormNotice"></div>
 
                   <div class="form-actions">
-                    <button class="btn" type="submit">
-                      Create my assistant
-                    </button>
+                    <button class="btn" type="submit">Continue</button>
                   </div>
                 </form>
               </div>
             </div>
 
-            <section
+            <div
               id="extendedCompanySection"
-              class="card extended-company-section"
+              class="extended-company-section"
               hidden
             >
-              <div class="card-body">
-                <div class="extended-section-heading">
-                  <h2>
-                    Customise your Answer.ly chat with your company branding
-                  </h2>
+              <details class="card optional-card">
+                <summary class="optional-card-summary">
+                  <span>
+                    <strong>Company details</strong>
 
-                  <p>
-                    Add your logo and choose the colours used in the admin page
-                    and chat. These settings are optional.
-                  </p>
-                </div>
+                    <small>
+                      Optional company description and language settings
+                    </small>
+                  </span>
 
-                <div class="branding-section">
-                  <h3>Brand assets</h3>
+                  <span class="optional-card-action">
+                    <span class="expand-label">Expand</span>
+                    <span class="collapse-label">Collapse</span>
+                  </span>
+                </summary>
 
-                  <div class="asset-grid">
-                    <div class="asset-field">
-                      <label for="companyLogoInput">Company logo</label>
+                <div class="card-body optional-card-body">
+                  <div class="details-grid">
+                    <div class="details-field details-field-wide">
+                      <label for="companyDescriptionInput">
+                        Company description
+                      </label>
 
-                      <input
-                        id="companyLogoInput"
-                        name="company_logo"
-                        type="file"
-                        accept=".png,.jpg,.jpeg,.webp"
-                      />
-
-                      <small>
-                        PNG, JPG, JPEG, or WebP. A wide or square logo works
-                        best.
-                      </small>
+                      <textarea
+                        id="companyDescriptionInput"
+                        name="company_description"
+                        rows="4"
+                        placeholder="Briefly describe your company and what it does."
+                      ></textarea>
                     </div>
 
-                    <div class="asset-field">
-                      <label for="companyFaviconInput">Favicon</label>
+                    <div class="details-field">
+                      <label for="defaultLanguageInput">
+                        Default language
+                      </label>
 
                       <input
-                        id="companyFaviconInput"
-                        name="company_favicon"
-                        type="file"
-                        accept=".png,.ico"
+                        id="defaultLanguageInput"
+                        name="default_language"
+                        type="text"
+                        value="English"
+                        placeholder="English"
                       />
-
-                      <small>
-                        PNG or ICO. A square image is recommended.
-                      </small>
                     </div>
 
-                    <div class="asset-field">
-                      <label for="assistantAvatarInput">Assistant avatar</label>
+                    <div class="details-field">
+                      <label for="supportedLanguagesInput">
+                        Supported languages
+                      </label>
 
                       <input
-                        id="assistantAvatarInput"
-                        name="assistant_avatar"
-                        type="file"
-                        accept=".png,.jpg,.jpeg,.webp"
+                        id="supportedLanguagesInput"
+                        name="supported_languages"
+                        type="text"
+                        value="English"
+                        placeholder="English, Finnish, Swedish"
                       />
 
-                      <small>
-                        PNG, JPG, JPEG, or WebP. A square image works best.
-                      </small>
+                      <small>Separate multiple languages with commas.</small>
                     </div>
                   </div>
                 </div>
+              </details>
 
-                <div class="branding-section">
-                  <h3>Brand colours</h3>
+              <details class="card optional-card">
+                <summary class="optional-card-summary">
+                  <span>
+                    <strong>Customise your Answer.ly chat</strong>
 
-                  <p class="section-description">
-                    Choose a colour or enter a hexadecimal colour code.
-                  </p>
+                    <small>
+                      Add your company logo, avatar, favicon, and brand colours
+                    </small>
+                  </span>
 
-                  <div class="color-grid">
-                    <div class="color-field">
-                      <label for="primaryColorText">Primary</label>
+                  <span class="optional-card-action">
+                    <span class="expand-label">Expand</span>
+                    <span class="collapse-label">Collapse</span>
+                  </span>
+                </summary>
 
-                      <div class="color-control">
+                <div class="card-body optional-card-body">
+                  <div class="extended-form-section">
+                    <h3>Brand assets</h3>
+
+                    <div class="asset-grid">
+                      <div class="asset-field">
+                        <label for="companyLogoInput">Company logo</label>
+
                         <input
-                          id="primaryColorPicker"
-                          type="color"
-                          value="#12343B"
-                          aria-label="Choose primary colour"
+                          id="companyLogoInput"
+                          name="company_logo"
+                          type="file"
+                          accept=".png,.jpg,.jpeg,.webp"
                         />
 
+                        <small>
+                          PNG, JPG, JPEG, or WebP. A wide or square logo works
+                          best.
+                        </small>
+                      </div>
+
+                      <div class="asset-field">
+                        <label for="companyFaviconInput">Favicon</label>
+
                         <input
-                          id="primaryColorText"
-                          name="primary_color"
-                          type="text"
-                          value="#12343B"
-                          maxlength="7"
-                          inputmode="text"
+                          id="companyFaviconInput"
+                          name="company_favicon"
+                          type="file"
+                          accept=".png,.ico"
                         />
+
+                        <small>
+                          PNG or ICO. A square image is recommended.
+                        </small>
+                      </div>
+
+                      <div class="asset-field">
+                        <label for="assistantAvatarInput">
+                          Assistant avatar
+                        </label>
+
+                        <input
+                          id="assistantAvatarInput"
+                          name="assistant_avatar"
+                          type="file"
+                          accept=".png,.jpg,.jpeg,.webp"
+                        />
+
+                        <small>
+                          PNG, JPG, JPEG, or WebP. A square image works best.
+                        </small>
                       </div>
                     </div>
+                  </div>
 
-                    <div class="color-field">
-                      <label for="secondaryColorText">Secondary</label>
+                  <div class="extended-form-section">
+                    <h3>Brand colours</h3>
 
-                      <div class="color-control">
-                        <input
-                          id="secondaryColorPicker"
-                          type="color"
-                          value="#F8F7F3"
-                          aria-label="Choose secondary colour"
-                        />
+                    <p class="section-description">
+                      Choose a colour or enter a hexadecimal colour code.
+                    </p>
 
-                        <input
-                          id="secondaryColorText"
-                          name="secondary_color"
-                          type="text"
-                          value="#F8F7F3"
-                          maxlength="7"
-                          inputmode="text"
-                        />
+                    <div class="color-grid">
+                      <div class="color-field">
+                        <label for="primaryColorText">Primary</label>
+
+                        <div class="color-control">
+                          <input
+                            id="primaryColorPicker"
+                            type="color"
+                            value="#12343B"
+                            aria-label="Choose primary colour"
+                          />
+
+                          <input
+                            id="primaryColorText"
+                            name="primary_color"
+                            type="text"
+                            value="#12343B"
+                            maxlength="7"
+                            inputmode="text"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="color-field">
-                      <label for="accentColorText">Accent</label>
+                      <div class="color-field">
+                        <label for="secondaryColorText">Secondary</label>
 
-                      <div class="color-control">
-                        <input
-                          id="accentColorPicker"
-                          type="color"
-                          value="#2EC4B6"
-                          aria-label="Choose accent colour"
-                        />
+                        <div class="color-control">
+                          <input
+                            id="secondaryColorPicker"
+                            type="color"
+                            value="#F8F7F3"
+                            aria-label="Choose secondary colour"
+                          />
 
-                        <input
-                          id="accentColorText"
-                          name="accent_color"
-                          type="text"
-                          value="#2EC4B6"
-                          maxlength="7"
-                          inputmode="text"
-                        />
+                          <input
+                            id="secondaryColorText"
+                            name="secondary_color"
+                            type="text"
+                            value="#F8F7F3"
+                            maxlength="7"
+                            inputmode="text"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="color-field">
-                      <label for="backgroundColorText">Background</label>
+                      <div class="color-field">
+                        <label for="accentColorText">Accent</label>
 
-                      <div class="color-control">
-                        <input
-                          id="backgroundColorPicker"
-                          type="color"
-                          value="#F8FAFC"
-                          aria-label="Choose background colour"
-                        />
+                        <div class="color-control">
+                          <input
+                            id="accentColorPicker"
+                            type="color"
+                            value="#2EC4B6"
+                            aria-label="Choose accent colour"
+                          />
 
-                        <input
-                          id="backgroundColorText"
-                          name="background_color"
-                          type="text"
-                          value="#F8FAFC"
-                          maxlength="7"
-                          inputmode="text"
-                        />
+                          <input
+                            id="accentColorText"
+                            name="accent_color"
+                            type="text"
+                            value="#2EC4B6"
+                            maxlength="7"
+                            inputmode="text"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="color-field">
-                      <label for="textColorText">Text</label>
+                      <div class="color-field">
+                        <label for="backgroundColorText">Background</label>
 
-                      <div class="color-control">
-                        <input
-                          id="textColorPicker"
-                          type="color"
-                          value="#111827"
-                          aria-label="Choose text colour"
-                        />
+                        <div class="color-control">
+                          <input
+                            id="backgroundColorPicker"
+                            type="color"
+                            value="#F8FAFC"
+                            aria-label="Choose background colour"
+                          />
 
-                        <input
-                          id="textColorText"
-                          name="text_color"
-                          type="text"
-                          value="#111827"
-                          maxlength="7"
-                          inputmode="text"
-                        />
+                          <input
+                            id="backgroundColorText"
+                            name="background_color"
+                            type="text"
+                            value="#F8FAFC"
+                            maxlength="7"
+                            inputmode="text"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="color-field">
+                        <label for="textColorText">Text</label>
+
+                        <div class="color-control">
+                          <input
+                            id="textColorPicker"
+                            type="color"
+                            value="#111827"
+                            aria-label="Choose text colour"
+                          />
+
+                          <input
+                            id="textColorText"
+                            name="text_color"
+                            type="text"
+                            value="#111827"
+                            maxlength="7"
+                            inputmode="text"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              </details>
+              <div class="finish-setup-actions">
+                <button id="finishSetupButton" class="btn" type="button">
+                  Finish setup
+                </button>
               </div>
-            </section>
+            </div>
           </section>
         </div>
 
@@ -369,9 +463,9 @@
                 </p>
 
                 <div id="uploadZone" class="upload-zone">
-                  <strong> Drag and drop files here </strong>
+                  <strong>Drag and drop files here</strong>
 
-                  <span> or choose files from your computer </span>
+                  <span>or choose files from your computer</span>
 
                   <div class="button-row" style="justify-content: center">
                     <label class="btn btn-secondary" for="fileInput">
@@ -388,11 +482,9 @@
                   />
 
                   <div class="format-row">
-                    <span class="format-chip"> PDF </span>
-
-                    <span class="format-chip"> TXT </span>
-
-                    <span class="format-chip"> MD </span>
+                    <span class="format-chip">PDF</span>
+                    <span class="format-chip">TXT</span>
+                    <span class="format-chip">MD</span>
                   </div>
                 </div>
 
@@ -402,11 +494,15 @@
                   <div id="selectedFileRows"></div>
 
                   <div class="button-row">
-                    <button id="processButton" class="btn">
+                    <button id="processButton" class="btn" type="button">
                       Process documents
                     </button>
 
-                    <button id="clearButton" class="btn btn-secondary">
+                    <button
+                      id="clearButton"
+                      class="btn btn-secondary"
+                      type="button"
+                    >
                       Clear selection
                     </button>
                   </div>
@@ -450,7 +546,7 @@
                   </div>
 
                   <div class="status-row">
-                    <span> Status </span>
+                    <span>Status</span>
 
                     <span class="badge badge-success">
                       Ready after upload
@@ -484,6 +580,7 @@
           } else {
             initializeCompanySetupForm();
             initializeBrandingFields();
+            initializeFinishSetupButton();
           }
         } catch (error) {
           console.error("Admin initialization failed:", error);
@@ -491,15 +588,13 @@
           document.body.insertAdjacentHTML(
             "afterbegin",
             `
-      <div class="notice notice-error">
-        Could not load company configuration.
-      </div>
-      `,
+              <div class="notice notice-error">
+                Could not load company configuration.
+              </div>
+            `,
           );
         }
       }
-
-      startAdmin();
 
       async function initializeAdmin() {
         await loadCompanyConfig();
@@ -507,7 +602,6 @@
         const hasActiveCompany = CONFIG_STATUS?.has_active_company === true;
 
         const answerlyHeader = document.getElementById("answerlyHeader");
-
         const companyTopbar = document.getElementById("companyTopbar");
 
         const answerlySetupContent = document.getElementById(
@@ -531,13 +625,11 @@
         answerlySetupContent.hidden = hasActiveCompany;
         configuredAdminContent.hidden = !hasActiveCompany;
 
-        // Answer.ly onboarding mode
         if (!hasActiveCompany) {
           document.title = "Answer.ly — Company Setup";
           return;
         }
 
-        // Configured-company mode
         const enabledModeKeys = Object.keys(COMPANY_CONFIG.modes).filter(
           (mode) => COMPANY_CONFIG.modes[mode].enabled,
         );
@@ -589,6 +681,7 @@
 
       function initializeCompanySetupForm() {
         const form = document.getElementById("companySetupForm");
+
         const extendedSection = document.getElementById(
           "extendedCompanySection",
         );
@@ -632,11 +725,13 @@
           }
 
           extendedSection.hidden = false;
+
           extendedSection.scrollIntoView({
             behavior: "smooth",
             block: "start",
           });
         });
+
         requestAnimationFrame(() => {
           document.getElementById("companyNameInput")?.focus();
         });
@@ -687,6 +782,79 @@
         });
       }
 
+      function initializeFinishSetupButton() {
+        const button = document.getElementById("finishSetupButton");
+
+        button.addEventListener("click", () => {
+          const supportedLanguages = document
+            .getElementById("supportedLanguagesInput")
+            .value.split(",")
+            .map((language) => language.trim())
+            .filter(Boolean);
+
+          const setupPayload = {
+            company_name: document
+              .getElementById("companyNameInput")
+              .value.trim(),
+            industry: document.getElementById("industryInput").value.trim(),
+
+            assistant: {
+              name: document.getElementById("assistantNameInput").value.trim(),
+              title: document
+                .getElementById("assistantTitleInput")
+                .value.trim(),
+              mode: document.getElementById("assistantModeInput").value,
+              default_language: document
+                .getElementById("defaultLanguageInput")
+                .value.trim(),
+              supported_languages: supportedLanguages,
+            },
+
+            conversation: {
+              tone: document.getElementById("toneInput").value,
+              response_length: document.getElementById("responseLengthInput")
+                .value,
+            },
+
+            company_details: {
+              description: document
+                .getElementById("companyDescriptionInput")
+                .value.trim(),
+            },
+
+            branding: {
+              colors: {
+                primary: document
+                  .getElementById("primaryColorText")
+                  .value.trim(),
+                secondary: document
+                  .getElementById("secondaryColorText")
+                  .value.trim(),
+                accent: document.getElementById("accentColorText").value.trim(),
+                background: document
+                  .getElementById("backgroundColorText")
+                  .value.trim(),
+                text: document.getElementById("textColorText").value.trim(),
+              },
+
+              selected_files: {
+                logo:
+                  document.getElementById("companyLogoInput").files[0]?.name ||
+                  null,
+                favicon:
+                  document.getElementById("companyFaviconInput").files[0]
+                    ?.name || null,
+                assistant_avatar:
+                  document.getElementById("assistantAvatarInput").files[0]
+                    ?.name || null,
+              },
+            },
+          };
+
+          console.log("Answer.ly setup payload:", setupPayload);
+        });
+      }
+
       function initializeUpload() {
         const uploadZone = document.getElementById("uploadZone");
         const fileInput = document.getElementById("fileInput");
@@ -700,7 +868,6 @@
 
         let dragCounter = 0;
 
-        // Prevent browser opening files outside the upload area
         document.body.addEventListener(
           "dragover",
           (event) => {
@@ -719,13 +886,11 @@
           false,
         );
 
-        // Upload zone handlers
         uploadZone.addEventListener("dragenter", (event) => {
           event.preventDefault();
           event.stopPropagation();
 
-          dragCounter++;
-
+          dragCounter += 1;
           uploadZone.classList.add("drag-over");
         });
 
@@ -740,7 +905,7 @@
           event.preventDefault();
           event.stopPropagation();
 
-          dragCounter--;
+          dragCounter -= 1;
 
           if (dragCounter <= 0) {
             dragCounter = 0;
@@ -753,7 +918,6 @@
           event.stopPropagation();
 
           dragCounter = 0;
-
           uploadZone.classList.remove("drag-over");
 
           console.log("Upload drop:", event.dataTransfer.files);
@@ -765,15 +929,14 @@
             `${event.dataTransfer.files.length} file(s) selected.`,
           );
         });
+
         fileInput.addEventListener("change", (event) => {
           addFiles(event.target.files);
         });
 
         clearButton.addEventListener("click", () => {
           files = [];
-
           fileInput.value = "";
-
           uploadNotice.innerHTML = "";
 
           renderSelectedFiles();
@@ -782,12 +945,10 @@
         processButton.addEventListener("click", async () => {
           if (files.length === 0) {
             setNotice("error", "Choose at least one document first.");
-
             return;
           }
 
           processButton.disabled = true;
-
           processButton.textContent = "Processing documents...";
 
           setNotice("success", "Uploading and indexing documents...");
@@ -807,10 +968,10 @@
             setNotice("error", error.message);
           } finally {
             processButton.disabled = false;
-
             processButton.textContent = "Process documents";
           }
         });
+
         function renderSelectedFiles() {
           selectedFileRows.innerHTML = "";
 
@@ -827,19 +988,19 @@
             row.className = "file-row";
 
             row.innerHTML = `
-          <div>
-            <strong>${file.name}</strong>
-            <div class="file-meta">${formatBytes(file.size)}</div>
-          </div>
+              <div>
+                <strong>${file.name}</strong>
+                <div class="file-meta">${formatBytes(file.size)}</div>
+              </div>
 
-          <button
-            class="remove-btn"
-            type="button"
-            data-index="${index}"
-          >
-            Remove
-          </button>
-        `;
+              <button
+                class="remove-btn"
+                type="button"
+                data-index="${index}"
+              >
+                Remove
+              </button>
+            `;
 
             selectedFileRows.appendChild(row);
           });
@@ -849,7 +1010,6 @@
               const index = Number(button.dataset.index);
 
               files.splice(index, 1);
-
               renderSelectedFiles();
             });
           });
@@ -857,10 +1017,10 @@
 
         function setNotice(type, message) {
           uploadNotice.innerHTML = `
-        <div class="notice notice-${type}">
-          ${message}
-        </div>
-      `;
+            <div class="notice notice-${type}">
+              ${message}
+            </div>
+          `;
         }
 
         function renderIndexedFiles(results) {
@@ -872,17 +1032,18 @@
             row.className = "file-row";
 
             row.innerHTML = `
-          <div>
-            <strong>${result.filename}</strong>
-            <div class="file-meta">
-              ${result.documents_loaded} document loaded
-            </div>
-          </div>
+              <div>
+                <strong>${result.filename}</strong>
 
-          <span class="badge badge-success">
-            Indexed
-          </span>
-        `;
+                <div class="file-meta">
+                  ${result.documents_loaded} document loaded
+                </div>
+              </div>
+
+              <span class="badge badge-success">
+                Indexed
+              </span>
+            `;
 
             indexedFileRows.appendChild(row);
           });
@@ -925,6 +1086,8 @@
           }
         }
       }
+
+      startAdmin();
     </script>
   </body>
 </html>
