@@ -8,29 +8,38 @@
 
     <link rel="stylesheet" href="styles.css" />
     <link
-  id="favicon"
-  rel="icon"
-  type="image/png"
-  href="./assets/answerly_favicon.png"
-/>
+      id="favicon"
+      rel="icon"
+      type="image/png"
+      href="./assets/answerly_favicon.png"
+    />
   </head>
 
   <body class="customer-chat-page">
     <div class="customer-chat-shell">
       <header class="customer-chat-header">
-        <a class="brand" href="chat.html">
-          <span id="logo" class="logo"></span>
-          <span id="assistantBrand"></span>
+        <a id="companyBrandLink" class="brand" href="chat.html">
+          <span id="logo" class="logo">
+            <img id="brandLogo" alt="" hidden />
+            <span id="logoInitial"></span>
+          </span>
         </a>
-
-        <span class="badge badge-success"> Online </span>
       </header>
 
       <main class="customer-chat-main">
         <section class="customer-chat-card">
           <div class="customer-chat-title">
-            <h1 id="chatTitle"></h1>
-            <p id="chatSubtitle"></p>
+            <div class="customer-chat-title-row">
+              <span class="assistant-avatar" aria-hidden="true">
+                <img id="assistantAvatar" alt="" hidden />
+                <span id="assistantAvatarFallback"></span>
+              </span>
+
+              <div class="customer-chat-title-copy">
+                <h1 id="chatTitle"></h1>
+                <p id="chatSubtitle"></p>
+              </div>
+            </div>
           </div>
 
           <div id="messages" class="customer-messages"></div>
@@ -56,135 +65,130 @@
     <script src="api.js"></script>
 
     <script>
-            const messages = document.getElementById("messages");
-            const chatForm = document.getElementById("chatForm");
-            const questionInput = document.getElementById("questionInput");
-            const sendButton = document.getElementById("sendButton");
+      const messages = document.getElementById("messages");
+      const chatForm = document.getElementById("chatForm");
+      const questionInput = document.getElementById("questionInput");
+      const sendButton = document.getElementById("sendButton");
 
-            const conversationHistory = [];
+      const conversationHistory = [];
 
-              let activeMode;
+      let activeMode;
 
+      function getActiveMode() {
+        const params = new URLSearchParams(window.location.search);
 
-            function getActiveMode() {
-              const params = new URLSearchParams(window.location.search);
+        const requestedMode = params.get("mode");
 
-              const requestedMode = params.get("mode");
+        if (requestedMode && COMPANY_CONFIG.modes[requestedMode]?.enabled) {
+          return requestedMode;
+        }
 
-              if (
-                requestedMode &&
-                COMPANY_CONFIG.modes[requestedMode]?.enabled
-              ) {
-                return requestedMode;
-              }
+        return COMPANY_CONFIG.default_mode;
+      }
 
-              return COMPANY_CONFIG.default_mode;
-            }
+      async function initializeChat() {
+        await loadCompanyConfig();
 
-            async function initializeChat() {
-              await loadCompanyConfig();
+        activeMode = getActiveMode();
 
-              activeMode = getActiveMode();
+        document.title = `${COMPANY_CONFIG.company_name} — ${COMPANY_CONFIG.assistant.title}`;
 
-              document.title =
-                `${COMPANY_CONFIG.company_name} — ${COMPANY_CONFIG.assistant.title}`;
+        document.getElementById("pageTitle").textContent = document.title;
 
-              document.getElementById("pageTitle").textContent =
-                document.title;
+        document
+          .getElementById("companyBrandLink")
+          .setAttribute("aria-label", `${COMPANY_CONFIG.company_name} chat`);
 
-              document.getElementById("logo").textContent =
-                COMPANY_CONFIG.company_name.charAt(0);
+        applyBrandLogo(
+          document.getElementById("brandLogo"),
+          document.getElementById("logoInitial"),
+        );
 
-              document.getElementById("assistantBrand").textContent =
-                `${COMPANY_CONFIG.assistant.name} by ${COMPANY_CONFIG.company_name}`;
+        applyAssistantAvatar(
+          document.getElementById("assistantAvatar"),
+          document.getElementById("assistantAvatarFallback"),
+        );
+        document.getElementById("chatTitle").textContent =
+          COMPANY_CONFIG[activeMode].chat_headline;
 
-              document.getElementById("chatTitle").textContent =
-                COMPANY_CONFIG[activeMode].chat_headline;
+        document.getElementById("chatSubtitle").textContent =
+          COMPANY_CONFIG[activeMode].chat_description;
 
-              document.getElementById("chatSubtitle").textContent =
-                COMPANY_CONFIG[activeMode].chat_description;
+        questionInput.placeholder = COMPANY_CONFIG[activeMode].placeholder;
 
-              questionInput.placeholder =
-                COMPANY_CONFIG[activeMode].placeholder;
-
-              if (
-              COMPANY_CONFIG.conversation?.greeting?.enabled
-            ) {
-              addMessage(
-                "assistant",
-                COMPANY_CONFIG.conversation.greeting.message
-              );
-            }
+        if (COMPANY_CONFIG.conversation?.greeting?.enabled) {
+          addMessage("assistant", COMPANY_CONFIG.conversation.greeting.message);
+        }
       }
       initializeChat();
 
-            window.addEventListener("load", () => {
-              questionInput.focus();
-            });
+      window.addEventListener("load", () => {
+        questionInput.focus();
+      });
 
-            function addMessage(role, text) {
-              const message = document.createElement("div");
+      function addMessage(role, text) {
+        const message = document.createElement("div");
 
-              message.className = `customer-message ${role}`;
-              message.textContent = text;
+        message.className = `customer-message ${role}`;
+        message.textContent = text;
 
-              messages.appendChild(message);
-              messages.scrollTop = messages.scrollHeight;
-            }
+        messages.appendChild(message);
+        messages.scrollTop = messages.scrollHeight;
+      }
 
-            function addLoadingMessage() {
-              const message = document.createElement("div");
+      function addLoadingMessage() {
+        const message = document.createElement("div");
 
-              message.className = "customer-message assistant loading";
-              message.id = "loadingMessage";
-              message.textContent = COMPANY_CONFIG[activeMode].loading_message;
+        message.className = "customer-message assistant loading";
+        message.id = "loadingMessage";
+        message.textContent = COMPANY_CONFIG[activeMode].loading_message;
 
-              messages.appendChild(message);
-              messages.scrollTop = messages.scrollHeight;
-            }
+        messages.appendChild(message);
+        messages.scrollTop = messages.scrollHeight;
+      }
 
-            function removeLoadingMessage() {
-              const loading = document.getElementById("loadingMessage");
+      function removeLoadingMessage() {
+        const loading = document.getElementById("loadingMessage");
 
-              if (loading) {
-                loading.remove();
-              }
-            }
+        if (loading) {
+          loading.remove();
+        }
+      }
 
-            function buildContextualQuestion(currentQuestion) {
-              const lower = currentQuestion.toLowerCase();
+      function buildContextualQuestion(currentQuestion) {
+        const lower = currentQuestion.toLowerCase();
 
-              const followUpPatterns = [
-                "it",
-                "that",
-                "this",
-                "they",
-                "them",
-                "those",
-                "what about",
-                "how about",
-                "tell me more",
-                "more about",
-                "what kind",
-                "which one",
-                "is it",
-                "are they",
-              ];
+        const followUpPatterns = [
+          "it",
+          "that",
+          "this",
+          "they",
+          "them",
+          "those",
+          "what about",
+          "how about",
+          "tell me more",
+          "more about",
+          "what kind",
+          "which one",
+          "is it",
+          "are they",
+        ];
 
-              const looksLikeFollowUp = followUpPatterns.some((pattern) =>
-                lower.includes(pattern),
-              );
+        const looksLikeFollowUp = followUpPatterns.some((pattern) =>
+          lower.includes(pattern),
+        );
 
-              if (!looksLikeFollowUp || conversationHistory.length === 0) {
-                return currentQuestion;
-              }
+        if (!looksLikeFollowUp || conversationHistory.length === 0) {
+          return currentQuestion;
+        }
 
-              const recentHistory = conversationHistory
-                .slice(-2)
-                .map((message) => `${message.role}: ${message.text}`)
-                .join("\n");
+        const recentHistory = conversationHistory
+          .slice(-2)
+          .map((message) => `${message.role}: ${message.text}`)
+          .join("\n");
 
-              return `
+        return `
       Conversation so far:
       ${recentHistory}
 
@@ -195,77 +199,77 @@
 
       Use the conversation only to understand references such as "it", "that", or "they".
       `.trim();
-            }
+      }
 
-            function customerFriendlyAnswer(answer) {
-              const refusal =
-                "I could not find enough information to answer that confidently.";
+      function customerFriendlyAnswer(answer) {
+        const refusal =
+          "I could not find enough information to answer that confidently.";
 
-              if (answer.trim() === refusal) {
-                return COMPANY_CONFIG[activeMode].fallback_message;
-              }
+        if (answer.trim() === refusal) {
+          return COMPANY_CONFIG[activeMode].fallback_message;
+        }
 
-              return answer;
-            }
+        return answer;
+      }
 
-            async function handleQuestion(question) {
-              const cleanQuestion = question.trim();
+      async function handleQuestion(question) {
+        const cleanQuestion = question.trim();
 
-              if (!cleanQuestion) {
-                return;
-              }
+        if (!cleanQuestion) {
+          return;
+        }
 
-              addMessage("user", cleanQuestion);
+        addMessage("user", cleanQuestion);
 
-              conversationHistory.push({
-                role: "User",
-                text: cleanQuestion,
-              });
+        conversationHistory.push({
+          role: "User",
+          text: cleanQuestion,
+        });
 
-              questionInput.value = "";
-              questionInput.disabled = true;
-              sendButton.disabled = true;
-              sendButton.textContent = "Sending";
+        questionInput.value = "";
+        questionInput.disabled = true;
+        sendButton.disabled = true;
+        sendButton.textContent = "Sending";
 
-              addLoadingMessage();
+        addLoadingMessage();
 
-              try {
-                const contextualQuestion = buildContextualQuestion(cleanQuestion);
+        try {
+          const contextualQuestion = buildContextualQuestion(cleanQuestion);
 
-                const result = await askQuestion(contextualQuestion);
+          const result = await askQuestion(contextualQuestion);
 
-                const cleanAnswer = customerFriendlyAnswer(
-                  result.answer || "I could not answer that question.",
-                );
+          const cleanAnswer = customerFriendlyAnswer(
+            result.answer || "I could not answer that question.",
+          );
 
-                removeLoadingMessage();
+          removeLoadingMessage();
 
-                addMessage("assistant", cleanAnswer);
+          addMessage("assistant", cleanAnswer);
 
-                conversationHistory.push({
-                  role: COMPANY_CONFIG.assistant.name,
-                  text: cleanAnswer,
-                });
-              } catch (error) {
-                removeLoadingMessage();
+          conversationHistory.push({
+            role: COMPANY_CONFIG.assistant.name,
+            text: cleanAnswer,
+          });
+        } catch (error) {
+          removeLoadingMessage();
 
-                addMessage(
-                  "assistant",
-                  "Sorry, something went wrong while answering. Please try again.",
-                );
-              } finally {
-                questionInput.disabled = false;
-                sendButton.disabled = false;
-                sendButton.textContent = "Send";
-                questionInput.focus();
-              }
-            }
+          addMessage(
+            "assistant",
+            "Sorry, something went wrong while answering. Please try again.",
+          );
+        } finally {
+          questionInput.disabled = false;
+          sendButton.disabled = false;
+          sendButton.textContent = "Send";
+          questionInput.focus();
+        }
+      }
 
-            chatForm.addEventListener("submit", async (event) => {
-              event.preventDefault();
+      chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-              await handleQuestion(questionInput.value);
-            });
+        await handleQuestion(questionInput.value);
+      });
     </script>
   </body>
 </html>

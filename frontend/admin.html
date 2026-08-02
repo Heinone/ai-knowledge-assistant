@@ -434,6 +434,8 @@
                 </div>
               </details>
               <div class="finish-setup-actions">
+                <div id="finishSetupNotice"></div>
+
                 <button id="finishSetupButton" class="btn" type="button">
                   Finish setup
                 </button>
@@ -784,8 +786,9 @@
 
       function initializeFinishSetupButton() {
         const button = document.getElementById("finishSetupButton");
+        const notice = document.getElementById("finishSetupNotice");
 
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
           const supportedLanguages = document
             .getElementById("supportedLanguagesInput")
             .value.split(",")
@@ -836,22 +839,46 @@
                   .value.trim(),
                 text: document.getElementById("textColorText").value.trim(),
               },
-
-              selected_files: {
-                logo:
-                  document.getElementById("companyLogoInput").files[0]?.name ||
-                  null,
-                favicon:
-                  document.getElementById("companyFaviconInput").files[0]
-                    ?.name || null,
-                assistant_avatar:
-                  document.getElementById("assistantAvatarInput").files[0]
-                    ?.name || null,
-              },
             },
           };
 
-          console.log("Answer.ly setup payload:", setupPayload);
+          button.disabled = true;
+          button.textContent = "Saving setup...";
+          notice.innerHTML = "";
+
+          try {
+            const result = await createCompanySetupWithAssets(setupPayload, {
+              logo:
+                document.getElementById("companyLogoInput").files[0] || null,
+              favicon:
+                document.getElementById("companyFaviconInput").files[0] || null,
+              assistantAvatar:
+                document.getElementById("assistantAvatarInput").files[0] ||
+                null,
+            });
+
+            console.log("Created company setup:", result);
+
+            notice.innerHTML = `
+              <div class="notice notice-success">
+                Setup complete. Opening document upload...
+              </div>`;
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 600);
+          } catch (error) {
+            console.error(error);
+
+            notice.innerHTML = `
+        <div class="notice notice-error">
+          ${error.message}
+        </div>
+      `;
+          } finally {
+            button.disabled = false;
+            button.textContent = "Finish setup and upload documents";
+          }
         });
       }
 

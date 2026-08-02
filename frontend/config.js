@@ -126,3 +126,43 @@ function applyBrandLogo(imageElement, fallbackElement) {
 
   imageElement.src = `${getBrandAssetUrl("logo")}?version=${Date.now()}`;
 }
+
+function applyAssistantAvatar(imageElement, fallbackElement) {
+  if (!COMPANY_CONFIG || !imageElement || !fallbackElement) {
+    return;
+  }
+
+  const companyName = COMPANY_CONFIG.company_name || "Company";
+  const avatarPath = COMPANY_CONFIG.branding?.assets?.assistant_avatar;
+  const logoPath = COMPANY_CONFIG.branding?.assets?.logo;
+
+  fallbackElement.textContent = companyName.charAt(0).toUpperCase();
+
+  let assetName = null;
+
+  if (avatarPath) {
+    assetName = "assistant_avatar";
+  } else if (logoPath) {
+    assetName = "logo";
+  }
+
+  if (!assetName) {
+    imageElement.hidden = true;
+    fallbackElement.hidden = false;
+    return;
+  }
+
+  imageElement.onload = () => {
+    imageElement.hidden = false;
+    fallbackElement.hidden = true;
+  };
+
+  imageElement.onerror = () => {
+    imageElement.hidden = true;
+    fallbackElement.hidden = false;
+  };
+
+  imageElement.classList.toggle("uses-company-logo", assetName === "logo");
+
+  imageElement.src = `${getBrandAssetUrl(assetName)}?version=${Date.now()}`;
+}
