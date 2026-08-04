@@ -28,8 +28,6 @@
               <img id="brandLogo" alt="" hidden />
               <span id="logoInitial"></span>
             </span>
-
-            <span id="assistantBrand"></span>
           </a>
 
           <nav class="nav">
@@ -563,558 +561,595 @@
               </div>
             </aside>
           </section>
+          <section class="card configured-settings-card">
+            <div class="card-body">
+              <div class="configured-settings-heading">
+                <div>
+                  <h2>Company and assistant settings</h2>
+
+                  <p>
+                    Review or change your company information and how the
+                    assistant communicates.
+                  </p>
+                </div>
+
+                <button
+                  id="editCompanySettingsButton"
+                  class="btn btn-secondary"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="companySettingsContent"
+                >
+                  Edit settings
+                </button>
+              </div>
+
+              <div id="companySettingsContent" hidden>
+                <form id="configuredCompanySettingsForm" novalidate>
+                  <div class="configured-settings-form-grid">
+                    <section class="configured-settings-group">
+                      <h3>Company</h3>
+
+                      <div class="configured-form-field">
+                        <label for="configuredCompanyNameInput"
+                          >Company name</label
+                        >
+
+                        <input
+                          id="configuredCompanyNameInput"
+                          type="text"
+                          required
+                        />
+                      </div>
+
+                      <div class="configured-form-field">
+                        <label for="configuredIndustryInput">Industry</label>
+
+                        <input
+                          id="configuredIndustryInput"
+                          type="text"
+                          required
+                        />
+                      </div>
+
+                      <div class="configured-form-field">
+                        <label for="configuredDescriptionInput"
+                          >Description</label
+                        >
+
+                        <textarea
+                          id="configuredDescriptionInput"
+                          rows="4"
+                        ></textarea>
+                      </div>
+                    </section>
+
+                    <section class="configured-settings-group">
+                      <h3>Assistant</h3>
+
+                      <div class="configured-form-field">
+                        <label for="configuredAssistantNameInput">Name</label>
+
+                        <input
+                          id="configuredAssistantNameInput"
+                          type="text"
+                          required
+                        />
+                      </div>
+
+                      <div class="configured-form-field">
+                        <label for="configuredAssistantTitleInput">Title</label>
+
+                        <input
+                          id="configuredAssistantTitleInput"
+                          type="text"
+                          required
+                        />
+                      </div>
+
+                      <div class="configured-form-field">
+                        <label for="configuredAssistantModeInput">Use</label>
+
+                        <select id="configuredAssistantModeInput" required>
+                          <option value="customer_support">
+                            Customer service
+                          </option>
+
+                          <option value="internal_knowledge">
+                            Internal company knowledge
+                          </option>
+                        </select>
+                      </div>
+                    </section>
+
+                    <section class="configured-settings-group">
+                      <h3>Conversation</h3>
+
+                      <div class="configured-form-field">
+                        <label for="configuredToneInput">Tone</label>
+
+                        <select id="configuredToneInput" required>
+                          <option value="friendly">Friendly</option>
+                          <option value="professional">Professional</option>
+                          <option value="formal">Formal</option>
+                        </select>
+                      </div>
+
+                      <div class="configured-form-field">
+                        <label for="configuredResponseLengthInput">
+                          Response length
+                        </label>
+
+                        <select id="configuredResponseLengthInput" required>
+                          <option value="concise">Concise</option>
+                          <option value="balanced">Balanced</option>
+                          <option value="detailed">Detailed</option>
+                        </select>
+                      </div>
+                    </section>
+
+                    <section class="configured-settings-group">
+                      <h3>Languages</h3>
+
+                      <div class="configured-form-field">
+                        <label for="configuredDefaultLanguageInput">
+                          Default language
+                        </label>
+
+                        <input
+                          id="configuredDefaultLanguageInput"
+                          type="text"
+                          required
+                        />
+                      </div>
+
+                      <div class="configured-form-field">
+                        <label for="configuredSupportedLanguagesInput">
+                          Supported languages
+                        </label>
+
+                        <input
+                          id="configuredSupportedLanguagesInput"
+                          type="text"
+                          required
+                        />
+
+                        <small>Separate multiple languages with commas.</small>
+                      </div>
+                    </section>
+                  </div>
+
+                  <div class="configured-settings-actions">
+                    <div id="configuredSettingsNotice"></div>
+
+                    <button
+                      id="saveCompanySettingsButton"
+                      class="btn"
+                      type="submit"
+                      disabled
+                    >
+                      Save changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+          <section class="card branding-overview-card">
+            <div class="card-body">
+              <div class="branding-overview-heading">
+                <div>
+                  <h2>Branding</h2>
+
+                  <p>
+                    Review or change the assets and colours used by the admin
+                    page and customer chat.
+                  </p>
+                </div>
+
+                <button
+                  id="editBrandingButton"
+                  class="btn btn-secondary"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="brandingOverviewContent"
+                >
+                  Edit branding
+                </button>
+              </div>
+
+              <div id="brandingOverviewContent" hidden>
+                <form id="configuredBrandingForm" novalidate>
+                  <div class="branding-overview-grid">
+                    <section class="branding-editor-panel">
+                      <h3>Brand assets</h3>
+
+                      <p class="section-description">
+                        Select a new file only for assets you want to replace.
+                      </p>
+
+                      <div class="branding-asset-list">
+                        <div class="branding-asset-row">
+                          <div class="branding-preview-column">
+                            <span
+                              class="branding-preview-wrap"
+                              tabindex="0"
+                              aria-label="Show larger company logo preview"
+                            >
+                              <span
+                                class="branding-preview branding-preview-logo"
+                              >
+                                <img
+                                  id="brandingLogoPreview"
+                                  alt="Current company logo"
+                                  hidden
+                                />
+
+                                <span id="brandingLogoFallback">
+                                  Not configured
+                                </span>
+                              </span>
+
+                              <span
+                                class="branding-hover-preview"
+                                aria-hidden="true"
+                              >
+                                <img
+                                  id="brandingLogoHoverPreview"
+                                  alt=""
+                                  hidden
+                                />
+
+                                <span id="brandingLogoHoverFallback">
+                                  Not configured
+                                </span>
+                              </span>
+                            </span>
+                          </div>
+
+                          <div class="branding-asset-details">
+                            <div class="branding-asset-copy">
+                              <label for="configuredLogoInput">
+                                <strong>Company logo</strong>
+                              </label>
+
+                              <small id="brandingLogoStatus"></small>
+
+                              <small class="branding-file-hint">
+                                <span>PNG, JPG, JPEG, or WebP.</span>
+                                <span>Maximum 5 MB.</span>
+                              </small>
+                            </div>
+
+                            <div class="branding-file-controls">
+                              <input
+                                id="configuredLogoInput"
+                                class="visually-hidden"
+                                type="file"
+                                accept=".png,.jpg,.jpeg,.webp"
+                              />
+
+                              <label
+                                class="btn btn-secondary branding-file-button"
+                                for="configuredLogoInput"
+                              >
+                                Choose file
+                              </label>
+                              <button
+                                id="removeConfiguredLogoFileButton"
+                                class="branding-remove-file-button"
+                                type="button"
+                                hidden
+                              >
+                                Remove selection
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="branding-asset-row">
+                          <div class="branding-preview-column">
+                            <span
+                              class="branding-preview-wrap"
+                              tabindex="0"
+                              aria-label="Show larger favicon preview"
+                            >
+                              <span
+                                class="branding-preview branding-preview-square"
+                              >
+                                <img
+                                  id="brandingFaviconPreview"
+                                  alt="Current favicon"
+                                  hidden
+                                />
+
+                                <span id="brandingFaviconFallback">
+                                  Not configured
+                                </span>
+                              </span>
+
+                              <span
+                                class="branding-hover-preview"
+                                aria-hidden="true"
+                              >
+                                <img
+                                  id="brandingFaviconHoverPreview"
+                                  alt=""
+                                  hidden
+                                />
+
+                                <span id="brandingFaviconHoverFallback">
+                                  Not configured
+                                </span>
+                              </span>
+                            </span>
+                          </div>
+
+                          <div class="branding-asset-details">
+                            <div class="branding-asset-copy">
+                              <label for="configuredFaviconInput">
+                                <strong>Favicon</strong>
+                              </label>
+
+                              <small id="brandingFaviconStatus"></small>
+
+                              <small class="branding-file-hint">
+                                <span>PNG or ICO.</span>
+                                <span>Maximum 5 MB.</span>
+                              </small>
+                            </div>
+
+                            <div class="branding-file-controls">
+                              <input
+                                id="configuredFaviconInput"
+                                class="visually-hidden"
+                                type="file"
+                                accept=".png,.ico"
+                              />
+
+                              <label
+                                class="btn btn-secondary branding-file-button"
+                                for="configuredFaviconInput"
+                              >
+                                Choose file
+                              </label>
+
+                              <button
+                                id="removeConfiguredFaviconFileButton"
+                                class="branding-remove-file-button"
+                                type="button"
+                                hidden
+                              >
+                                Remove selection
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="branding-asset-row">
+                          <div class="branding-preview-column">
+                            <span
+                              class="branding-preview-wrap"
+                              tabindex="0"
+                              aria-label="Show larger assistant avatar preview"
+                            >
+                              <span
+                                class="branding-preview branding-preview-avatar"
+                              >
+                                <img
+                                  id="brandingAvatarPreview"
+                                  alt="Current assistant avatar"
+                                  hidden
+                                />
+
+                                <span id="brandingAvatarFallback"></span>
+                              </span>
+
+                              <span
+                                class="branding-hover-preview"
+                                aria-hidden="true"
+                              >
+                                <img
+                                  id="brandingAvatarHoverPreview"
+                                  alt=""
+                                  hidden
+                                />
+
+                                <span id="brandingAvatarHoverFallback"></span>
+                              </span>
+                            </span>
+                          </div>
+
+                          <div class="branding-asset-details">
+                            <div class="branding-asset-copy">
+                              <label for="configuredAvatarInput">
+                                <strong>Assistant avatar</strong>
+                              </label>
+
+                              <small id="brandingAvatarStatus"></small>
+
+                              <small class="branding-file-hint">
+                                <span>PNG, JPG, JPEG, or WebP.</span>
+                                <span>Maximum 5 MB.</span>
+                              </small>
+                            </div>
+
+                            <div class="branding-file-controls">
+                              <input
+                                id="configuredAvatarInput"
+                                class="visually-hidden"
+                                type="file"
+                                accept=".png,.jpg,.jpeg,.webp"
+                              />
+
+                              <label
+                                class="btn btn-secondary branding-file-button"
+                                for="configuredAvatarInput"
+                              >
+                                Choose file
+                              </label>
+
+                              <button
+                                id="removeConfiguredAvatarFileButton"
+                                class="branding-remove-file-button"
+                                type="button"
+                                hidden
+                              >
+                                Remove selection
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="branding-editor-panel">
+                      <h3>Brand colours</h3>
+
+                      <p class="section-description">
+                        Choose a colour or enter a hexadecimal value.
+                      </p>
+
+                      <div class="configured-branding-colors">
+                        <div class="configured-branding-color-field">
+                          <label for="configuredBrandPrimaryText">
+                            Primary
+                          </label>
+
+                          <div class="color-control">
+                            <input
+                              id="configuredBrandPrimaryPicker"
+                              type="color"
+                              aria-label="Choose primary colour"
+                            />
+
+                            <input
+                              id="configuredBrandPrimaryText"
+                              type="text"
+                              maxlength="7"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div class="configured-branding-color-field">
+                          <label for="configuredBrandSecondaryText">
+                            Secondary
+                          </label>
+
+                          <div class="color-control">
+                            <input
+                              id="configuredBrandSecondaryPicker"
+                              type="color"
+                              aria-label="Choose secondary colour"
+                            />
+
+                            <input
+                              id="configuredBrandSecondaryText"
+                              type="text"
+                              maxlength="7"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div class="configured-branding-color-field">
+                          <label for="configuredBrandAccentText">
+                            Accent
+                          </label>
+
+                          <div class="color-control">
+                            <input
+                              id="configuredBrandAccentPicker"
+                              type="color"
+                              aria-label="Choose accent colour"
+                            />
+
+                            <input
+                              id="configuredBrandAccentText"
+                              type="text"
+                              maxlength="7"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div class="configured-branding-color-field">
+                          <label for="configuredBrandBackgroundText">
+                            Background
+                          </label>
+
+                          <div class="color-control">
+                            <input
+                              id="configuredBrandBackgroundPicker"
+                              type="color"
+                              aria-label="Choose background colour"
+                            />
+
+                            <input
+                              id="configuredBrandBackgroundText"
+                              type="text"
+                              maxlength="7"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div class="configured-branding-color-field">
+                          <label for="configuredBrandTextText"> Text </label>
+
+                          <div class="color-control">
+                            <input
+                              id="configuredBrandTextPicker"
+                              type="color"
+                              aria-label="Choose text colour"
+                            />
+
+                            <input
+                              id="configuredBrandTextText"
+                              type="text"
+                              maxlength="7"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  <div class="configured-settings-actions">
+                    <div id="configuredBrandingNotice"></div>
+
+                    <div class="configured-settings-action-buttons">
+                      <button
+                        id="cancelBrandingChangesButton"
+                        class="btn btn-secondary"
+                        type="button"
+                        disabled
+                      >
+                        Cancel changes
+                      </button>
+
+                      <button
+                        id="saveBrandingButton"
+                        class="btn"
+                        type="submit"
+                        disabled
+                      >
+                        Save branding
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </div>
 
     <script src="config.js"></script>
     <script src="api.js"></script>
-
-    <script>
-      let files = [];
-
-      async function startAdmin() {
-        try {
-          await initializeAdmin();
-
-          if (CONFIG_STATUS?.has_active_company === true) {
-            initializeUpload();
-          } else {
-            initializeCompanySetupForm();
-            initializeBrandingFields();
-            initializeFinishSetupButton();
-          }
-        } catch (error) {
-          console.error("Admin initialization failed:", error);
-
-          document.body.insertAdjacentHTML(
-            "afterbegin",
-            `
-              <div class="notice notice-error">
-                Could not load company configuration.
-              </div>
-            `,
-          );
-        }
-      }
-
-      async function initializeAdmin() {
-        await loadCompanyConfig();
-
-        const hasActiveCompany = CONFIG_STATUS?.has_active_company === true;
-
-        const answerlyHeader = document.getElementById("answerlyHeader");
-        const companyTopbar = document.getElementById("companyTopbar");
-
-        const answerlySetupContent = document.getElementById(
-          "answerlySetupContent",
-        );
-
-        const configuredAdminContent = document.getElementById(
-          "configuredAdminContent",
-        );
-
-        document.body.classList.toggle(
-          "answerly-onboarding",
-          !hasActiveCompany,
-        );
-
-        document.body.classList.toggle("company-configured", hasActiveCompany);
-
-        answerlyHeader.hidden = hasActiveCompany;
-        companyTopbar.hidden = !hasActiveCompany;
-
-        answerlySetupContent.hidden = hasActiveCompany;
-        configuredAdminContent.hidden = !hasActiveCompany;
-
-        if (!hasActiveCompany) {
-          document.title = "Answer.ly — Company Setup";
-          return;
-        }
-
-        const enabledModeKeys = Object.keys(COMPANY_CONFIG.modes).filter(
-          (mode) => COMPANY_CONFIG.modes[mode].enabled,
-        );
-
-        const enabledModeLabels = enabledModeKeys
-          .map((mode) =>
-            mode
-              .split("_")
-              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(" "),
-          )
-          .join(", ");
-
-        const defaultMode =
-          COMPANY_CONFIG.default_mode ||
-          enabledModeKeys.find((mode) => COMPANY_CONFIG.modes[mode].default) ||
-          enabledModeKeys[0];
-
-        document.title = `${COMPANY_CONFIG.company_name} — Assistant Setup`;
-
-        document.getElementById("assistantBrand").textContent =
-          `${COMPANY_CONFIG.assistant.name} by ${COMPANY_CONFIG.company_name}`;
-
-        document.getElementById("welcomeHeadline").textContent =
-          `${COMPANY_CONFIG.company_name} Assistant Setup`;
-
-        document.getElementById("welcomeDescription").textContent =
-          "Upload company documents and manage how the AI assistant behaves.";
-
-        document.getElementById("companyName").textContent =
-          COMPANY_CONFIG.company_name;
-
-        document.getElementById("assistantName").textContent =
-          COMPANY_CONFIG.assistant.name;
-
-        document.getElementById("assistantMode").textContent =
-          enabledModeLabels || "Not configured";
-
-        const currentVisibility = COMPANY_CONFIG.visibility?.[defaultMode];
-
-        document.getElementById("citationMode").textContent =
-          currentVisibility?.show_citations ? "Visible" : "Hidden";
-
-        applyBrandLogo(
-          document.getElementById("brandLogo"),
-          document.getElementById("logoInitial"),
-        );
-      }
-
-      function initializeCompanySetupForm() {
-        const form = document.getElementById("companySetupForm");
-
-        const extendedSection = document.getElementById(
-          "extendedCompanySection",
-        );
-
-        const requiredFields = Array.from(form.querySelectorAll("[required]"));
-
-        requiredFields.forEach((field) => {
-          const clearInvalidState = () => {
-            if (field.checkValidity()) {
-              field.classList.remove("field-invalid");
-              field.removeAttribute("aria-invalid");
-            }
-          };
-
-          field.addEventListener("input", clearInvalidState);
-          field.addEventListener("change", clearInvalidState);
-        });
-
-        form.addEventListener("submit", (event) => {
-          event.preventDefault();
-
-          let firstInvalidField = null;
-
-          requiredFields.forEach((field) => {
-            const isValid = field.checkValidity();
-
-            field.classList.toggle("field-invalid", !isValid);
-
-            if (!isValid) {
-              field.setAttribute("aria-invalid", "true");
-              firstInvalidField ??= field;
-            } else {
-              field.removeAttribute("aria-invalid");
-            }
-          });
-
-          if (firstInvalidField) {
-            window.alert("Please fill out all the fields");
-            firstInvalidField.focus();
-            return;
-          }
-
-          extendedSection.hidden = false;
-
-          extendedSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        });
-
-        requestAnimationFrame(() => {
-          document.getElementById("companyNameInput")?.focus();
-        });
-      }
-
-      function initializeBrandingFields() {
-        const colorFields = [
-          ["primaryColorPicker", "primaryColorText"],
-          ["secondaryColorPicker", "secondaryColorText"],
-          ["accentColorPicker", "accentColorText"],
-          ["backgroundColorPicker", "backgroundColorText"],
-          ["textColorPicker", "textColorText"],
-        ];
-
-        const hexPattern = /^#[0-9A-Fa-f]{6}$/;
-
-        colorFields.forEach(([pickerId, textId]) => {
-          const picker = document.getElementById(pickerId);
-          const text = document.getElementById(textId);
-
-          picker.addEventListener("input", () => {
-            text.value = picker.value.toUpperCase();
-            text.classList.remove("field-invalid");
-          });
-
-          text.addEventListener("input", () => {
-            const value = text.value.trim();
-
-            if (hexPattern.test(value)) {
-              picker.value = value;
-              text.value = value.toUpperCase();
-              text.classList.remove("field-invalid");
-            }
-          });
-
-          text.addEventListener("blur", () => {
-            const value = text.value.trim();
-
-            if (!hexPattern.test(value)) {
-              text.classList.add("field-invalid");
-              return;
-            }
-
-            text.value = value.toUpperCase();
-            picker.value = value;
-            text.classList.remove("field-invalid");
-          });
-        });
-      }
-
-      function initializeFinishSetupButton() {
-        const button = document.getElementById("finishSetupButton");
-        const notice = document.getElementById("finishSetupNotice");
-
-        button.addEventListener("click", async () => {
-          const supportedLanguages = document
-            .getElementById("supportedLanguagesInput")
-            .value.split(",")
-            .map((language) => language.trim())
-            .filter(Boolean);
-
-          const setupPayload = {
-            company_name: document
-              .getElementById("companyNameInput")
-              .value.trim(),
-            industry: document.getElementById("industryInput").value.trim(),
-
-            assistant: {
-              name: document.getElementById("assistantNameInput").value.trim(),
-              title: document
-                .getElementById("assistantTitleInput")
-                .value.trim(),
-              mode: document.getElementById("assistantModeInput").value,
-              default_language: document
-                .getElementById("defaultLanguageInput")
-                .value.trim(),
-              supported_languages: supportedLanguages,
-            },
-
-            conversation: {
-              tone: document.getElementById("toneInput").value,
-              response_length: document.getElementById("responseLengthInput")
-                .value,
-            },
-
-            company_details: {
-              description: document
-                .getElementById("companyDescriptionInput")
-                .value.trim(),
-            },
-
-            branding: {
-              colors: {
-                primary: document
-                  .getElementById("primaryColorText")
-                  .value.trim(),
-                secondary: document
-                  .getElementById("secondaryColorText")
-                  .value.trim(),
-                accent: document.getElementById("accentColorText").value.trim(),
-                background: document
-                  .getElementById("backgroundColorText")
-                  .value.trim(),
-                text: document.getElementById("textColorText").value.trim(),
-              },
-            },
-          };
-
-          button.disabled = true;
-          button.textContent = "Saving setup...";
-          notice.innerHTML = "";
-
-          try {
-            const result = await createCompanySetupWithAssets(setupPayload, {
-              logo:
-                document.getElementById("companyLogoInput").files[0] || null,
-              favicon:
-                document.getElementById("companyFaviconInput").files[0] || null,
-              assistantAvatar:
-                document.getElementById("assistantAvatarInput").files[0] ||
-                null,
-            });
-
-            console.log("Created company setup:", result);
-
-            notice.innerHTML = `
-              <div class="notice notice-success">
-                Setup complete. Opening document upload...
-              </div>`;
-
-            setTimeout(() => {
-              window.location.reload();
-            }, 600);
-          } catch (error) {
-            console.error(error);
-
-            notice.innerHTML = `
-        <div class="notice notice-error">
-          ${error.message}
-        </div>
-      `;
-          } finally {
-            button.disabled = false;
-            button.textContent = "Finish setup and upload documents";
-          }
-        });
-      }
-
-      function initializeUpload() {
-        const uploadZone = document.getElementById("uploadZone");
-        const fileInput = document.getElementById("fileInput");
-        const selectedFiles = document.getElementById("selectedFiles");
-        const selectedFileRows = document.getElementById("selectedFileRows");
-        const processButton = document.getElementById("processButton");
-        const clearButton = document.getElementById("clearButton");
-        const uploadNotice = document.getElementById("uploadNotice");
-        const indexedDocuments = document.getElementById("indexedDocuments");
-        const indexedFileRows = document.getElementById("indexedFileRows");
-
-        let dragCounter = 0;
-
-        document.body.addEventListener(
-          "dragover",
-          (event) => {
-            event.preventDefault();
-          },
-          false,
-        );
-
-        document.body.addEventListener(
-          "drop",
-          (event) => {
-            if (!uploadZone.contains(event.target)) {
-              event.preventDefault();
-            }
-          },
-          false,
-        );
-
-        uploadZone.addEventListener("dragenter", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          dragCounter += 1;
-          uploadZone.classList.add("drag-over");
-        });
-
-        uploadZone.addEventListener("dragover", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          uploadZone.classList.add("drag-over");
-        });
-
-        uploadZone.addEventListener("dragleave", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          dragCounter -= 1;
-
-          if (dragCounter <= 0) {
-            dragCounter = 0;
-            uploadZone.classList.remove("drag-over");
-          }
-        });
-
-        uploadZone.addEventListener("drop", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          dragCounter = 0;
-          uploadZone.classList.remove("drag-over");
-
-          console.log("Upload drop:", event.dataTransfer.files);
-
-          addFiles(event.dataTransfer.files);
-
-          setNotice(
-            "success",
-            `${event.dataTransfer.files.length} file(s) selected.`,
-          );
-        });
-
-        fileInput.addEventListener("change", (event) => {
-          addFiles(event.target.files);
-        });
-
-        clearButton.addEventListener("click", () => {
-          files = [];
-          fileInput.value = "";
-          uploadNotice.innerHTML = "";
-
-          renderSelectedFiles();
-        });
-
-        processButton.addEventListener("click", async () => {
-          if (files.length === 0) {
-            setNotice("error", "Choose at least one document first.");
-            return;
-          }
-
-          processButton.disabled = true;
-          processButton.textContent = "Processing documents...";
-
-          setNotice("success", "Uploading and indexing documents...");
-
-          try {
-            const result = await uploadDocuments(files);
-
-            storeUploadSummary(result);
-
-            setNotice(
-              "success",
-              `${result.files_processed} documents indexed successfully. You can now open the chat.`,
-            );
-
-            renderIndexedFiles(result.results);
-          } catch (error) {
-            setNotice("error", error.message);
-          } finally {
-            processButton.disabled = false;
-            processButton.textContent = "Process documents";
-          }
-        });
-
-        function renderSelectedFiles() {
-          selectedFileRows.innerHTML = "";
-
-          if (files.length === 0) {
-            selectedFiles.hidden = true;
-            return;
-          }
-
-          selectedFiles.hidden = false;
-
-          files.forEach((file, index) => {
-            const row = document.createElement("div");
-
-            row.className = "file-row";
-
-            row.innerHTML = `
-              <div>
-                <strong>${file.name}</strong>
-                <div class="file-meta">${formatBytes(file.size)}</div>
-              </div>
-
-              <button
-                class="remove-btn"
-                type="button"
-                data-index="${index}"
-              >
-                Remove
-              </button>
-            `;
-
-            selectedFileRows.appendChild(row);
-          });
-
-          document.querySelectorAll(".remove-btn").forEach((button) => {
-            button.addEventListener("click", () => {
-              const index = Number(button.dataset.index);
-
-              files.splice(index, 1);
-              renderSelectedFiles();
-            });
-          });
-        }
-
-        function setNotice(type, message) {
-          uploadNotice.innerHTML = `
-            <div class="notice notice-${type}">
-              ${message}
-            </div>
-          `;
-        }
-
-        function renderIndexedFiles(results) {
-          indexedFileRows.innerHTML = "";
-
-          results.forEach((result) => {
-            const row = document.createElement("div");
-
-            row.className = "file-row";
-
-            row.innerHTML = `
-              <div>
-                <strong>${result.filename}</strong>
-
-                <div class="file-meta">
-                  ${result.documents_loaded} document loaded
-                </div>
-              </div>
-
-              <span class="badge badge-success">
-                Indexed
-              </span>
-            `;
-
-            indexedFileRows.appendChild(row);
-          });
-
-          indexedDocuments.hidden = false;
-        }
-
-        function formatBytes(bytes) {
-          if (bytes < 1024) {
-            return `${bytes} B`;
-          }
-
-          if (bytes < 1024 * 1024) {
-            return `${(bytes / 1024).toFixed(1)} KB`;
-          }
-
-          return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-        }
-
-        function addFiles(fileList) {
-          const accepted = Array.from(fileList).filter((file) => {
-            const name = file.name.toLowerCase();
-
-            return (
-              name.endsWith(".pdf") ||
-              name.endsWith(".txt") ||
-              name.endsWith(".md")
-            );
-          });
-
-          files = [...files, ...accepted];
-
-          renderSelectedFiles();
-
-          if (accepted.length !== fileList.length) {
-            setNotice(
-              "error",
-              "Some files were skipped. Only PDF, TXT, and MD files are supported.",
-            );
-          }
-        }
-      }
-
-      startAdmin();
-    </script>
+    <script src="admin.js"></script>
   </body>
 </html>

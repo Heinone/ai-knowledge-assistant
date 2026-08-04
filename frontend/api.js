@@ -142,6 +142,84 @@ async function createCompanySetupWithAssets(
   return response.json();
 }
 
+async function updateCompanySettings(settingsPayload) {
+  const response = await fetch(
+    `${CONFIG_API_BASE_URL}/config/company/settings`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(settingsPayload),
+    },
+  );
+
+  const responseBody = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    console.error("Company settings update failed:", responseBody);
+
+    const errorMessage =
+      typeof responseBody?.detail === "string"
+        ? responseBody.detail
+        : "Could not update company settings.";
+
+    throw new Error(errorMessage);
+  }
+
+  return responseBody;
+}
+
+async function updateCompanyBranding(
+  brandingPayload,
+  { logo = null, favicon = null, assistantAvatar = null } = {},
+) {
+  const formData = new FormData();
+
+  formData.append("branding_json", JSON.stringify(brandingPayload));
+
+  if (logo) {
+    formData.append("logo", logo);
+  }
+
+  if (favicon) {
+    formData.append("favicon", favicon);
+  }
+
+  if (assistantAvatar) {
+    formData.append("assistant_avatar", assistantAvatar);
+  }
+
+  const response = await fetch(
+    `${CONFIG_API_BASE_URL}/config/company/branding`,
+    {
+      method: "PUT",
+      body: formData,
+    },
+  );
+
+  const responseBody = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    console.error("Company branding update failed:", responseBody);
+
+    let errorMessage = "Could not update company branding.";
+
+    if (typeof responseBody?.detail === "string") {
+      errorMessage = responseBody.detail;
+    } else if (Array.isArray(responseBody?.detail)) {
+      errorMessage = responseBody.detail
+        .map((item) => item.msg)
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return responseBody;
+}
+
 function storeUploadSummary(summary) {
   localStorage.setItem("aka_upload_summary", JSON.stringify(summary));
 }
