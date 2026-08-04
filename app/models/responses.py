@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.models.assistant_mode import AssistantMode
 
 
 class SourceChunk(BaseModel):
@@ -10,4 +12,5 @@ class SourceChunk(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
-    sources: list[SourceChunk] = []
+    mode: AssistantMode
+    sources: list[SourceChunk] = Field(default_factory=list)

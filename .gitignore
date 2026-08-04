@@ -39,3 +39,17 @@ node_modules/
 # Company data
 data/company/*
 !data/company/.gitkeep
+
+#Generated indexes
+data/indexes/
+data/documents/*.sqlite3
+data/documents/*.sqlite3-shm
+data/documents/*.sqlite3-wal
+data/archive/
+data/migration/
+data/uploads/
+data/indexes/
+data/documents/
+data/rebuild_staging/
+data/rebuild_backups/
+data/deletion_staging/

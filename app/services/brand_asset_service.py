@@ -90,9 +90,16 @@ async def save_brand_asset_upload(
     upload: UploadFile | None,
     validated_file: dict | None,
     assets_directory: Path,
+    relative_assets_directory: Path = Path("assets"),
 ) -> str | None:
     if upload is None or validated_file is None:
         return None
+
+    if (
+    relative_assets_directory.is_absolute()
+    or ".." in relative_assets_directory.parts
+    ):
+        raise ValueError("Invalid relative branding asset directory.")
 
     assets_directory.mkdir(
         parents=True,
@@ -145,5 +152,37 @@ async def save_brand_asset_upload(
             temporary_path.unlink()
 
     return (
-        Path("assets") / target_filename
-    ).as_posix()
+    relative_assets_directory / target_filename
+)   .as_posix()
+
+def delete_brand_asset_file(
+    relative_asset_path: str | None,
+    config_directory: Path,
+) -> None:
+    if not relative_asset_path:
+        return
+
+    resolved_config_directory = config_directory.resolve()
+    assets_root = (
+        resolved_config_directory / "assets"
+    ).resolve()
+
+    asset_path = (
+        resolved_config_directory / relative_asset_path
+    ).resolve()
+
+    if not asset_path.is_relative_to(assets_root):
+        raise ValueError("Invalid branding asset path.")
+
+    if asset_path.is_file():
+        asset_path.unlink()
+
+    parent = asset_path.parent
+
+    while parent != assets_root:
+        try:
+            parent.rmdir()
+        except OSError:
+            break
+
+        parent = parent.parent

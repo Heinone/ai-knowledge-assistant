@@ -5,8 +5,19 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
+from copy import deepcopy
 
-from app.models.company_setup import CompanySetupRequest
+from app.models.company_setup import (
+    AssistantModeSettingsUpdateRequest,
+    AssistantModesUpdateRequest,
+    BrandingSettingsUpdateRequest,
+    CompanySettingsUpdateRequest,
+    CompanySetupRequest,
+)
+from app.models.assistant_mode import AssistantMode
+from app.services.company_config_migration_service import (
+    migrate_company_config_to_v2,
+)
 
 
 def build_company_config(
@@ -15,7 +26,7 @@ def build_company_config(
     company_id = generate_company_id(request.company_name)
     selected_mode = request.assistant.mode
 
-    return {
+    company_config = {
         "company_id": company_id,
         "company_name": request.company_name,
         "description": request.company_details.description,
@@ -131,6 +142,9 @@ def build_company_config(
             },
         },
     }
+    return migrate_company_config_to_v2(
+    company_config
+    )
 
 def generate_company_id(company_name: str) -> str:
     normalized_name = unicodedata.normalize("NFKD", company_name)
@@ -154,6 +168,230 @@ def generate_company_id(company_name: str) -> str:
         )
 
     return company_id
+
+def apply_company_settings_update(
+    existing_config: dict[str, Any],
+    request: CompanySettingsUpdateRequest,
+) -> dict[str, Any]:
+    updated_config = migrate_company_config_to_v2(
+    existing_config
+)
+
+    old_assistant_name = (
+        updated_config.get("assistant", {}).get("name", "")
+    )
+
+    selected_mode = request.assistant.mode
+
+    updated_config["company_name"] = request.company_name
+    updated_config["industry"] = request.industry
+    updated_config["description"] = request.company_details.description
+
+    assistant = updated_config.setdefault("assistant", {})
+
+    assistant["name"] = request.assistant.name
+    assistant["title"] = request.assistant.title
+    assistant["default_language"] = (
+        request.assistant.default_language
+    )
+    assistant["supported_languages"] = (
+        request.assistant.supported_languages
+    )
+
+    modes = updated_config.setdefault("modes", {})
+
+    conversation = updated_config.setdefault(
+        "conversation",
+        {},
+    )
+
+    conversation["tone"] = request.conversation.tone
+    conversation["response_length"] = (
+        request.conversation.response_length
+    )
+
+    greeting = conversation.get("greeting")
+
+    if isinstance(greeting, dict):
+        old_default_greeting = (
+            f"Hello, I'm {old_assistant_name}. "
+            "How can I help you today?"
+        )
+
+        if greeting.get("message") == old_default_greeting:
+            greeting["message"] = (
+                f"Hello, I'm {request.assistant.name}. "
+                "How can I help you today?"
+            )
+
+    selected_mode_config = modes.setdefault(
+    selected_mode,
+    {},
+    )
+
+    selected_mode_config["assistant"] = deepcopy(
+        assistant
+    )
+
+    selected_mode_config["conversation"] = deepcopy(
+        conversation
+    )
+
+    # Global compatibility fields must always represent
+    # the configured default mode.
+    default_mode = updated_config.get(
+        "default_mode"
+    )
+
+    if default_mode != selected_mode:
+        default_mode_config = modes.get(
+            default_mode,
+            {},
+        )
+
+        default_assistant = default_mode_config.get(
+            "assistant",
+        )
+
+        default_conversation = default_mode_config.get(
+            "conversation",
+        )
+
+        if isinstance(default_assistant, dict):
+            updated_config["assistant"] = deepcopy(
+                default_assistant
+            )
+
+        if isinstance(default_conversation, dict):
+            updated_config["conversation"] = deepcopy(
+                default_conversation
+            )
+
+        return updated_config
+
+def apply_assistant_mode_settings_update(
+    existing_config: dict[str, Any],
+    *,
+    mode: AssistantMode,
+    request: AssistantModeSettingsUpdateRequest,
+) -> dict[str, Any]:
+    updated_config = migrate_company_config_to_v2(
+        existing_config
+    )
+
+    modes = updated_config.setdefault(
+        "modes",
+        {},
+    )
+
+    mode_config = modes.setdefault(
+        mode.value,
+        {},
+    )
+
+    mode_config["display_name"] = (
+        request.display_name
+    )
+
+    assistant = mode_config.setdefault(
+        "assistant",
+        {},
+    )
+
+    assistant.update(
+        request.assistant.model_dump()
+    )
+
+    conversation = mode_config.setdefault(
+        "conversation",
+        {},
+    )
+
+    conversation.update(
+        request.conversation.model_dump()
+    )
+
+    chat = mode_config.setdefault(
+        "chat",
+        {},
+    )
+
+    chat.update(
+        request.chat.model_dump()
+    )
+
+    mode_config["prompt_guide"] = (
+        request.prompt_guide
+    )
+
+    mode_config["show_citations"] = (
+        request.show_citations
+    )
+
+    # Keep legacy mode-specific fields synchronized until
+    # the current frontend has been migrated to schema v2.
+    legacy_chat = updated_config.setdefault(
+        mode.value,
+        {},
+    )
+
+    legacy_chat.update(
+        request.chat.model_dump()
+    )
+
+    prompts = updated_config.setdefault(
+        "prompts",
+        {},
+    )
+
+    prompts[mode.value] = request.prompt_guide
+
+    visibility = updated_config.setdefault(
+        "visibility",
+        {},
+    )
+
+    mode_visibility = visibility.setdefault(
+        mode.value,
+        {},
+    )
+
+    mode_visibility["show_citations"] = (
+        request.show_citations
+    )
+
+    # Global assistant/conversation fields are temporary
+    # compatibility fields representing the default mode.
+    if updated_config.get("default_mode") == mode.value:
+        updated_config["assistant"] = deepcopy(
+            assistant
+        )
+
+        updated_config["conversation"] = deepcopy(
+            conversation
+        )
+
+    return updated_config
+
+def apply_company_branding_update(
+    existing_config: dict[str, Any],
+    request: BrandingSettingsUpdateRequest,
+) -> dict[str, Any]:
+    updated_config = deepcopy(existing_config)
+
+    branding = updated_config.setdefault("branding", {})
+    branding.setdefault(
+        "assets",
+        {
+            "logo": None,
+            "favicon": None,
+            "assistant_avatar": None,
+        },
+    )
+
+    branding["colors"] = request.colors.model_dump()
+
+    return updated_config
 
 def save_company_config(
     company_config: dict[str, Any],
@@ -198,3 +436,72 @@ def save_company_config(
     finally:
         if temporary_path and temporary_path.exists():
             temporary_path.unlink()
+
+def apply_assistant_modes_update(
+    existing_config: dict[str, Any],
+    request: AssistantModesUpdateRequest,
+) -> dict[str, Any]:
+    updated_config = migrate_company_config_to_v2(
+        existing_config
+    )
+
+    enabled_modes = set(request.enabled_modes)
+    default_mode = request.default_mode
+
+    modes = updated_config.setdefault(
+        "modes",
+        {},
+    )
+
+    for mode in AssistantMode:
+        mode_config = modes.setdefault(
+            mode.value,
+            {},
+        )
+
+        mode_config["enabled"] = (
+            mode in enabled_modes
+        )
+
+        mode_config["default"] = (
+            mode == default_mode
+        )
+
+    updated_config["default_mode"] = (
+        default_mode.value
+    )
+
+    default_mode_config = modes[
+        default_mode.value
+    ]
+
+    default_assistant = default_mode_config.get(
+        "assistant",
+        {},
+    )
+
+    default_conversation = default_mode_config.get(
+        "conversation",
+        {},
+    )
+
+    if not isinstance(default_assistant, dict):
+        raise ValueError(
+            "Default assistant configuration is invalid."
+        )
+
+    if not isinstance(default_conversation, dict):
+        raise ValueError(
+            "Default conversation configuration is invalid."
+        )
+
+    # Temporary compatibility fields for the current frontend.
+    updated_config["assistant"] = deepcopy(
+        default_assistant
+    )
+
+    updated_config["conversation"] = deepcopy(
+        default_conversation
+    )
+
+    return updated_config

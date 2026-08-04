@@ -1,4 +1,8 @@
-from app.config.company_config import load_company_config
+from app.config.company_config import (
+    get_mode_fallback_message,
+    load_company_config,
+)
+from app.models.assistant_mode import AssistantMode
 
 
 def is_refusal(answer: str, refusal_message: str) -> bool:
@@ -6,19 +10,18 @@ def is_refusal(answer: str, refusal_message: str) -> bool:
 
 
 def validate_answer(
+    *,
     question: str,
     answer: str,
     sources: list[dict],
+    mode: AssistantMode,
 ) -> dict:
-
     company = load_company_config()
-    refusal_message = (
-    company.get("customer_support", {})
-    .get(
-        "fallback_message",
-        "I could not find enough information to answer that confidently."
+
+    refusal_message = get_mode_fallback_message(
+        company=company,
+        mode=mode,
     )
-)
 
     if not answer.strip():
         return {
@@ -42,6 +45,7 @@ def validate_answer(
         }
 
     question_lower = question.lower()
+
     source_text = " ".join(
         source.get("text", "")
         for source in sources

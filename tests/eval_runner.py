@@ -3,10 +3,11 @@ from pathlib import Path
 
 from app.services.ingestion_service import build_index_from_directory
 from app.services.chat_service import answer_question
-from app.services.session_service import reset_greeting
+from app.models.assistant_mode import AssistantMode
 
 
 REFUSAL_TEXT = "I could not find enough information"
+EVAL_MODE = AssistantMode.CUSTOMER_SUPPORT
 
 
 def load_eval_cases():
@@ -35,7 +36,10 @@ def refused(answer: str) -> bool:
 
 
 def run_eval_case(case: dict) -> dict:
-    result = answer_question(case["question"])
+    result = answer_question(
+    case["question"],
+    mode=EVAL_MODE,
+)
 
     answer = result["answer"]
     sources = result["sources"]
@@ -73,9 +77,8 @@ def main():
         path="tests/fixtures/nordictrail",
         chunk_size=512,
         chunk_overlap=50,
+        mode=EVAL_MODE,
     )
-
-    reset_greeting()
 
     cases = load_eval_cases()
 
