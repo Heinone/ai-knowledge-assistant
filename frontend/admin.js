@@ -40,6 +40,7 @@ async function startAdmin() {
 
     if (CONFIG_STATUS?.has_active_company === true) {
       initializeUpload();
+      initializeAssistantModesPanel();
       initializeCompanySettingsToggle();
       initializeBrandingOverviewToggle();
       populateCompanySettingsForm();
@@ -123,16 +124,25 @@ async function initializeAdmin() {
   document.getElementById("companyName").textContent =
     COMPANY_CONFIG.company_name;
 
+  const defaultModeConfig = COMPANY_CONFIG.modes?.[defaultMode] || {};
+
+  const defaultAssistant =
+    defaultModeConfig.assistant || COMPANY_CONFIG.assistant || {};
+
   document.getElementById("assistantName").textContent =
-    COMPANY_CONFIG.assistant.name;
+    defaultAssistant.name || "Not configured";
 
   document.getElementById("assistantMode").textContent =
     enabledModeLabels || "Not configured";
 
-  const currentVisibility = COMPANY_CONFIG.visibility?.[defaultMode];
+  const showCitations =
+    typeof defaultModeConfig.show_citations === "boolean"
+      ? defaultModeConfig.show_citations
+      : COMPANY_CONFIG.visibility?.[defaultMode]?.show_citations === true;
 
-  document.getElementById("citationMode").textContent =
-    currentVisibility?.show_citations ? "Visible" : "Hidden";
+  document.getElementById("citationMode").textContent = showCitations
+    ? "Visible"
+    : "Hidden";
 
   applyBrandLogo(
     document.getElementById("brandLogo"),

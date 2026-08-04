@@ -170,6 +170,40 @@ async function updateCompanySettings(settingsPayload) {
   return responseBody;
 }
 
+async function updateAssistantModes(enabledModes, defaultMode) {
+  const response = await fetch(`${CONFIG_API_BASE_URL}/config/company/modes`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      enabled_modes: enabledModes,
+      default_mode: defaultMode,
+    }),
+  });
+
+  const responseBody = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    console.error("Assistant mode settings update failed:", responseBody);
+
+    let errorMessage = "Could not update assistant mode settings.";
+
+    if (typeof responseBody?.detail === "string") {
+      errorMessage = responseBody.detail;
+    } else if (Array.isArray(responseBody?.detail)) {
+      errorMessage = responseBody.detail
+        .map((item) => item.msg)
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return responseBody;
+}
+
 async function updateCompanyBranding(
   brandingPayload,
   { logo = null, favicon = null, assistantAvatar = null } = {},

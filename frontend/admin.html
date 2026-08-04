@@ -451,7 +451,95 @@
               internal use!
             </p>
           </section>
+          <section class="card configured-settings-card">
+            <div class="card-body">
+              <div class="configured-settings-heading">
+                <div>
+                  <h2>Assistant modes</h2>
 
+                  <p>
+                    Enable the assistants this company uses and choose which one
+                    opens by default.
+                  </p>
+                </div>
+              </div>
+
+              <form id="assistantModesForm" novalidate>
+                <div class="configured-settings-form-grid">
+                  <section class="configured-settings-group">
+                    <h3>Customer service</h3>
+
+                    <div class="configured-form-field">
+                      <label>
+                        <input
+                          id="customerSupportEnabledInput"
+                          type="checkbox"
+                          value="customer_support"
+                        />
+
+                        Enable customer service assistant
+                      </label>
+                    </div>
+
+                    <div class="configured-form-field">
+                      <label>
+                        <input
+                          id="customerSupportDefaultInput"
+                          type="radio"
+                          name="defaultAssistantMode"
+                          value="customer_support"
+                        />
+
+                        Use as default assistant
+                      </label>
+                    </div>
+                  </section>
+
+                  <section class="configured-settings-group">
+                    <h3>Internal knowledge</h3>
+
+                    <div class="configured-form-field">
+                      <label>
+                        <input
+                          id="internalKnowledgeEnabledInput"
+                          type="checkbox"
+                          value="internal_knowledge"
+                        />
+
+                        Enable internal knowledge assistant
+                      </label>
+                    </div>
+
+                    <div class="configured-form-field">
+                      <label>
+                        <input
+                          id="internalKnowledgeDefaultInput"
+                          type="radio"
+                          name="defaultAssistantMode"
+                          value="internal_knowledge"
+                        />
+
+                        Use as default assistant
+                      </label>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="configured-settings-actions">
+                  <div id="assistantModesNotice"></div>
+
+                  <button
+                    id="saveAssistantModesButton"
+                    class="btn"
+                    type="submit"
+                    disabled
+                  >
+                    Save mode settings
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
           <section class="grid">
             <div class="card">
               <div class="card-body">
@@ -1150,6 +1238,7 @@
 
     <script src="config.js"></script>
     <script src="api.js"></script>
+    <script src="admin-modes.js"></script>
     <script src="admin.js"></script>
   </body>
 </html>
