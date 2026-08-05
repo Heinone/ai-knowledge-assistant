@@ -1,21 +1,74 @@
 const API_BASE_URL = "http://127.0.0.1:8000";
 
-async function uploadDocuments(files) {
+async function uploadDocuments(files, mode) {
   const formData = new FormData();
 
   for (const file of files) {
     formData.append("files", file);
   }
 
+  formData.append("mode", mode);
+
   const response = await fetch(`${API_BASE_URL}/documents/upload-batch`, {
     method: "POST",
     body: formData,
   });
 
-  const data = await response.json();
+  const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data.detail || "Document upload failed.");
+    throw new Error(
+      typeof data?.detail === "string"
+        ? data.detail
+        : "Document upload failed.",
+    );
+  }
+
+  return data;
+}
+
+async function getDocuments(mode) {
+  const query = new URLSearchParams({
+    mode,
+  });
+
+  const response = await fetch(`${API_BASE_URL}/documents?${query.toString()}`);
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      typeof data?.detail === "string"
+        ? data.detail
+        : "Could not load documents.",
+    );
+  }
+
+  return data;
+}
+
+async function deleteDocument(documentId, mode) {
+  const query = new URLSearchParams({
+    mode,
+  });
+
+  const response = await fetch(
+    `${API_BASE_URL}/documents/${encodeURIComponent(
+      documentId,
+    )}?${query.toString()}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      typeof data?.detail === "string"
+        ? data.detail
+        : "Could not delete the document.",
+    );
   }
 
   return data;
@@ -163,40 +216,6 @@ async function updateCompanySettings(settingsPayload) {
       typeof responseBody?.detail === "string"
         ? responseBody.detail
         : "Could not update company settings.";
-
-    throw new Error(errorMessage);
-  }
-
-  return responseBody;
-}
-
-async function updateAssistantModes(enabledModes, defaultMode) {
-  const response = await fetch(`${CONFIG_API_BASE_URL}/config/company/modes`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      enabled_modes: enabledModes,
-      default_mode: defaultMode,
-    }),
-  });
-
-  const responseBody = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    console.error("Assistant mode settings update failed:", responseBody);
-
-    let errorMessage = "Could not update assistant mode settings.";
-
-    if (typeof responseBody?.detail === "string") {
-      errorMessage = responseBody.detail;
-    } else if (Array.isArray(responseBody?.detail)) {
-      errorMessage = responseBody.detail
-        .map((item) => item.msg)
-        .filter(Boolean)
-        .join(" ");
-    }
 
     throw new Error(errorMessage);
   }
