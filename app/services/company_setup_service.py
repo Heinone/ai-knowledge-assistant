@@ -13,11 +13,59 @@ from app.models.company_setup import (
     BrandingSettingsUpdateRequest,
     CompanySettingsUpdateRequest,
     CompanySetupRequest,
+    InitialAssistantSetupRequest,
 )
 from app.models.assistant_mode import AssistantMode
 from app.services.company_config_migration_service import (
     migrate_company_config_to_v2,
 )
+
+
+def _get_initial_assistant_setup(
+    request: CompanySetupRequest,
+    mode: AssistantMode,
+) -> InitialAssistantSetupRequest | None:
+    if mode == AssistantMode.CUSTOMER_SUPPORT:
+        return request.customer_support
+
+    if mode == AssistantMode.INTERNAL_KNOWLEDGE:
+        return request.internal_knowledge
+
+    raise ValueError(
+        f"Unsupported assistant mode: {mode.value}."
+    )
+
+
+def _build_fallback_message(
+    *,
+    base_message: str,
+    email: str,
+    phone: str,
+    contact_name: str,
+) -> str:
+    normalized_email = email.strip()
+    normalized_phone = phone.strip()
+
+    if normalized_email and normalized_phone:
+        return (
+            f"{base_message} You can email our "
+            f"{contact_name} at {normalized_email} "
+            f"or call {normalized_phone}."
+        )
+
+    if normalized_email:
+        return (
+            f"{base_message} You can email our "
+            f"{contact_name} at {normalized_email}."
+        )
+
+    if normalized_phone:
+        return (
+            f"{base_message} You can call our "
+            f"{contact_name} at {normalized_phone}."
+        )
+
+    return base_message
 
 
 def build_company_config(
@@ -33,29 +81,100 @@ def build_company_config(
             "At least one assistant mode must be provisioned."
         )
 
+    provisioned_modes = set(available_modes)
+
+    provided_modes = {
+        mode
+        for mode in AssistantMode
+        if _get_initial_assistant_setup(
+            request,
+            mode,
+        )
+        is not None
+    }
+
+    if provided_modes != provisioned_modes:
+        missing_modes = (
+            provisioned_modes - provided_modes
+        )
+
+        unavailable_modes = (
+            provided_modes - provisioned_modes
+        )
+
+        problems: list[str] = []
+
+        if missing_modes:
+            problems.append(
+                "Missing setup for provisioned modes: "
+                + ", ".join(
+                    sorted(
+                        mode.value
+                        for mode in missing_modes
+                    )
+                )
+            )
+
+        if unavailable_modes:
+            problems.append(
+                "Setup contains unavailable modes: "
+                + ", ".join(
+                    sorted(
+                        mode.value
+                        for mode in unavailable_modes
+                    )
+                )
+            )
+
+        raise ValueError(
+            "; ".join(problems)
+        )
+
+    primary_mode = available_modes[0]
+
+    primary_setup = _get_initial_assistant_setup(
+        request,
+        primary_mode,
+    )
+
+    if primary_setup is None:
+        raise ValueError(
+            "Primary assistant setup is missing."
+        )
+
     company_id = generate_company_id(
         request.company_name
     )
 
-    compatibility_default_mode = (
-        available_modes[0]
-    )
-
-    provisioned_modes = set(
-        available_modes
-    )
-
-    company_config = {
+    company_config: dict[str, Any] = {
         "company_id": company_id,
         "company_name": request.company_name,
-        "description": request.company_details.description,
+        "description": "",
         "industry": request.industry,
-        "default_mode": (compatibility_default_mode.value),
+        # Compatibility fields until schema v3 removes
+        # the old global assistant representation.
+        "default_mode": primary_mode.value,
         "assistant": {
-            "name": request.assistant.name,
-            "title": request.assistant.title,
-            "default_language": request.assistant.default_language,
-            "supported_languages": request.assistant.supported_languages,
+            "name": primary_setup.assistant_name,
+            "title": "AI Assistant",
+            "default_language": "English",
+            "supported_languages": [
+                "English",
+            ],
+        },
+        "conversation": {
+            "tone": "professional",
+            "response_length": "balanced",
+            "formality_level": "professional",
+            "emoji_usage": "never",
+            "greeting": {
+                "enabled": True,
+                "message": (
+                    f"Hello, I'm "
+                    f"{primary_setup.assistant_name}. "
+                    "How can I help you today?"
+                ),
+            },
         },
         "modes": {
             mode.value: {
@@ -63,8 +182,7 @@ def build_company_config(
                     mode in provisioned_modes
                 ),
                 "default": (
-                    mode
-                    == compatibility_default_mode
+                    mode == primary_mode
                 ),
             }
             for mode in AssistantMode
@@ -75,34 +193,29 @@ def build_company_config(
                 "favicon": None,
                 "assistant_avatar": None,
             },
-            "colors": request.branding.colors.model_dump(),
+            "colors": {
+                "primary": "#12343B",
+                "secondary": "#F8F7F3",
+                "accent": "#2EC4B6",
+                "background": "#F8FAFC",
+                "text": "#111827",
+            },
             "fonts": {
                 "heading": "Inter",
                 "body": "Inter",
             },
             "ui_theme": "professional",
         },
-        "conversation": {
-            "tone": request.conversation.tone,
-            "response_length": request.conversation.response_length,
-            "formality_level": "professional",
-            "emoji_usage": "never",
-            "greeting": {
-                "enabled": True,
-                "message": (
-                    f"Hello, I'm {request.assistant.name}. "
-                    "How can I help you today?"
-                ),
-            },
-        },
         "customer_support": {
-            "chat_headline": "Customer Support",
+            "chat_headline": "Customer Service",
             "chat_description": (
-                "Ask questions about our products, services, "
-                "support, and policies."
+                "Ask questions about our products, "
+                "services, support, and policies."
             ),
             "placeholder": "Type your question...",
-            "loading_message": "Searching the knowledge base...",
+            "loading_message": (
+                "Searching the knowledge base..."
+            ),
             "allowed_topics": [
                 "products",
                 "services",
@@ -110,25 +223,30 @@ def build_company_config(
                 "policies",
             ],
             "support_contacts": {
-                "name": "Customer Support Team",
+                "name": "Customer Service",
                 "email": "",
                 "phone": "",
             },
             "opening_hours": "",
             "fallback_message": (
-                "I could not find enough information to answer "
-                "that confidently."
+                "Sorry, I couldn't find enough "
+                "information to answer that confidently."
             ),
         },
         "internal_knowledge": {
-            "chat_headline": "Internal Knowledge Assistant",
+            "chat_headline": (
+                "Internal Knowledge Assistant"
+            ),
             "chat_description": (
-                "Ask questions about internal company information."
+                "Ask questions about internal "
+                "company information."
             ),
             "placeholder": "Ask a question...",
-            "loading_message": "Searching the knowledge base...",
+            "loading_message": (
+                "Searching the knowledge base..."
+            ),
             "support_contacts": {
-                "name": "Internal Helpdesk",
+                "name": "Helpdesk",
                 "email": "",
                 "phone": "",
             },
@@ -138,8 +256,9 @@ def build_company_config(
                 "phone": "",
             },
             "fallback_message": (
-                "I could not find enough information in the "
-                "knowledge base to answer this confidently."
+                "Sorry, I couldn't find enough "
+                "information in the knowledge base "
+                "to answer that confidently."
             ),
         },
         "prompts": {
@@ -148,10 +267,14 @@ def build_company_config(
         },
         "knowledge_bases": {
             "customer_support": {
-                "documents_path": "documents/customer_support",
+                "documents_path": (
+                    "documents/customer_support"
+                ),
             },
             "internal_knowledge": {
-                "documents_path": "documents/internal_knowledge",
+                "documents_path": (
+                    "documents/internal_knowledge"
+                ),
             },
         },
         "visibility": {
@@ -163,9 +286,156 @@ def build_company_config(
             },
         },
     }
-    return migrate_company_config_to_v2(
+
+    migrated = migrate_company_config_to_v2(
         company_config
     )
+
+    for mode in available_modes:
+        setup = _get_initial_assistant_setup(
+            request,
+            mode,
+        )
+
+        if setup is None:
+            raise ValueError(
+                f"Setup for '{mode.value}' is missing."
+            )
+
+        mode_config = migrated["modes"][
+            mode.value
+        ]
+
+        is_internal = (
+            mode
+            == AssistantMode.INTERNAL_KNOWLEDGE
+        )
+
+        contact_name = (
+            "helpdesk"
+            if is_internal
+            else "customer service"
+        )
+
+        base_fallback_message = (
+            "Sorry, I couldn't find enough "
+            "information in the knowledge base "
+            "to answer that confidently."
+            if is_internal
+            else
+            "Sorry, I couldn't find enough "
+            "information to answer that confidently."
+        )
+
+        fallback_message = (
+            _build_fallback_message(
+                base_message=base_fallback_message,
+                email=setup.contact_email,
+                phone=setup.contact_phone,
+                contact_name=contact_name,
+            )
+        )
+
+        mode_config["display_name"] = (
+            setup.chat_name
+        )
+
+        mode_config["assistant"] = {
+            "name": setup.assistant_name,
+            "title": "AI Assistant",
+            "default_language": "English",
+            "supported_languages": [
+                "English",
+            ],
+        }
+
+        mode_config["conversation"] = {
+            "tone": "professional",
+            "response_length": "balanced",
+            "formality_level": "professional",
+            "emoji_usage": "never",
+            "greeting": {
+                "enabled": True,
+                "message": (
+                    f"Hello, I'm "
+                    f"{setup.assistant_name}. "
+                    "How can I help you today?"
+                ),
+            },
+        }
+
+        chat = mode_config.setdefault(
+            "chat",
+            {},
+        )
+
+        chat["chat_headline"] = (
+            setup.chat_name
+        )
+
+        chat["fallback_message"] = (
+            fallback_message
+        )
+
+        mode_config["contacts"] = {
+            "email": setup.contact_email,
+            "phone": setup.contact_phone,
+        }
+
+        mode_config["fallback"] = {
+            "base_message": (
+                base_fallback_message
+            ),
+            "include_email": bool(
+                setup.contact_email
+            ),
+            "include_phone": bool(
+                setup.contact_phone
+            ),
+        }
+
+        mode_config["show_citations"] = (
+            is_internal
+        )
+
+        legacy_mode = migrated[
+            mode.value
+        ]
+
+        legacy_mode["chat_headline"] = (
+            setup.chat_name
+        )
+
+        legacy_mode["fallback_message"] = (
+            fallback_message
+        )
+
+        legacy_contacts = (
+            legacy_mode.setdefault(
+                "support_contacts",
+                {},
+            )
+        )
+
+        legacy_contacts["name"] = (
+            "Internal Helpdesk"
+            if is_internal
+            else "Customer Service"
+        )
+
+        legacy_contacts["email"] = (
+            setup.contact_email
+        )
+
+        legacy_contacts["phone"] = (
+            setup.contact_phone
+        )
+
+        migrated["visibility"][
+            mode.value
+        ]["show_citations"] = is_internal
+
+    return migrated
 
 def generate_company_id(company_name: str) -> str:
     normalized_name = unicodedata.normalize("NFKD", company_name)

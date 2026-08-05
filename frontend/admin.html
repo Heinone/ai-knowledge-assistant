@@ -44,404 +44,207 @@
           <section class="answerly-intro">
             <h1>Welcome to Answer.ly</h1>
 
-            <p>Your custom AI assistant setup in five minutes!</p>
+            <p>Set up your company and AI assistant.</p>
           </section>
 
           <section class="answerly-setup-panel">
-            <div class="card">
-              <div class="card-body">
-                <h2>Set up your company</h2>
+            <div class="card onboarding-shell">
+              <div class="card-body onboarding-shell-body">
+                <div class="onboarding-heading">
+                  <h2>Company setup</h2>
 
-                <p>
-                  Add your company information and customise your AI assistant.
-                </p>
+                  <p>
+                    <span>
+                      Add the basic information needed to create your assistant.
+                    </span>
 
-                <p class="setup-guidance">
-                  Start with the required company details. You can then finish
-                  setup with the default settings and move on to uploading
-                  knowledge documents, or add optional company details and
-                  branding before continuing.
-                </p>
+                    <span>
+                      Branding and advanced settings can be configured
+                      afterward.
+                    </span>
+                  </p>
+                </div>
 
-                <form id="companySetupForm" novalidate>
-                  <div class="form-grid">
-                    <div class="form-field">
-                      <label for="companyNameInput">Company name</label>
+                <form id="companySetupForm" class="onboarding-form" novalidate>
+                  <div class="onboarding-form-content">
+                    <div class="onboarding-groups">
+                      <fieldset class="onboarding-group">
+                        <legend>Company</legend>
 
-                      <input
-                        id="companyNameInput"
-                        name="company_name"
-                        type="text"
-                        required
-                        autocomplete="organization"
-                        placeholder="Example Company"
-                      />
-                    </div>
+                        <div class="onboarding-fields">
+                          <div class="onboarding-field">
+                            <label for="companyNameInput"> Company name </label>
 
-                    <div class="form-field">
-                      <label for="industryInput">Industry</label>
+                            <input
+                              id="companyNameInput"
+                              name="company_name"
+                              type="text"
+                              required
+                              autocomplete="organization"
+                              placeholder="Example Company"
+                            />
+                          </div>
 
-                      <input
-                        id="industryInput"
-                        name="industry"
-                        type="text"
-                        required
-                        placeholder="Software, retail, consulting..."
-                      />
-                    </div>
+                          <div class="onboarding-field">
+                            <label for="industryInput"> Industry </label>
 
-                    <div class="form-field">
-                      <label for="assistantNameInput">Assistant name</label>
+                            <input
+                              id="industryInput"
+                              name="industry"
+                              type="text"
+                              required
+                              placeholder="Retail, software, consulting..."
+                            />
+                          </div>
+                        </div>
+                      </fieldset>
 
-                      <input
-                        id="assistantNameInput"
-                        name="assistant_name"
-                        type="text"
-                        required
-                        placeholder="Alex"
-                      />
-                    </div>
-
-                    <div class="form-field">
-                      <label for="assistantTitleInput">Assistant title</label>
-
-                      <input
-                        id="assistantTitleInput"
-                        name="assistant_title"
-                        type="text"
-                        required
-                        value="AI Assistant"
-                      />
-                    </div>
-
-                    <div class="form-field">
-                      <label for="assistantModeInput">Assistant use</label>
-
-                      <select
-                        id="assistantModeInput"
-                        name="assistant_mode"
-                        required
+                      <fieldset
+                        id="customerSupportSetupSection"
+                        class="onboarding-group"
+                        hidden
                       >
-                        <option value="customer_support">
-                          Customer service
-                        </option>
+                        <legend>Customer service assistant</legend>
 
-                        <option value="internal_knowledge">
-                          Internal company knowledge
-                        </option>
-                      </select>
-                    </div>
+                        <div class="onboarding-fields">
+                          <div class="onboarding-field">
+                            <label for="customerSupportAssistantNameInput">
+                              Assistant name
+                            </label>
 
-                    <div class="form-field">
-                      <label for="toneInput">Tone</label>
+                            <input
+                              id="customerSupportAssistantNameInput"
+                              type="text"
+                              required
+                              placeholder="Alex"
+                            />
+                          </div>
 
-                      <select id="toneInput" name="tone" required>
-                        <option value="friendly">Friendly</option>
+                          <div class="onboarding-field">
+                            <label for="customerSupportChatNameInput">
+                              Chat name
+                            </label>
 
-                        <option value="professional" selected>
-                          Professional
-                        </option>
+                            <input
+                              id="customerSupportChatNameInput"
+                              type="text"
+                              required
+                              value="Customer Service"
+                            />
+                          </div>
 
-                        <option value="formal">Formal</option>
-                      </select>
-                    </div>
+                          <div class="onboarding-field">
+                            <label for="customerSupportEmailInput">
+                              Customer service email
 
-                    <div class="form-field">
-                      <label for="responseLengthInput">Response length</label>
+                              <span class="field-optional"> Optional </span>
+                            </label>
 
-                      <select
-                        id="responseLengthInput"
-                        name="response_length"
-                        required
+                            <input
+                              id="customerSupportEmailInput"
+                              type="email"
+                              autocomplete="email"
+                              placeholder="support@example.com"
+                            />
+                          </div>
+
+                          <div class="onboarding-field">
+                            <label for="customerSupportPhoneInput">
+                              Customer service phone
+
+                              <span class="field-optional"> Optional </span>
+                            </label>
+
+                            <input
+                              id="customerSupportPhoneInput"
+                              type="tel"
+                              autocomplete="tel"
+                              placeholder="+358 40 123 4567"
+                            />
+                          </div>
+                        </div>
+                      </fieldset>
+
+                      <fieldset
+                        id="internalKnowledgeSetupSection"
+                        class="onboarding-group"
+                        hidden
                       >
-                        <option value="concise" selected>Concise</option>
-                        <option value="balanced">Balanced</option>
-                        <option value="detailed">Detailed</option>
-                      </select>
+                        <legend>Internal knowledge assistant</legend>
+
+                        <div class="onboarding-fields">
+                          <div class="onboarding-field">
+                            <label for="internalKnowledgeAssistantNameInput">
+                              Assistant name
+                            </label>
+
+                            <input
+                              id="internalKnowledgeAssistantNameInput"
+                              type="text"
+                              required
+                              placeholder="Atlas"
+                            />
+                          </div>
+
+                          <div class="onboarding-field">
+                            <label for="internalKnowledgeChatNameInput">
+                              Chat name
+                            </label>
+
+                            <input
+                              id="internalKnowledgeChatNameInput"
+                              type="text"
+                              required
+                              value="Internal Knowledge"
+                            />
+                          </div>
+
+                          <div class="onboarding-field">
+                            <label for="internalKnowledgeEmailInput">
+                              Helpdesk email
+
+                              <span class="field-optional"> Optional </span>
+                            </label>
+
+                            <input
+                              id="internalKnowledgeEmailInput"
+                              type="email"
+                              autocomplete="email"
+                              placeholder="helpdesk@example.com"
+                            />
+                          </div>
+
+                          <div class="onboarding-field">
+                            <label for="internalKnowledgePhoneInput">
+                              Helpdesk phone
+
+                              <span class="field-optional"> Optional </span>
+                            </label>
+
+                            <input
+                              id="internalKnowledgePhoneInput"
+                              type="tel"
+                              autocomplete="tel"
+                              placeholder="+358 40 123 4567"
+                            />
+                          </div>
+                        </div>
+                      </fieldset>
                     </div>
-                  </div>
 
-                  <div id="companyFormNotice"></div>
+                    <div class="onboarding-footer">
+                      <div id="companyFormNotice"></div>
 
-                  <div class="form-actions">
-                    <button class="btn" type="submit">Continue</button>
+                      <button id="finishSetupButton" class="btn" type="submit">
+                        Finish setup
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>
             </div>
-
-            <div
-              id="extendedCompanySection"
-              class="extended-company-section"
-              hidden
-            >
-              <details class="card optional-card">
-                <summary class="optional-card-summary">
-                  <span>
-                    <strong>Company details</strong>
-
-                    <small>
-                      Optional company description and language settings
-                    </small>
-                  </span>
-
-                  <span class="optional-card-action">
-                    <span class="expand-label">Expand</span>
-                    <span class="collapse-label">Collapse</span>
-                  </span>
-                </summary>
-
-                <div class="card-body optional-card-body">
-                  <div class="details-grid">
-                    <div class="details-field details-field-wide">
-                      <label for="companyDescriptionInput">
-                        Company description
-                      </label>
-
-                      <textarea
-                        id="companyDescriptionInput"
-                        name="company_description"
-                        rows="4"
-                        placeholder="Briefly describe your company and what it does."
-                      ></textarea>
-                    </div>
-
-                    <div class="details-field">
-                      <label for="defaultLanguageInput">
-                        Default language
-                      </label>
-
-                      <input
-                        id="defaultLanguageInput"
-                        name="default_language"
-                        type="text"
-                        value="English"
-                        placeholder="English"
-                      />
-                    </div>
-
-                    <div class="details-field">
-                      <label for="supportedLanguagesInput">
-                        Supported languages
-                      </label>
-
-                      <input
-                        id="supportedLanguagesInput"
-                        name="supported_languages"
-                        type="text"
-                        value="English"
-                        placeholder="English, Finnish, Swedish"
-                      />
-
-                      <small>Separate multiple languages with commas.</small>
-                    </div>
-                  </div>
-                </div>
-              </details>
-
-              <details class="card optional-card">
-                <summary class="optional-card-summary">
-                  <span>
-                    <strong>Customise your Answer.ly chat</strong>
-
-                    <small>
-                      Add your company logo, avatar, favicon, and brand colours
-                    </small>
-                  </span>
-
-                  <span class="optional-card-action">
-                    <span class="expand-label">Expand</span>
-                    <span class="collapse-label">Collapse</span>
-                  </span>
-                </summary>
-
-                <div class="card-body optional-card-body">
-                  <div class="extended-form-section">
-                    <h3>Brand assets</h3>
-
-                    <div class="asset-grid">
-                      <div class="asset-field">
-                        <label for="companyLogoInput">Company logo</label>
-
-                        <input
-                          id="companyLogoInput"
-                          name="company_logo"
-                          type="file"
-                          accept=".png,.jpg,.jpeg,.webp"
-                        />
-
-                        <small>
-                          PNG, JPG, JPEG, or WebP. A wide or square logo works
-                          best.
-                        </small>
-                      </div>
-
-                      <div class="asset-field">
-                        <label for="companyFaviconInput">Favicon</label>
-
-                        <input
-                          id="companyFaviconInput"
-                          name="company_favicon"
-                          type="file"
-                          accept=".png,.ico"
-                        />
-
-                        <small>
-                          PNG or ICO. A square image is recommended.
-                        </small>
-                      </div>
-
-                      <div class="asset-field">
-                        <label for="assistantAvatarInput">
-                          Assistant avatar
-                        </label>
-
-                        <input
-                          id="assistantAvatarInput"
-                          name="assistant_avatar"
-                          type="file"
-                          accept=".png,.jpg,.jpeg,.webp"
-                        />
-
-                        <small>
-                          PNG, JPG, JPEG, or WebP. A square image works best.
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="extended-form-section">
-                    <h3>Brand colours</h3>
-
-                    <p class="section-description">
-                      Choose a colour or enter a hexadecimal colour code.
-                    </p>
-
-                    <div class="color-grid">
-                      <div class="color-field">
-                        <label for="primaryColorText">Primary</label>
-
-                        <div class="color-control">
-                          <input
-                            id="primaryColorPicker"
-                            type="color"
-                            value="#12343B"
-                            aria-label="Choose primary colour"
-                          />
-
-                          <input
-                            id="primaryColorText"
-                            name="primary_color"
-                            type="text"
-                            value="#12343B"
-                            maxlength="7"
-                            inputmode="text"
-                          />
-                        </div>
-                      </div>
-
-                      <div class="color-field">
-                        <label for="secondaryColorText">Secondary</label>
-
-                        <div class="color-control">
-                          <input
-                            id="secondaryColorPicker"
-                            type="color"
-                            value="#F8F7F3"
-                            aria-label="Choose secondary colour"
-                          />
-
-                          <input
-                            id="secondaryColorText"
-                            name="secondary_color"
-                            type="text"
-                            value="#F8F7F3"
-                            maxlength="7"
-                            inputmode="text"
-                          />
-                        </div>
-                      </div>
-
-                      <div class="color-field">
-                        <label for="accentColorText">Accent</label>
-
-                        <div class="color-control">
-                          <input
-                            id="accentColorPicker"
-                            type="color"
-                            value="#2EC4B6"
-                            aria-label="Choose accent colour"
-                          />
-
-                          <input
-                            id="accentColorText"
-                            name="accent_color"
-                            type="text"
-                            value="#2EC4B6"
-                            maxlength="7"
-                            inputmode="text"
-                          />
-                        </div>
-                      </div>
-
-                      <div class="color-field">
-                        <label for="backgroundColorText">Background</label>
-
-                        <div class="color-control">
-                          <input
-                            id="backgroundColorPicker"
-                            type="color"
-                            value="#F8FAFC"
-                            aria-label="Choose background colour"
-                          />
-
-                          <input
-                            id="backgroundColorText"
-                            name="background_color"
-                            type="text"
-                            value="#F8FAFC"
-                            maxlength="7"
-                            inputmode="text"
-                          />
-                        </div>
-                      </div>
-
-                      <div class="color-field">
-                        <label for="textColorText">Text</label>
-
-                        <div class="color-control">
-                          <input
-                            id="textColorPicker"
-                            type="color"
-                            value="#111827"
-                            aria-label="Choose text colour"
-                          />
-
-                          <input
-                            id="textColorText"
-                            name="text_color"
-                            type="text"
-                            value="#111827"
-                            maxlength="7"
-                            inputmode="text"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </details>
-              <div class="finish-setup-actions">
-                <div id="finishSetupNotice"></div>
-
-                <button id="finishSetupButton" class="btn" type="button">
-                  Finish setup
-                </button>
-              </div>
-            </div>
           </section>
         </div>
-
         <div id="configuredAdminContent" hidden>
           <section class="hero">
             <h1 id="welcomeHeadline">Welcome to Answer.ly</h1>
@@ -1161,9 +964,9 @@
         </div>
       </main>
     </div>
-
     <script src="config.js"></script>
     <script src="api.js"></script>
+    <script src="admin-onboarding.js"></script>
     <script src="admin.js"></script>
   </body>
 </html>

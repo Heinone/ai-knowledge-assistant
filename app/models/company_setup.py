@@ -12,6 +12,28 @@ class SetupRequestModel(BaseModel):
         str_strip_whitespace=True,
     )
 
+class InitialAssistantSetupRequest(
+    SetupRequestModel
+):
+    assistant_name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+
+    chat_name: str = Field(
+        min_length=1,
+        max_length=150,
+    )
+
+    contact_email: str = Field(
+        default="",
+        max_length=254,
+    )
+
+    contact_phone: str = Field(
+        default="",
+        max_length=50,
+    )
 
 class AssistantSetupRequest(SetupRequestModel):
     name: str = Field(min_length=1, max_length=100)
@@ -45,12 +67,23 @@ class BrandingSettingsUpdateRequest(SetupRequestModel):
     colors: BrandingColorsRequest
 
 class CompanySetupRequest(SetupRequestModel):
-    company_name: str = Field(min_length=1, max_length=150)
-    industry: str = Field(min_length=1, max_length=150)
-    assistant: AssistantSetupRequest
-    conversation: ConversationSetupRequest
-    company_details: CompanyDetailsRequest
-    branding: BrandingSetupRequest
+    company_name: str = Field(
+        min_length=1,
+        max_length=150,
+    )
+
+    industry: str = Field(
+        min_length=1,
+        max_length=150,
+    )
+
+    customer_support: (
+        InitialAssistantSetupRequest | None
+    ) = None
+
+    internal_knowledge: (
+        InitialAssistantSetupRequest | None
+    ) = None
 
 class CompanySettingsUpdateRequest(SetupRequestModel):
     company_name: str = Field(min_length=1, max_length=150)

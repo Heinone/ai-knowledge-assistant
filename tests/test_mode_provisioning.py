@@ -17,37 +17,18 @@ from app.services.company_setup_service import (
 
 class ModeProvisioningTests(unittest.TestCase):
     def build_setup_request(
-        self,
+    self,
     ) -> CompanySetupRequest:
         return CompanySetupRequest(
             company_name="Example Company",
             industry="Retail",
-            assistant={
-                "name": "Alex",
-                "title": "AI Assistant",
-                # Deliberately conflicts with the
-                # provisioned mode.
-                "mode": "internal_knowledge",
-                "default_language": "English",
-                "supported_languages": [
-                    "English",
-                ],
-            },
-            conversation={
-                "tone": "professional",
-                "response_length": "concise",
-            },
-            company_details={
-                "description": "",
-            },
-            branding={
-                "colors": {
-                    "primary": "#12343B",
-                    "secondary": "#F8F7F3",
-                    "accent": "#2EC4B6",
-                    "background": "#F8FAFC",
-                    "text": "#111827",
-                },
+            customer_support={
+                "assistant_name": "Alex",
+                "chat_name": "Customer Service",
+                "contact_email": (
+                    "support@example.com"
+                ),
+                "contact_phone": "",
             },
         )
 
@@ -92,6 +73,48 @@ class ModeProvisioningTests(unittest.TestCase):
             company["modes"][
                 "internal_knowledge"
             ]["enabled"]
+        )
+
+    def test_setup_rejects_missing_provisioned_mode(
+    self,
+    ):
+        with self.assertRaisesRegex(
+            ValueError,
+            "Missing setup",
+        ):
+            build_company_config(
+                CompanySetupRequest(
+                    company_name="Example Company",
+                    industry="Technology",
+                    customer_support={
+                        "assistant_name": "Alex",
+                        "chat_name": "Customer Service",
+                    },
+                ),
+                available_modes=(
+                    AssistantMode.CUSTOMER_SUPPORT,
+                    AssistantMode.INTERNAL_KNOWLEDGE,
+                ),
+            )
+
+
+    def test_setup_builds_contact_fallback(
+        self,
+    ):
+        company = build_company_config(
+            self.build_setup_request(),
+            available_modes=(
+                AssistantMode.CUSTOMER_SUPPORT,
+            ),
+        )
+
+        fallback = company["modes"][
+            "customer_support"
+        ]["chat"]["fallback_message"]
+
+        self.assertIn(
+            "support@example.com",
+            fallback,
         )
 
     def test_single_mode_can_be_omitted(self):
