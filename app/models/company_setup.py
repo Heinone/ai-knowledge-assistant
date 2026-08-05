@@ -4,11 +4,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    model_validator,
 )
-
-from app.models.assistant_mode import AssistantMode
-
 
 class SetupRequestModel(BaseModel):
     model_config = ConfigDict(
@@ -133,26 +129,3 @@ class AssistantModeSettingsUpdateRequest(
         max_length=10_000,
     )
     show_citations: bool
-
-class AssistantModesUpdateRequest(SetupRequestModel):
-    enabled_modes: list[AssistantMode] = Field(
-        min_length=1,
-        max_length=len(AssistantMode),
-    )
-    default_mode: AssistantMode
-
-    @model_validator(mode="after")
-    def validate_mode_selection(self):
-        unique_modes = set(self.enabled_modes)
-
-        if len(unique_modes) != len(self.enabled_modes):
-            raise ValueError(
-                "Enabled assistant modes must not contain duplicates."
-            )
-
-        if self.default_mode not in unique_modes:
-            raise ValueError(
-                "The default assistant mode must be enabled."
-            )
-
-        return self

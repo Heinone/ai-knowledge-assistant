@@ -7,9 +7,9 @@ from tempfile import NamedTemporaryFile
 from typing import Any
 from copy import deepcopy
 
+from app.config.env_config import AVAILABLE_MODES
 from app.models.company_setup import (
     AssistantModeSettingsUpdateRequest,
-    AssistantModesUpdateRequest,
     BrandingSettingsUpdateRequest,
     CompanySettingsUpdateRequest,
     CompanySetupRequest,
@@ -22,16 +22,35 @@ from app.services.company_config_migration_service import (
 
 def build_company_config(
     request: CompanySetupRequest,
+    *,
+    available_modes: tuple[
+        AssistantMode,
+        ...,
+    ] = AVAILABLE_MODES,
 ) -> dict[str, Any]:
-    company_id = generate_company_id(request.company_name)
-    selected_mode = request.assistant.mode
+    if not available_modes:
+        raise ValueError(
+            "At least one assistant mode must be provisioned."
+        )
+
+    company_id = generate_company_id(
+        request.company_name
+    )
+
+    compatibility_default_mode = (
+        available_modes[0]
+    )
+
+    provisioned_modes = set(
+        available_modes
+    )
 
     company_config = {
         "company_id": company_id,
         "company_name": request.company_name,
         "description": request.company_details.description,
         "industry": request.industry,
-        "default_mode": selected_mode,
+        "default_mode": (compatibility_default_mode.value),
         "assistant": {
             "name": request.assistant.name,
             "title": request.assistant.title,
@@ -39,14 +58,16 @@ def build_company_config(
             "supported_languages": request.assistant.supported_languages,
         },
         "modes": {
-            "customer_support": {
-                "enabled": selected_mode == "customer_support",
-                "default": selected_mode == "customer_support",
-            },
-            "internal_knowledge": {
-                "enabled": selected_mode == "internal_knowledge",
-                "default": selected_mode == "internal_knowledge",
-            },
+            mode.value: {
+                "enabled": (
+                    mode in provisioned_modes
+                ),
+                "default": (
+                    mode
+                    == compatibility_default_mode
+                ),
+            }
+            for mode in AssistantMode
         },
         "branding": {
             "assets": {
@@ -143,7 +164,7 @@ def build_company_config(
         },
     }
     return migrate_company_config_to_v2(
-    company_config
+        company_config
     )
 
 def generate_company_id(company_name: str) -> str:
@@ -181,7 +202,18 @@ def apply_company_settings_update(
         updated_config.get("assistant", {}).get("name", "")
     )
 
-    selected_mode = request.assistant.mode
+    selected_mode = AssistantMode(
+    request.assistant.mode
+)
+
+    if selected_mode not in AVAILABLE_MODES:
+        raise ValueError(
+        f"Assistant mode "
+        f"'{selected_mode.value}' is not available "
+        "for this deployment."
+)
+
+    selected_mode_key = selected_mode.value
 
     updated_config["company_name"] = request.company_name
     updated_config["industry"] = request.industry
@@ -225,9 +257,9 @@ def apply_company_settings_update(
             )
 
     selected_mode_config = modes.setdefault(
-    selected_mode,
+    selected_mode_key,
     {},
-    )
+)
 
     selected_mode_config["assistant"] = deepcopy(
         assistant
@@ -243,7 +275,7 @@ def apply_company_settings_update(
         "default_mode"
     )
 
-    if default_mode != selected_mode:
+    if default_mode != selected_mode_key:
         default_mode_config = modes.get(
             default_mode,
             {},
@@ -267,14 +299,25 @@ def apply_company_settings_update(
                 default_conversation
             )
 
-        return updated_config
+    return updated_config
 
 def apply_assistant_mode_settings_update(
     existing_config: dict[str, Any],
     *,
     mode: AssistantMode,
     request: AssistantModeSettingsUpdateRequest,
+    available_modes: tuple[
+        AssistantMode,
+        ...,
+    ] = AVAILABLE_MODES,
 ) -> dict[str, Any]:
+
+    if mode not in available_modes:
+        raise ValueError(
+            f"Assistant mode '{mode.value}' is not "
+            "available for this deployment."
+        )
+
     updated_config = migrate_company_config_to_v2(
         existing_config
     )
@@ -436,72 +479,3 @@ def save_company_config(
     finally:
         if temporary_path and temporary_path.exists():
             temporary_path.unlink()
-
-def apply_assistant_modes_update(
-    existing_config: dict[str, Any],
-    request: AssistantModesUpdateRequest,
-) -> dict[str, Any]:
-    updated_config = migrate_company_config_to_v2(
-        existing_config
-    )
-
-    enabled_modes = set(request.enabled_modes)
-    default_mode = request.default_mode
-
-    modes = updated_config.setdefault(
-        "modes",
-        {},
-    )
-
-    for mode in AssistantMode:
-        mode_config = modes.setdefault(
-            mode.value,
-            {},
-        )
-
-        mode_config["enabled"] = (
-            mode in enabled_modes
-        )
-
-        mode_config["default"] = (
-            mode == default_mode
-        )
-
-    updated_config["default_mode"] = (
-        default_mode.value
-    )
-
-    default_mode_config = modes[
-        default_mode.value
-    ]
-
-    default_assistant = default_mode_config.get(
-        "assistant",
-        {},
-    )
-
-    default_conversation = default_mode_config.get(
-        "conversation",
-        {},
-    )
-
-    if not isinstance(default_assistant, dict):
-        raise ValueError(
-            "Default assistant configuration is invalid."
-        )
-
-    if not isinstance(default_conversation, dict):
-        raise ValueError(
-            "Default conversation configuration is invalid."
-        )
-
-    # Temporary compatibility fields for the current frontend.
-    updated_config["assistant"] = deepcopy(
-        default_assistant
-    )
-
-    updated_config["conversation"] = deepcopy(
-        default_conversation
-    )
-
-    return updated_config

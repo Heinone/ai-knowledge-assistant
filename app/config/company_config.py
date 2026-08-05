@@ -6,6 +6,7 @@ from typing import Any
 from app.config.config_validator import (
     validate_company_config_or_raise,
 )
+from app.config.env_config import AVAILABLE_MODES
 from app.models.assistant_mode import AssistantMode
 from app.services.company_config_migration_service import (
     migrate_company_config_to_v2,
@@ -79,10 +80,13 @@ def get_enabled_assistant_modes(
             "Company configuration must contain assistant modes."
         )
 
-    enabled_modes = []
+    enabled_modes: list[AssistantMode] = []
 
     for mode in AssistantMode:
-        mode_config = configured_modes.get(mode.value, {})
+        mode_config = configured_modes.get(
+            mode.value,
+            {},
+        )
 
         if (
             isinstance(mode_config, Mapping)
@@ -97,6 +101,10 @@ def resolve_assistant_mode(
     requested_mode: AssistantMode | str | None = None,
     *,
     company: Mapping[str, Any] | None = None,
+    available_modes: tuple[
+        AssistantMode,
+        ...,
+    ] = AVAILABLE_MODES,
 ) -> AssistantMode:
     company_config = (
         load_company_config()
@@ -104,58 +112,43 @@ def resolve_assistant_mode(
         else company
     )
 
-    enabled_modes = get_enabled_assistant_modes(
+    configured_modes = get_enabled_assistant_modes(
         company_config
     )
 
-    if not enabled_modes:
+    if set(configured_modes) != set(available_modes):
         raise ValueError(
-            "At least one assistant mode must be enabled."
+            "Company assistant modes do not match "
+            "the provisioned AVAILABLE_MODES."
         )
 
     if requested_mode is not None:
         try:
-            resolved_mode = AssistantMode(requested_mode)
+            resolved_mode = AssistantMode(
+                requested_mode
+            )
         except ValueError as error:
             raise ValueError(
-                f"Unsupported assistant mode: {requested_mode}."
+                f"Unsupported assistant mode: "
+                f"{requested_mode}."
             ) from error
 
-        if resolved_mode not in enabled_modes:
+        if resolved_mode not in available_modes:
             raise ValueError(
-                f"Assistant mode '{resolved_mode.value}' "
-                "is not enabled."
+                f"Assistant mode "
+                f"'{resolved_mode.value}' is not "
+                "available for this deployment."
             )
 
         return resolved_mode
 
-    configured_default = company_config.get(
-        "default_mode"
+    if len(available_modes) == 1:
+        return available_modes[0]
+
+    raise ValueError(
+        "Assistant mode is required when multiple "
+        "assistant modes are available."
     )
-
-    if configured_default:
-        try:
-            resolved_default = AssistantMode(
-                configured_default
-            )
-        except ValueError:
-            resolved_default = None
-
-        if resolved_default in enabled_modes:
-            return resolved_default
-
-    configured_modes = company_config["modes"]
-
-    for mode in enabled_modes:
-        mode_config = configured_modes.get(
-            mode.value,
-            {},
-        )
-
-        if mode_config.get("default") is True:
-            return mode
-
-    return enabled_modes[0]
 
 
 def get_mode_fallback_message(
@@ -163,6 +156,7 @@ def get_mode_fallback_message(
     mode: AssistantMode | str,
 ) -> str:
     resolved_mode = AssistantMode(mode)
+
     mode_config = _get_mode_config(
         company,
         resolved_mode,
@@ -186,7 +180,10 @@ def get_mode_fallback_message(
         {},
     )
 
-    if isinstance(legacy_mode_config, Mapping):
+    if isinstance(
+        legacy_mode_config,
+        Mapping,
+    ):
         fallback_message = legacy_mode_config.get(
             "fallback_message"
         )
@@ -205,17 +202,23 @@ def get_mode_prompt_guide(
     mode: AssistantMode | str,
 ) -> str:
     resolved_mode = AssistantMode(mode)
+
     mode_config = _get_mode_config(
         company,
         resolved_mode,
     )
 
-    prompt_guide = mode_config.get("prompt_guide")
+    prompt_guide = mode_config.get(
+        "prompt_guide"
+    )
 
     if isinstance(prompt_guide, str):
         return prompt_guide.strip()
 
-    legacy_prompts = company.get("prompts", {})
+    legacy_prompts = company.get(
+        "prompts",
+        {},
+    )
 
     if not isinstance(legacy_prompts, Mapping):
         return ""
@@ -235,6 +238,7 @@ def get_mode_show_citations(
     mode: AssistantMode | str,
 ) -> bool:
     resolved_mode = AssistantMode(mode)
+
     mode_config = _get_mode_config(
         company,
         resolved_mode,
@@ -247,7 +251,10 @@ def get_mode_show_citations(
     if isinstance(show_citations, bool):
         return show_citations
 
-    visibility = company.get("visibility", {})
+    visibility = company.get(
+        "visibility",
+        {},
+    )
 
     if not isinstance(visibility, Mapping):
         return False
@@ -257,9 +264,15 @@ def get_mode_show_citations(
         {},
     )
 
-    if not isinstance(legacy_visibility, Mapping):
+    if not isinstance(
+        legacy_visibility,
+        Mapping,
+    ):
         return False
 
-    return legacy_visibility.get(
-        "show_citations"
-    ) is True
+    return (
+        legacy_visibility.get(
+            "show_citations"
+        )
+        is True
+    )

@@ -14,10 +14,10 @@ from app.config.company_config import (
     has_active_company_config,
     load_company_config,
 )
+from app.config.env_config import AVAILABLE_MODES
 from app.config.config_validator import validate_company_config_or_raise
 from app.models.company_setup import (
     AssistantModeSettingsUpdateRequest,
-    AssistantModesUpdateRequest,
     BrandingSettingsUpdateRequest,
     CompanySettingsUpdateRequest,
     CompanySetupRequest,
@@ -31,7 +31,6 @@ from app.services.brand_asset_service import (
 )
 from app.services.company_setup_service import (
     apply_assistant_mode_settings_update,
-    apply_assistant_modes_update,
     apply_company_branding_update,
     apply_company_settings_update,
     build_company_config,
@@ -50,13 +49,27 @@ ALLOWED_ASSETS = {
 
 @router.get("/config/status")
 def get_company_config_status():
-    has_active_company = has_active_company_config()
+    has_active_company = (
+        has_active_company_config()
+    )
 
     return {
-        "has_active_company": has_active_company,
-        "source": "company" if has_active_company else "answerly",
+        "has_active_company": (
+            has_active_company
+        ),
+        "source": (
+            "company"
+            if has_active_company
+            else "answerly"
+        ),
+        "available_modes": [
+            mode.value
+            for mode in AVAILABLE_MODES
+        ],
+        "mode_required": (
+            len(AVAILABLE_MODES) > 1
+        ),
     }
-
 
 @router.post("/config/company/setup/validate")
 def validate_company_setup(request: CompanySetupRequest) -> dict:
@@ -247,62 +260,8 @@ def update_company_settings(
         "company_config": updated_config,
     }
 
-@router.put("/config/company/modes")
-def update_assistant_modes(
-    request: AssistantModesUpdateRequest,
-) -> dict:
-    try:
-        existing_config = load_company_config()
-    except FileNotFoundError as error:
-        raise HTTPException(
-            status_code=404,
-            detail=str(error),
-        ) from error
-    except (json.JSONDecodeError, ValueError) as error:
-        raise HTTPException(
-            status_code=500,
-            detail=str(error),
-        ) from error
 
-    try:
-        updated_config = apply_assistant_modes_update(
-            existing_config,
-            request,
-        )
-
-        validate_company_config_or_raise(
-            updated_config
-        )
-    except ValueError as error:
-        raise HTTPException(
-            status_code=422,
-            detail=str(error),
-        ) from error
-
-    try:
-        save_company_config(
-            updated_config,
-            ACTIVE_COMPANY_CONFIG_PATH,
-        )
-    except (OSError, ValueError) as error:
-        raise HTTPException(
-            status_code=500,
-            detail="Could not save assistant mode settings.",
-        ) from error
-
-    return {
-        "updated": True,
-        "enabled_modes": [
-            mode.value
-            for mode in request.enabled_modes
-        ],
-        "default_mode": request.default_mode.value,
-        "modes": updated_config["modes"],
-    }
-
-@router.put(
-    "/config/company/assistants/{mode}"
-)
+@router.put("/config/company/assistants/{mode}")
 def update_assistant_mode_settings(
     mode: AssistantMode,
     request: AssistantModeSettingsUpdateRequest,
@@ -320,23 +279,23 @@ def update_assistant_mode_settings(
             detail=str(error),
         ) from error
 
-    updated_config = (
-        apply_assistant_mode_settings_update(
-            existing_config,
-            mode=mode,
-            request=request,
-        )
-    )
-
     try:
-        validate_company_config_or_raise(
-            updated_config
+        updated_config = (
+            apply_assistant_mode_settings_update(
+                existing_config,
+                mode=mode,
+                request=request,
+            )
         )
+
+        validate_company_config_or_raise(
+        updated_config
+    )
     except ValueError as error:
-        raise HTTPException(
-            status_code=422,
-            detail=str(error),
-        ) from error
+            raise HTTPException(
+                status_code=422,
+                detail=str(error),
+            ) from error
 
     try:
         save_company_config(

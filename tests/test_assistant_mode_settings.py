@@ -188,6 +188,10 @@ class AssistantModeSettingsTests(unittest.TestCase):
                 company,
                 mode=AssistantMode.INTERNAL_KNOWLEDGE,
                 request=request,
+                available_modes=(
+                    AssistantMode.CUSTOMER_SUPPORT,
+                    AssistantMode.INTERNAL_KNOWLEDGE,
+                ),
             )
         )
 

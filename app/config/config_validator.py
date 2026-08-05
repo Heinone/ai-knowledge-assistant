@@ -1,5 +1,6 @@
 from typing import Any
 
+from app.config.env_config import AVAILABLE_MODES
 from app.models.assistant_mode import AssistantMode
 
 
@@ -8,12 +9,16 @@ REQUIRED_FIELDS = [
     "company_name",
     "assistant",
     "modes",
-    "default_mode",
 ]
 
 
 def validate_company_config(
     company: dict[str, Any],
+    *,
+    available_modes: tuple[
+        AssistantMode,
+        ...,
+    ] = AVAILABLE_MODES,
 ) -> list[str]:
     errors: list[str] = []
 
@@ -33,7 +38,10 @@ def validate_company_config(
         for field in ("name", "title"):
             value = assistant.get(field)
 
-            if not isinstance(value, str) or not value.strip():
+            if (
+                not isinstance(value, str)
+                or not value.strip()
+            ):
                 errors.append(
                     f"Missing assistant field: {field}"
                 )
@@ -47,7 +55,7 @@ def validate_company_config(
 
         return errors
 
-    enabled_modes: list[AssistantMode] = []
+    enabled_modes: set[AssistantMode] = set()
     default_flags: list[AssistantMode] = []
 
     for mode in AssistantMode:
@@ -55,64 +63,112 @@ def validate_company_config(
 
         if not isinstance(mode_config, dict):
             errors.append(
-                f"Missing assistant mode configuration: "
+                "Missing assistant mode configuration: "
                 f"{mode.value}"
             )
+
             continue
 
         if mode_config.get("enabled") is True:
-            enabled_modes.append(mode)
+            enabled_modes.add(mode)
 
         if mode_config.get("default") is True:
             default_flags.append(mode)
 
-    if not enabled_modes:
+    provisioned_modes = set(available_modes)
+
+    missing_modes = (
+        provisioned_modes - enabled_modes
+    )
+
+    unavailable_modes = (
+        enabled_modes - provisioned_modes
+    )
+
+    if missing_modes:
         errors.append(
-            "At least one assistant mode must be enabled"
+            "Provisioned assistant modes must be enabled: "
+            + ", ".join(
+                sorted(
+                    mode.value
+                    for mode in missing_modes
+                )
+            )
         )
+
+    if unavailable_modes:
+        errors.append(
+            "Company configuration enables unavailable "
+            "assistant modes: "
+            + ", ".join(
+                sorted(
+                    mode.value
+                    for mode in unavailable_modes
+                )
+            )
+        )
+
+    if len(default_flags) > 1:
+        errors.append(
+            "At most one assistant mode may be "
+            "marked as the legacy default"
+        )
+
+    for default_mode in default_flags:
+        if default_mode not in provisioned_modes:
+            errors.append(
+                "Legacy default assistant mode must "
+                "be provisioned"
+            )
 
     configured_default = company.get(
         "default_mode"
     )
 
-    try:
-        default_mode = AssistantMode(
-            configured_default
-        )
-    except (TypeError, ValueError):
-        default_mode = None
+    if configured_default is not None:
+        try:
+            legacy_default_mode = AssistantMode(
+                configured_default
+            )
+        except (TypeError, ValueError):
+            errors.append(
+                "Legacy default assistant mode is invalid"
+            )
+        else:
+            if (
+                legacy_default_mode
+                not in provisioned_modes
+            ):
+                errors.append(
+                    "Legacy default assistant mode must "
+                    "be provisioned"
+                )
 
-        errors.append(
-            "Default assistant mode is invalid"
-        )
-
-    if (
-        default_mode is not None
-        and default_mode not in enabled_modes
-    ):
-        errors.append(
-            "Default assistant mode must be enabled"
-        )
-
-    if len(default_flags) != 1:
-        errors.append(
-            "Exactly one assistant mode must be marked as default"
-        )
-    elif (
-        default_mode is not None
-        and default_flags[0] != default_mode
-    ):
-        errors.append(
-            "Default mode flag does not match default_mode"
-        )
+            if (
+                default_flags
+                and default_flags[0]
+                != legacy_default_mode
+            ):
+                errors.append(
+                    "Legacy default mode flag does not "
+                    "match default_mode"
+                )
 
     return errors
 
 
 def validate_company_config_or_raise(
     company: dict[str, Any],
+    *,
+    available_modes: tuple[
+        AssistantMode,
+        ...,
+    ] = AVAILABLE_MODES,
 ) -> None:
-    errors = validate_company_config(company)
+    errors = validate_company_config(
+        company,
+        available_modes=available_modes,
+    )
 
     if errors:
         raise ValueError(
