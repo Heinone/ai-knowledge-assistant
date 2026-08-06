@@ -1,0 +1,225 @@
+{
+  "company_id": "northstar_ebikes",
+  "company_name": "Northstar eBikes",
+  "description": "An electric bicycle company selling eBikes, accessories, replacement parts, and maintenance services directly to customers while operating its own technical support and service teams.",
+  "industry": "Electric mobility and bicycle retail",
+
+  "assistant": {
+    "name": "Nova",
+    "title": "AI Assistant",
+    "default_language": "English",
+    "supported_languages": [
+      "English"
+    ]
+  },
+
+  "modes": {
+    "customer_support": {
+      "enabled": true,
+      "display_name": "Northstar Customer Care",
+
+      "assistant": {
+        "name": "Nova",
+        "title": "AI Assistant",
+        "default_language": "English",
+        "supported_languages": [
+          "English"
+        ]
+      },
+
+      "conversation": {
+        "tone": "friendly",
+        "response_length": "concise",
+        "formality_level": "professional",
+
+        "greeting": {
+          "enabled": true,
+          "message": "Hello, I'm Nova from Northstar eBikes. How can I help you today?"
+        }
+      },
+
+      "chat": {
+        "chat_headline": "Northstar Customer Care",
+        "chat_description": "Ask about Northstar eBikes, batteries, accessories, shipping, returns, warranties, maintenance, and customer troubleshooting.",
+        "placeholder": "Ask about products, batteries, shipping, returns, or warranties...",
+        "loading_message": "One moment — I'm checking Northstar eBikes information...",
+        "fallback_message": "I could not find enough customer information to answer that confidently."
+      },
+
+      "prompt_guide": "customer_support.txt",
+      "show_citations": false,
+
+      "contacts": {
+        "email": "support@northstarebikes.example",
+        "phone": "+358 9 123 4567"
+      },
+
+      "fallback": {
+        "base_message": "I could not find enough customer information to answer that confidently.",
+        "include_email": true,
+        "include_phone": true
+      }
+    },
+
+    "internal_knowledge": {
+      "enabled": true,
+      "display_name": "Northstar Team Knowledge",
+
+      "assistant": {
+        "name": "Atlas",
+        "title": "AI Assistant",
+        "default_language": "English",
+        "supported_languages": [
+          "English"
+        ]
+      },
+
+      "conversation": {
+        "tone": "professional",
+        "response_length": "balanced",
+        "formality_level": "professional",
+
+        "greeting": {
+          "enabled": true,
+          "message": "Hello, I'm Atlas, the Northstar eBikes internal knowledge assistant. How can I help?"
+        }
+      },
+
+      "chat": {
+        "chat_headline": "Northstar Team Knowledge",
+        "chat_description": "Search internal Northstar eBikes procedures, service policies, technical instructions, escalation rules, and employee guidance.",
+        "placeholder": "Ask about an internal procedure or policy...",
+        "loading_message": "Searching Northstar internal knowledge...",
+        "fallback_message": "I could not find enough information in the internal knowledge base to answer that confidently."
+      },
+
+      "prompt_guide": "internal_knowledge.txt",
+      "show_citations": true,
+
+      "contacts": {
+        "email": "helpdesk@northstarebikes.example",
+        "phone": "+358 9 765 4321"
+      },
+
+      "fallback": {
+        "base_message": "I could not find enough information in the internal knowledge base to answer that confidently.",
+        "include_email": true,
+        "include_phone": false
+      }
+    }
+  },
+
+  "branding": {
+    "assets": {
+      "logo": "",
+      "favicon": "",
+      "assistant_avatar": ""
+    },
+
+    "colors": {
+      "primary": "#14532D",
+      "primary_dark": "#0F3D22",
+      "secondary": "#F0FDF4",
+      "accent": "#22C55E",
+      "background": "#F8FAFC",
+      "text": "#172033",
+      "success": "#16A34A"
+    },
+
+    "fonts": {
+      "heading": "Inter",
+      "body": "Inter"
+    },
+
+    "ui_theme": "modern"
+  },
+
+  "conversation": {
+    "tone": "friendly",
+    "response_length": "concise",
+    "formality_level": "professional",
+
+    "greeting": {
+      "enabled": true,
+      "message": "Hello, I'm Nova from Northstar eBikes. How can I help you today?"
+    }
+  },
+
+  "customer_support": {
+    "chat_headline": "Northstar Customer Care",
+    "chat_description": "Ask about Northstar eBikes, batteries, accessories, shipping, returns, warranties, maintenance, and customer troubleshooting.",
+    "placeholder": "Ask about products, batteries, shipping, returns, or warranties...",
+    "loading_message": "One moment — I'm checking Northstar eBikes information...",
+
+    "allowed_topics": [
+      "eBike models",
+      "batteries",
+      "accessories",
+      "shipping",
+      "returns",
+      "warranties",
+      "maintenance",
+      "customer troubleshooting"
+    ],
+
+    "support_contacts": {
+      "name": "Northstar Customer Support",
+      "email": "support@northstarebikes.example",
+      "phone": "+358 9 123 4567"
+    },
+
+    "fallback_message": "I could not find enough customer information to answer that confidently. You can email our customer service at support@northstarebikes.example or call +358 9 123 4567."
+  },
+
+  "internal_knowledge": {
+    "chat_headline": "Northstar Team Knowledge",
+    "chat_description": "Search internal Northstar eBikes procedures, service policies, technical instructions, escalation rules, and employee guidance.",
+    "placeholder": "Ask about an internal procedure or policy...",
+    "loading_message": "Searching Northstar internal knowledge...",
+
+    "allowed_topics": [
+      "service procedures",
+      "warranty approvals",
+      "technical diagnostics",
+      "incident response",
+      "warehouse procedures",
+      "employee policies",
+      "internal escalation"
+    ],
+
+    "support_contacts": {
+      "name": "Northstar Helpdesk",
+      "email": "helpdesk@northstarebikes.example",
+      "phone": "+358 9 765 4321"
+    },
+
+    "fallback_message": "I could not find enough information in the internal knowledge base to answer that confidently. You can email the helpdesk at helpdesk@northstarebikes.example."
+  },
+
+  "prompts": {
+    "customer_support": "customer_support.txt",
+    "internal_knowledge": "internal_knowledge.txt"
+  },
+
+  "knowledge_bases": {
+    "customer_support": {
+      "documents_path": "documents/customer_support"
+    },
+
+    "internal_knowledge": {
+      "documents_path": "documents/internal_knowledge"
+    }
+  },
+
+  "visibility": {
+    "customer_support": {
+      "show_citations": false
+    },
+
+    "internal_knowledge": {
+      "show_citations": true
+    }
+  },
+
+  "schema_version": 2
+}
