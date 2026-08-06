@@ -74,19 +74,38 @@ async function deleteDocument(documentId, mode) {
   return data;
 }
 
-async function askQuestion(question) {
+async function askQuestion(question, mode = null) {
+  const payload = {
+    question,
+  };
+
+  if (mode) {
+    payload.mode = mode;
+  }
+
   const response = await fetch(`${API_BASE_URL}/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ question }),
+    body: JSON.stringify(payload),
   });
 
-  const data = await response.json();
+  const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data.detail || "Could not generate an answer.");
+    let errorMessage = "Could not generate an answer.";
+
+    if (typeof data?.detail === "string") {
+      errorMessage = data.detail;
+    } else if (Array.isArray(data?.detail)) {
+      errorMessage = data.detail
+        .map((item) => item.msg)
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    throw new Error(errorMessage);
   }
 
   return data;
@@ -216,6 +235,78 @@ async function updateCompanySettings(settingsPayload) {
       typeof responseBody?.detail === "string"
         ? responseBody.detail
         : "Could not update company settings.";
+
+    throw new Error(errorMessage);
+  }
+
+  return responseBody;
+}
+
+async function updateAssistantModeSettings(mode, settingsPayload) {
+  const response = await fetch(
+    `${CONFIG_API_BASE_URL}/config/company/assistants/${encodeURIComponent(
+      mode,
+    )}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(settingsPayload),
+    },
+  );
+
+  const responseBody = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    console.error("Assistant settings update failed:", responseBody);
+
+    let errorMessage = "Could not update assistant settings.";
+
+    if (typeof responseBody?.detail === "string") {
+      errorMessage = responseBody.detail;
+    } else if (Array.isArray(responseBody?.detail)) {
+      errorMessage = responseBody.detail
+        .map((item) => item.msg)
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return responseBody;
+}
+
+async function updateAssistantModeFallbackSettings(mode, payload) {
+  const response = await fetch(
+    `${CONFIG_API_BASE_URL}/config/company/assistants/${encodeURIComponent(
+      mode,
+    )}/fallback`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  const responseBody = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    console.error("Fallback settings update failed:", responseBody);
+
+    let errorMessage = "Could not update fallback settings.";
+
+    if (typeof responseBody?.detail === "string") {
+      errorMessage = responseBody.detail;
+    } else if (Array.isArray(responseBody?.detail)) {
+      errorMessage = responseBody.detail
+        .map((item) => item.msg)
+        .filter(Boolean)
+        .join(" ");
+    }
 
     throw new Error(errorMessage);
   }

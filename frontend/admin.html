@@ -254,140 +254,18 @@
               internal use!
             </p>
           </section>
-          <section class="grid">
-            <div class="card">
-              <div class="card-body">
-                <h2>Upload documents</h2>
-
-                <p>
-                  Add the files the assistant should use when answering
-                  questions.
-                </p>
-                <div
-                  id="documentModeField"
-                  class="configured-form-field"
-                  hidden
-                >
-                  <label for="documentModeInput">
-                    Assistant knowledge base
-                  </label>
-
-                  <select id="documentModeInput"></select>
-
-                  <small>
-                    Uploaded documents are available only to the selected
-                    assistant.
-                  </small>
-                </div>
-                <div id="uploadZone" class="upload-zone">
-                  <strong>Drag and drop files here</strong>
-
-                  <span>or choose files from your computer</span>
-
-                  <div class="button-row" style="justify-content: center">
-                    <label class="btn btn-secondary" for="fileInput">
-                      Choose files
-                    </label>
-                  </div>
-
-                  <input
-                    id="fileInput"
-                    class="file-input"
-                    type="file"
-                    multiple
-                    accept=".pdf,.txt,.md"
-                  />
-
-                  <div class="format-row">
-                    <span class="format-chip">PDF</span>
-                    <span class="format-chip">TXT</span>
-                    <span class="format-chip">MD</span>
-                  </div>
-                </div>
-
-                <div id="selectedFiles" class="file-list" hidden>
-                  <h3>Selected files</h3>
-
-                  <div id="selectedFileRows"></div>
-
-                  <div class="button-row">
-                    <button id="processButton" class="btn" type="button">
-                      Process documents
-                    </button>
-
-                    <button
-                      id="clearButton"
-                      class="btn btn-secondary"
-                      type="button"
-                    >
-                      Clear selection
-                    </button>
-                  </div>
-                </div>
-
-                <div id="uploadNotice"></div>
-
-                <div id="indexedDocuments" class="file-list" hidden>
-                  <h3 id="indexedDocumentsHeading">Indexed documents</h3>
-
-                  <div id="indexedFileRows"></div>
-                </div>
-              </div>
-            </div>
-
-            <aside class="card">
-              <div class="card-body">
-                <h2>Assistant settings</h2>
-
-                <p>Current assistant configuration</p>
-
-                <div class="settings-list">
-                  <div class="status-row">
-                    <span>Company</span>
-                    <strong id="companyName"></strong>
-                  </div>
-
-                  <div class="status-row">
-                    <span>Assistant</span>
-                    <strong id="assistantName"></strong>
-                  </div>
-
-                  <div class="status-row">
-                    <span>Mode</span>
-                    <strong id="assistantMode"></strong>
-                  </div>
-
-                  <div class="status-row">
-                    <span>Visible citations</span>
-                    <strong id="citationMode"></strong>
-                  </div>
-
-                  <div class="status-row">
-                    <span>Status</span>
-
-                    <span class="badge badge-success">
-                      Ready after upload
-                    </span>
-                  </div>
-                </div>
-
-                <div class="notice" style="background: #f8fafc; color: #475569">
-                  Sources are returned by the API for verification but hidden
-                  from the customer chat experience.
-                </div>
-              </div>
-            </aside>
-          </section>
+          <section
+            id="assistantCards"
+            class="assistant-card-list"
+            aria-label="Configured assistants"
+          ></section>
           <section class="card configured-settings-card">
             <div class="card-body">
               <div class="configured-settings-heading">
                 <div>
-                  <h2>Company and assistant settings</h2>
+                  <h2>Company settings</h2>
 
-                  <p>
-                    Review or change your company information and how the
-                    assistant communicates.
-                  </p>
+                  <p>Review or change your company information.</p>
                 </div>
 
                 <button
@@ -408,9 +286,9 @@
                       <h3>Company</h3>
 
                       <div class="configured-form-field">
-                        <label for="configuredCompanyNameInput"
-                          >Company name</label
-                        >
+                        <label for="configuredCompanyNameInput">
+                          Company name
+                        </label>
 
                         <input
                           id="configuredCompanyNameInput"
@@ -420,7 +298,7 @@
                       </div>
 
                       <div class="configured-form-field">
-                        <label for="configuredIndustryInput">Industry</label>
+                        <label for="configuredIndustryInput"> Industry </label>
 
                         <input
                           id="configuredIndustryInput"
@@ -430,108 +308,14 @@
                       </div>
 
                       <div class="configured-form-field">
-                        <label for="configuredDescriptionInput"
-                          >Description</label
-                        >
+                        <label for="configuredDescriptionInput">
+                          Description
+                        </label>
 
                         <textarea
                           id="configuredDescriptionInput"
                           rows="4"
                         ></textarea>
-                      </div>
-                    </section>
-
-                    <section class="configured-settings-group">
-                      <h3>Assistant</h3>
-
-                      <div class="configured-form-field">
-                        <label for="configuredAssistantNameInput">Name</label>
-
-                        <input
-                          id="configuredAssistantNameInput"
-                          type="text"
-                          required
-                        />
-                      </div>
-
-                      <div class="configured-form-field">
-                        <label for="configuredAssistantTitleInput">Title</label>
-
-                        <input
-                          id="configuredAssistantTitleInput"
-                          type="text"
-                          required
-                        />
-                      </div>
-
-                      <div class="configured-form-field">
-                        <label for="configuredAssistantModeInput">Use</label>
-
-                        <select id="configuredAssistantModeInput" required>
-                          <option value="customer_support">
-                            Customer service
-                          </option>
-
-                          <option value="internal_knowledge">
-                            Internal company knowledge
-                          </option>
-                        </select>
-                      </div>
-                    </section>
-
-                    <section class="configured-settings-group">
-                      <h3>Conversation</h3>
-
-                      <div class="configured-form-field">
-                        <label for="configuredToneInput">Tone</label>
-
-                        <select id="configuredToneInput" required>
-                          <option value="friendly">Friendly</option>
-                          <option value="professional">Professional</option>
-                          <option value="formal">Formal</option>
-                        </select>
-                      </div>
-
-                      <div class="configured-form-field">
-                        <label for="configuredResponseLengthInput">
-                          Response length
-                        </label>
-
-                        <select id="configuredResponseLengthInput" required>
-                          <option value="concise">Concise</option>
-                          <option value="balanced">Balanced</option>
-                          <option value="detailed">Detailed</option>
-                        </select>
-                      </div>
-                    </section>
-
-                    <section class="configured-settings-group">
-                      <h3>Languages</h3>
-
-                      <div class="configured-form-field">
-                        <label for="configuredDefaultLanguageInput">
-                          Default language
-                        </label>
-
-                        <input
-                          id="configuredDefaultLanguageInput"
-                          type="text"
-                          required
-                        />
-                      </div>
-
-                      <div class="configured-form-field">
-                        <label for="configuredSupportedLanguagesInput">
-                          Supported languages
-                        </label>
-
-                        <input
-                          id="configuredSupportedLanguagesInput"
-                          type="text"
-                          required
-                        />
-
-                        <small>Separate multiple languages with commas.</small>
                       </div>
                     </section>
                   </div>
@@ -967,6 +751,7 @@
     <script src="config.js"></script>
     <script src="api.js"></script>
     <script src="admin-onboarding.js"></script>
+    <script src="admin-assistants.js"></script>
     <script src="admin.js"></script>
   </body>
 </html>

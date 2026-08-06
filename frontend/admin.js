@@ -39,7 +39,7 @@ async function startAdmin() {
     await initializeAdmin();
 
     if (CONFIG_STATUS?.has_active_company === true) {
-      initializeUpload();
+      await initializeAssistantCards();
       initializeCompanySettingsToggle();
       initializeBrandingOverviewToggle();
       populateCompanySettingsForm();
@@ -69,6 +69,7 @@ async function initializeAdmin() {
   const hasActiveCompany = CONFIG_STATUS?.has_active_company === true;
 
   const answerlyHeader = document.getElementById("answerlyHeader");
+
   const companyTopbar = document.getElementById("companyTopbar");
 
   const answerlySetupContent = document.getElementById("answerlySetupContent");
@@ -85,31 +86,14 @@ async function initializeAdmin() {
   companyTopbar.hidden = !hasActiveCompany;
 
   answerlySetupContent.hidden = hasActiveCompany;
+
   configuredAdminContent.hidden = !hasActiveCompany;
 
   if (!hasActiveCompany) {
     document.title = "Answer.ly — Company Setup";
+
     return;
   }
-
-  const enabledModeKeys = CONFIG_STATUS?.available_modes || [];
-
-  const enabledModeLabels = enabledModeKeys
-    .map(
-      (mode) =>
-        COMPANY_CONFIG.modes?.[mode]?.display_name ||
-        mode
-          .split("_")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" "),
-    )
-    .join(", ");
-
-  const primaryMode = enabledModeKeys[0];
-  const primaryModeConfig = COMPANY_CONFIG.modes?.[primaryMode] || {};
-
-  const primaryAssistant =
-    primaryModeConfig.assistant || COMPANY_CONFIG.assistant || {};
 
   document.title = `${COMPANY_CONFIG.company_name} — Assistant Setup`;
 
@@ -117,27 +101,7 @@ async function initializeAdmin() {
     `${COMPANY_CONFIG.company_name} Assistant Setup`;
 
   document.getElementById("welcomeDescription").textContent =
-    "Upload company documents and manage how the AI assistant behaves.";
-
-  document.getElementById("companyName").textContent =
-    COMPANY_CONFIG.company_name;
-
-  document.getElementById("assistantName").textContent =
-    enabledModeKeys.length === 1
-      ? primaryAssistant.name || "Not configured"
-      : `${enabledModeKeys.length} assistants`;
-
-  document.getElementById("assistantMode").textContent =
-    enabledModeLabels || "Not configured";
-
-  const showCitations = primaryModeConfig.show_citations === true;
-
-  document.getElementById("citationMode").textContent =
-    enabledModeKeys.length === 1
-      ? showCitations
-        ? "Visible"
-        : "Hidden"
-      : "Mode-specific";
+    "Manage your assistants, knowledge bases, company settings, and branding.";
 
   applyBrandLogo(
     document.getElementById("brandLogo"),
@@ -146,12 +110,6 @@ async function initializeAdmin() {
 }
 
 function populateCompanySettingsForm() {
-  const defaultMode =
-    COMPANY_CONFIG.default_mode ||
-    Object.keys(COMPANY_CONFIG.modes).find(
-      (mode) => COMPANY_CONFIG.modes[mode].default,
-    );
-
   document.getElementById("configuredCompanyNameInput").value =
     COMPANY_CONFIG.company_name || "";
 
@@ -160,67 +118,15 @@ function populateCompanySettingsForm() {
 
   document.getElementById("configuredDescriptionInput").value =
     COMPANY_CONFIG.description || "";
-
-  document.getElementById("configuredAssistantNameInput").value =
-    COMPANY_CONFIG.assistant.name || "";
-
-  document.getElementById("configuredAssistantTitleInput").value =
-    COMPANY_CONFIG.assistant.title || "";
-
-  document.getElementById("configuredAssistantModeInput").value =
-    defaultMode || "customer_support";
-
-  document.getElementById("configuredToneInput").value =
-    COMPANY_CONFIG.conversation?.tone || "professional";
-
-  document.getElementById("configuredResponseLengthInput").value =
-    COMPANY_CONFIG.conversation?.response_length || "concise";
-
-  document.getElementById("configuredDefaultLanguageInput").value =
-    COMPANY_CONFIG.assistant.default_language || "English";
-
-  document.getElementById("configuredSupportedLanguagesInput").value =
-    COMPANY_CONFIG.assistant.supported_languages?.join(", ") || "English";
 }
 
 function buildCompanySettingsPayload() {
-  const supportedLanguages = document
-    .getElementById("configuredSupportedLanguagesInput")
-    .value.split(",")
-    .map((language) => language.trim())
-    .filter(Boolean);
-
   return {
     company_name: document
       .getElementById("configuredCompanyNameInput")
       .value.trim(),
 
     industry: document.getElementById("configuredIndustryInput").value.trim(),
-
-    assistant: {
-      name: document
-        .getElementById("configuredAssistantNameInput")
-        .value.trim(),
-
-      title: document
-        .getElementById("configuredAssistantTitleInput")
-        .value.trim(),
-
-      mode: document.getElementById("configuredAssistantModeInput").value,
-
-      default_language: document
-        .getElementById("configuredDefaultLanguageInput")
-        .value.trim(),
-
-      supported_languages: supportedLanguages,
-    },
-
-    conversation: {
-      tone: document.getElementById("configuredToneInput").value,
-
-      response_length: document.getElementById("configuredResponseLengthInput")
-        .value,
-    },
 
     company_details: {
       description: document
@@ -836,403 +742,6 @@ function initializeBrandingOverviewToggle() {
       });
     }
   });
-}
-
-function initializeUpload() {
-  const uploadZone = document.getElementById("uploadZone");
-
-  const fileInput = document.getElementById("fileInput");
-
-  const selectedFiles = document.getElementById("selectedFiles");
-
-  const selectedFileRows = document.getElementById("selectedFileRows");
-
-  const processButton = document.getElementById("processButton");
-
-  const clearButton = document.getElementById("clearButton");
-
-  const uploadNotice = document.getElementById("uploadNotice");
-
-  const indexedDocuments = document.getElementById("indexedDocuments");
-
-  const indexedDocumentsHeading = document.getElementById(
-    "indexedDocumentsHeading",
-  );
-
-  const indexedFileRows = document.getElementById("indexedFileRows");
-
-  const documentModeField = document.getElementById("documentModeField");
-
-  const documentModeInput = document.getElementById("documentModeInput");
-
-  const enabledModes = (CONFIG_STATUS?.available_modes || []).map((mode) => ({
-    mode,
-    label: COMPANY_CONFIG.modes?.[mode]?.display_name || formatModeLabel(mode),
-  }));
-  if (enabledModes.length === 0) {
-    throw new Error("At least one assistant mode must be enabled.");
-  }
-
-  documentModeInput.replaceChildren();
-
-  enabledModes.forEach(({ mode, label }) => {
-    const option = document.createElement("option");
-
-    option.value = mode;
-    option.textContent = label;
-
-    documentModeInput.appendChild(option);
-  });
-
-  const initialMode = enabledModes[0].mode;
-
-  documentModeInput.value = initialMode;
-  documentModeField.hidden = enabledModes.length <= 1;
-
-  let dragCounter = 0;
-  let documentsLoading = false;
-
-  function getSelectedMode() {
-    return documentModeInput.value;
-  }
-
-  function getSelectedModeLabel() {
-    const selectedOption = documentModeInput.selectedOptions[0];
-
-    return selectedOption?.textContent || formatModeLabel(getSelectedMode());
-  }
-
-  function formatModeLabel(mode) {
-    return mode
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
-
-  function formatBytes(bytes) {
-    if (bytes < 1024) {
-      return `${bytes} B`;
-    }
-
-    if (bytes < 1024 * 1024) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
-    }
-
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  }
-
-  function setNotice(type, message) {
-    const notice = document.createElement("div");
-
-    notice.className = `notice notice-${type}`;
-    notice.textContent = message;
-
-    uploadNotice.replaceChildren(notice);
-  }
-
-  function clearSelectedFiles() {
-    files = [];
-    fileInput.value = "";
-
-    renderSelectedFiles();
-  }
-
-  function renderSelectedFiles() {
-    selectedFileRows.replaceChildren();
-
-    if (files.length === 0) {
-      selectedFiles.hidden = true;
-      return;
-    }
-
-    selectedFiles.hidden = false;
-
-    files.forEach((file, index) => {
-      const row = document.createElement("div");
-
-      row.className = "file-row";
-
-      const details = document.createElement("div");
-
-      const filename = document.createElement("strong");
-      filename.textContent = file.name;
-
-      const metadata = document.createElement("div");
-      metadata.className = "file-meta";
-      metadata.textContent = formatBytes(file.size);
-
-      details.append(filename, metadata);
-
-      const removeButton = document.createElement("button");
-
-      removeButton.className = "remove-btn";
-      removeButton.type = "button";
-      removeButton.textContent = "Remove";
-
-      removeButton.addEventListener("click", () => {
-        files.splice(index, 1);
-        renderSelectedFiles();
-      });
-
-      row.append(details, removeButton);
-      selectedFileRows.appendChild(row);
-    });
-  }
-
-  function renderIndexedDocuments(documents) {
-    indexedFileRows.replaceChildren();
-
-    indexedDocumentsHeading.textContent = `${getSelectedModeLabel()} documents`;
-
-    if (documents.length === 0) {
-      const emptyState = document.createElement("p");
-
-      emptyState.className = "file-meta";
-      emptyState.textContent =
-        "No documents have been indexed for this assistant.";
-
-      indexedFileRows.appendChild(emptyState);
-      indexedDocuments.hidden = false;
-
-      return;
-    }
-
-    documents.forEach((documentRecord) => {
-      const row = document.createElement("div");
-
-      row.className = "file-row";
-
-      const details = document.createElement("div");
-
-      const filename = document.createElement("strong");
-      filename.textContent = documentRecord.filename;
-
-      const metadata = document.createElement("div");
-      metadata.className = "file-meta";
-
-      const status =
-        documentRecord.status === "indexed" ? "Indexed" : documentRecord.status;
-
-      metadata.textContent = `${formatBytes(documentRecord.size_bytes)} · ${status}`;
-
-      details.append(filename, metadata);
-
-      const deleteButton = document.createElement("button");
-
-      deleteButton.className = "remove-btn";
-      deleteButton.type = "button";
-      deleteButton.textContent = "Delete";
-
-      deleteButton.addEventListener("click", async () => {
-        const confirmed = window.confirm(
-          `Delete "${documentRecord.filename}"?\n\n` +
-            "The assistant index will be rebuilt without this document.",
-        );
-
-        if (!confirmed) {
-          return;
-        }
-
-        deleteButton.disabled = true;
-        deleteButton.textContent = "Deleting...";
-
-        setNotice(
-          "success",
-          "Deleting document and rebuilding the knowledge base...",
-        );
-
-        try {
-          await deleteDocument(documentRecord.document_id, getSelectedMode());
-
-          setNotice("success", `"${documentRecord.filename}" was deleted.`);
-
-          await loadIndexedDocuments();
-        } catch (error) {
-          console.error(error);
-
-          setNotice("error", error.message);
-
-          deleteButton.disabled = false;
-          deleteButton.textContent = "Delete";
-        }
-      });
-
-      row.append(details, deleteButton);
-      indexedFileRows.appendChild(row);
-    });
-
-    indexedDocuments.hidden = false;
-  }
-
-  async function loadIndexedDocuments() {
-    if (documentsLoading) {
-      return;
-    }
-
-    documentsLoading = true;
-    indexedDocuments.hidden = false;
-    indexedFileRows.replaceChildren();
-
-    const loading = document.createElement("p");
-
-    loading.className = "file-meta";
-    loading.textContent = "Loading documents...";
-
-    indexedFileRows.appendChild(loading);
-
-    try {
-      const result = await getDocuments(getSelectedMode());
-
-      renderIndexedDocuments(result.documents || []);
-    } catch (error) {
-      console.error(error);
-
-      indexedDocuments.hidden = true;
-
-      setNotice("error", error.message);
-    } finally {
-      documentsLoading = false;
-    }
-  }
-
-  function addFiles(fileList) {
-    const incomingFiles = Array.from(fileList);
-
-    const accepted = incomingFiles.filter((file) => {
-      const name = file.name.toLowerCase();
-
-      return (
-        name.endsWith(".pdf") || name.endsWith(".txt") || name.endsWith(".md")
-      );
-    });
-
-    files = [...files, ...accepted];
-
-    renderSelectedFiles();
-
-    if (accepted.length !== incomingFiles.length) {
-      setNotice(
-        "error",
-        "Some files were skipped. Only PDF, TXT, and MD files are supported.",
-      );
-    }
-  }
-
-  document.body.addEventListener(
-    "dragover",
-    (event) => {
-      event.preventDefault();
-    },
-    false,
-  );
-
-  document.body.addEventListener(
-    "drop",
-    (event) => {
-      if (!uploadZone.contains(event.target)) {
-        event.preventDefault();
-      }
-    },
-    false,
-  );
-
-  uploadZone.addEventListener("dragenter", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    dragCounter += 1;
-    uploadZone.classList.add("drag-over");
-  });
-
-  uploadZone.addEventListener("dragover", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    uploadZone.classList.add("drag-over");
-  });
-
-  uploadZone.addEventListener("dragleave", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    dragCounter -= 1;
-
-    if (dragCounter <= 0) {
-      dragCounter = 0;
-      uploadZone.classList.remove("drag-over");
-    }
-  });
-
-  uploadZone.addEventListener("drop", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    dragCounter = 0;
-    uploadZone.classList.remove("drag-over");
-
-    addFiles(event.dataTransfer.files);
-
-    setNotice(
-      "success",
-      `${event.dataTransfer.files.length} file(s) selected for ${getSelectedModeLabel()}.`,
-    );
-  });
-
-  fileInput.addEventListener("change", (event) => {
-    addFiles(event.target.files);
-  });
-
-  clearButton.addEventListener("click", () => {
-    clearSelectedFiles();
-    uploadNotice.replaceChildren();
-  });
-
-  documentModeInput.addEventListener("change", async () => {
-    clearSelectedFiles();
-    uploadNotice.replaceChildren();
-
-    await loadIndexedDocuments();
-  });
-
-  processButton.addEventListener("click", async () => {
-    if (files.length === 0) {
-      setNotice("error", "Choose at least one document first.");
-
-      return;
-    }
-
-    const selectedMode = getSelectedMode();
-
-    processButton.disabled = true;
-    processButton.textContent = "Processing documents...";
-
-    setNotice(
-      "success",
-      `Uploading and indexing documents for ${getSelectedModeLabel()}...`,
-    );
-
-    try {
-      const result = await uploadDocuments(files, selectedMode);
-
-      setNotice(
-        "success",
-        `${result.files_processed} document(s) indexed successfully.`,
-      );
-
-      clearSelectedFiles();
-      await loadIndexedDocuments();
-    } catch (error) {
-      console.error(error);
-
-      setNotice("error", error.message);
-    } finally {
-      processButton.disabled = false;
-      processButton.textContent = "Process documents";
-    }
-  });
-
-  renderSelectedFiles();
-  loadIndexedDocuments();
 }
 
 startAdmin();

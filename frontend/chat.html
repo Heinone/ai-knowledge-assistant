@@ -236,7 +236,7 @@
         try {
           const contextualQuestion = buildContextualQuestion(cleanQuestion);
 
-          const result = await askQuestion(contextualQuestion);
+          const result = await askQuestion(contextualQuestion, activeMode);
 
           const cleanAnswer = customerFriendlyAnswer(
             result.answer || "I could not answer that question.",
