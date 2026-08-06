@@ -210,3 +210,64 @@ class AssistantModeSettingsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+def test_rejects_customer_support_citations(
+    self,
+):
+    request = self.build_request(
+        "Maya"
+    ).model_copy(
+        update={
+            "show_citations": True,
+        }
+    )
+
+    with self.assertRaisesRegex(
+        ValueError,
+        "Citations cannot be enabled",
+    ):
+        apply_assistant_mode_settings_update(
+            self.build_config(),
+            mode=(
+                AssistantMode.CUSTOMER_SUPPORT
+            ),
+            request=request,
+        )
+
+
+def test_allows_internal_citations(
+    self,
+):
+    request = self.build_request(
+        "Atlas"
+    ).model_copy(
+        update={
+            "show_citations": True,
+        }
+    )
+
+    updated = (
+        apply_assistant_mode_settings_update(
+            self.build_config(),
+            mode=(
+                AssistantMode.INTERNAL_KNOWLEDGE
+            ),
+            request=request,
+            available_modes=(
+                AssistantMode.CUSTOMER_SUPPORT,
+                AssistantMode.INTERNAL_KNOWLEDGE,
+            ),
+        )
+    )
+
+    self.assertTrue(
+        updated["modes"][
+            "internal_knowledge"
+        ]["show_citations"]
+    )
+
+    self.assertTrue(
+        updated["visibility"][
+            "internal_knowledge"
+        ]["show_citations"]
+    )

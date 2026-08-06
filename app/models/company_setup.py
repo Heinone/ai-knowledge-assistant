@@ -85,11 +85,19 @@ class CompanySetupRequest(SetupRequestModel):
         InitialAssistantSetupRequest | None
     ) = None
 
-class CompanySettingsUpdateRequest(SetupRequestModel):
-    company_name: str = Field(min_length=1, max_length=150)
-    industry: str = Field(min_length=1, max_length=150)
-    assistant: AssistantSetupRequest
-    conversation: ConversationSetupRequest
+class CompanySettingsUpdateRequest(
+    SetupRequestModel
+):
+    company_name: str = Field(
+        min_length=1,
+        max_length=150,
+    )
+
+    industry: str = Field(
+        min_length=1,
+        max_length=150,
+    )
+
     company_details: CompanyDetailsRequest
 
 class AssistantProfileSettingsRequest(SetupRequestModel):
@@ -146,6 +154,37 @@ class ModeChatSettingsRequest(SetupRequestModel):
         max_length=1000,
     )
 
+class AssistantModeContactsUpdateRequest(
+    SetupRequestModel
+):
+    email: str = Field(
+        default="",
+        max_length=254,
+    )
+
+    phone: str = Field(
+        default="",
+        max_length=50,
+    )
+
+
+class AssistantModeFallbackUpdateRequest(
+    SetupRequestModel
+):
+    base_message: str = Field(
+        min_length=1,
+        max_length=1000,
+    )
+
+    include_email: bool = False
+    include_phone: bool = False
+
+
+class AssistantModeFallbackSettingsUpdateRequest(
+    SetupRequestModel
+):
+    contacts: AssistantModeContactsUpdateRequest
+    fallback: AssistantModeFallbackUpdateRequest
 
 class AssistantModeSettingsUpdateRequest(
     SetupRequestModel

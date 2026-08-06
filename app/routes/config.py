@@ -17,6 +17,7 @@ from app.config.company_config import (
 from app.config.env_config import AVAILABLE_MODES
 from app.config.config_validator import validate_company_config_or_raise
 from app.models.company_setup import (
+    AssistantModeFallbackSettingsUpdateRequest,
     AssistantModeSettingsUpdateRequest,
     BrandingSettingsUpdateRequest,
     CompanySettingsUpdateRequest,
@@ -30,6 +31,7 @@ from app.services.brand_asset_service import (
     validate_brand_asset_upload,
 )
 from app.services.company_setup_service import (
+    apply_assistant_mode_fallback_settings_update,
     apply_assistant_mode_settings_update,
     apply_company_branding_update,
     apply_company_settings_update,
@@ -306,6 +308,68 @@ def update_assistant_mode_settings(
         raise HTTPException(
             status_code=500,
             detail="Could not save assistant settings.",
+        ) from error
+
+    return {
+        "updated": True,
+        "mode": mode.value,
+        "assistant_config": (
+            updated_config["modes"][mode.value]
+        ),
+    }
+
+@router.put(
+    "/config/company/assistants/{mode}/fallback"
+)
+def update_assistant_mode_fallback_settings(
+    mode: AssistantMode,
+    request: AssistantModeFallbackSettingsUpdateRequest,
+) -> dict:
+    try:
+        existing_config = load_company_config()
+    except FileNotFoundError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        ) from error
+    except (
+        json.JSONDecodeError,
+        ValueError,
+    ) as error:
+        raise HTTPException(
+            status_code=500,
+            detail=str(error),
+        ) from error
+
+    try:
+        updated_config = (
+            apply_assistant_mode_fallback_settings_update(
+                existing_config,
+                mode=mode,
+                request=request,
+            )
+        )
+
+        validate_company_config_or_raise(
+            updated_config
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        ) from error
+
+    try:
+        save_company_config(
+            updated_config,
+            ACTIVE_COMPANY_CONFIG_PATH,
+        )
+    except (OSError, ValueError) as error:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Could not save fallback settings."
+            ),
         ) from error
 
     return {

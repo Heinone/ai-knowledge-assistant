@@ -9,6 +9,7 @@ from copy import deepcopy
 
 from app.config.env_config import AVAILABLE_MODES
 from app.models.company_setup import (
+    AssistantModeFallbackSettingsUpdateRequest,
     AssistantModeSettingsUpdateRequest,
     BrandingSettingsUpdateRequest,
     CompanySettingsUpdateRequest,
@@ -464,110 +465,140 @@ def apply_company_settings_update(
     existing_config: dict[str, Any],
     request: CompanySettingsUpdateRequest,
 ) -> dict[str, Any]:
-    updated_config = migrate_company_config_to_v2(
-    existing_config
-)
-
-    old_assistant_name = (
-        updated_config.get("assistant", {}).get("name", "")
+    updated_config = (
+        migrate_company_config_to_v2(
+            existing_config
+        )
     )
 
-    selected_mode = AssistantMode(
-    request.assistant.mode
-)
+    updated_config["company_name"] = (
+        request.company_name
+    )
 
-    if selected_mode not in AVAILABLE_MODES:
+    updated_config["industry"] = (
+        request.industry
+    )
+
+    updated_config["description"] = (
+        request.company_details.description
+    )
+
+    return updated_config
+
+def apply_assistant_mode_fallback_settings_update(
+    existing_config: dict[str, Any],
+    *,
+    mode: AssistantMode,
+    request: AssistantModeFallbackSettingsUpdateRequest,
+    available_modes: tuple[
+        AssistantMode,
+        ...,
+    ] = AVAILABLE_MODES,
+) -> dict[str, Any]:
+    if mode not in available_modes:
         raise ValueError(
-        f"Assistant mode "
-        f"'{selected_mode.value}' is not available "
-        "for this deployment."
-)
+            f"Assistant mode '{mode.value}' is not "
+            "available for this deployment."
+        )
 
-    selected_mode_key = selected_mode.value
-
-    updated_config["company_name"] = request.company_name
-    updated_config["industry"] = request.industry
-    updated_config["description"] = request.company_details.description
-
-    assistant = updated_config.setdefault("assistant", {})
-
-    assistant["name"] = request.assistant.name
-    assistant["title"] = request.assistant.title
-    assistant["default_language"] = (
-        request.assistant.default_language
-    )
-    assistant["supported_languages"] = (
-        request.assistant.supported_languages
+    updated_config = migrate_company_config_to_v2(
+        existing_config
     )
 
-    modes = updated_config.setdefault("modes", {})
+    email = request.contacts.email.strip()
+    phone = request.contacts.phone.strip()
 
-    conversation = updated_config.setdefault(
-        "conversation",
+    base_message = (
+        request.fallback.base_message.strip()
+    )
+
+    include_email = (
+        request.fallback.include_email
+    )
+
+    include_phone = (
+        request.fallback.include_phone
+    )
+
+    if include_email and not email:
+        raise ValueError(
+            "Contact email is required when email "
+            "is included in the fallback."
+        )
+
+    if include_phone and not phone:
+        raise ValueError(
+            "Contact phone is required when phone "
+            "is included in the fallback."
+        )
+
+    contact_name = (
+        "helpdesk"
+        if mode == AssistantMode.INTERNAL_KNOWLEDGE
+        else "customer service"
+    )
+
+    fallback_message = _build_fallback_message(
+        base_message=base_message,
+        email=email if include_email else "",
+        phone=phone if include_phone else "",
+        contact_name=contact_name,
+    )
+
+    modes = updated_config.setdefault(
+        "modes",
         {},
     )
 
-    conversation["tone"] = request.conversation.tone
-    conversation["response_length"] = (
-        request.conversation.response_length
+    mode_config = modes.setdefault(
+        mode.value,
+        {},
     )
 
-    greeting = conversation.get("greeting")
+    mode_config["contacts"] = {
+        "email": email,
+        "phone": phone,
+    }
 
-    if isinstance(greeting, dict):
-        old_default_greeting = (
-            f"Hello, I'm {old_assistant_name}. "
-            "How can I help you today?"
-        )
+    mode_config["fallback"] = {
+        "base_message": base_message,
+        "include_email": include_email,
+        "include_phone": include_phone,
+    }
 
-        if greeting.get("message") == old_default_greeting:
-            greeting["message"] = (
-                f"Hello, I'm {request.assistant.name}. "
-                "How can I help you today?"
-            )
-
-    selected_mode_config = modes.setdefault(
-    selected_mode_key,
-    {},
-)
-
-    selected_mode_config["assistant"] = deepcopy(
-        assistant
+    chat = mode_config.setdefault(
+        "chat",
+        {},
     )
 
-    selected_mode_config["conversation"] = deepcopy(
-        conversation
+    chat["fallback_message"] = (
+        fallback_message
     )
 
-    # Global compatibility fields must always represent
-    # the configured default mode.
-    default_mode = updated_config.get(
-        "default_mode"
+    # Keep legacy fields synchronized until the old
+    # mode-specific representation is removed.
+    legacy_mode = updated_config.setdefault(
+        mode.value,
+        {},
     )
 
-    if default_mode != selected_mode_key:
-        default_mode_config = modes.get(
-            default_mode,
-            {},
-        )
+    legacy_mode["fallback_message"] = (
+        fallback_message
+    )
 
-        default_assistant = default_mode_config.get(
-            "assistant",
-        )
+    support_contacts = legacy_mode.setdefault(
+        "support_contacts",
+        {},
+    )
 
-        default_conversation = default_mode_config.get(
-            "conversation",
-        )
+    support_contacts["name"] = (
+        "Internal Helpdesk"
+        if mode == AssistantMode.INTERNAL_KNOWLEDGE
+        else "Customer Service"
+    )
 
-        if isinstance(default_assistant, dict):
-            updated_config["assistant"] = deepcopy(
-                default_assistant
-            )
-
-        if isinstance(default_conversation, dict):
-            updated_config["conversation"] = deepcopy(
-                default_conversation
-            )
+    support_contacts["email"] = email
+    support_contacts["phone"] = phone
 
     return updated_config
 
@@ -586,6 +617,14 @@ def apply_assistant_mode_settings_update(
         raise ValueError(
             f"Assistant mode '{mode.value}' is not "
             "available for this deployment."
+        )
+    if (
+        mode == AssistantMode.CUSTOMER_SUPPORT
+        and request.show_citations
+    ):
+        raise ValueError(
+            "Citations cannot be enabled for "
+            "customer service assistants."
         )
 
     updated_config = migrate_company_config_to_v2(
