@@ -8,10 +8,19 @@ from app.models.assistant_mode import AssistantMode
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
+ENV_PATH = PROJECT_ROOT / ".env"
+RUNTIME_ENV_PATH = PROJECT_ROOT / ".env.runtime"
+
 load_dotenv(
-    PROJECT_ROOT / ".env",
+    ENV_PATH,
     override=False,
 )
+
+if RUNTIME_ENV_PATH.is_file():
+    load_dotenv(
+        RUNTIME_ENV_PATH,
+        override=True,
+    )
 
 
 class EnvironmentConfigurationError(RuntimeError):
