@@ -282,22 +282,20 @@ def update_assistant_mode_settings(
         ) from error
 
     try:
-        updated_config = (
-            apply_assistant_mode_settings_update(
-                existing_config,
-                mode=mode,
-                request=request,
-            )
+        updated_config = apply_assistant_mode_settings_update(
+            existing_config,
+            mode=mode,
+            request=request,
         )
 
         validate_company_config_or_raise(
-        updated_config
-    )
+            updated_config
+        )
     except ValueError as error:
-            raise HTTPException(
-                status_code=422,
-                detail=str(error),
-            ) from error
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        ) from error
 
     try:
         save_company_config(
