@@ -14,6 +14,15 @@ from app.services.company_setup_service import (
 
 
 class AssistantModeSettingsTests(unittest.TestCase):
+    CUSTOMER_SUPPORT_ONLY = (
+        AssistantMode.CUSTOMER_SUPPORT,
+    )
+
+    DUAL_MODES = (
+        AssistantMode.CUSTOMER_SUPPORT,
+        AssistantMode.INTERNAL_KNOWLEDGE,
+    )
+
     def build_config(self) -> dict:
         return migrate_company_config_to_v2(
             {
@@ -130,6 +139,9 @@ class AssistantModeSettingsTests(unittest.TestCase):
                 company,
                 mode=AssistantMode.CUSTOMER_SUPPORT,
                 request=self.build_request("Maya"),
+                available_modes=(
+                    self.CUSTOMER_SUPPORT_ONLY
+                ),
             )
         )
 
@@ -155,7 +167,9 @@ class AssistantModeSettingsTests(unittest.TestCase):
             ["products"],
         )
 
-    def test_syncs_global_fields_for_default_mode(self):
+    def test_syncs_global_fields_for_default_mode(
+        self,
+    ):
         company = self.build_config()
 
         updated = (
@@ -163,6 +177,9 @@ class AssistantModeSettingsTests(unittest.TestCase):
                 company,
                 mode=AssistantMode.CUSTOMER_SUPPORT,
                 request=self.build_request("Maya"),
+                available_modes=(
+                    self.CUSTOMER_SUPPORT_ONLY
+                ),
             )
         )
 
@@ -188,10 +205,7 @@ class AssistantModeSettingsTests(unittest.TestCase):
                 company,
                 mode=AssistantMode.INTERNAL_KNOWLEDGE,
                 request=request,
-                available_modes=(
-                    AssistantMode.CUSTOMER_SUPPORT,
-                    AssistantMode.INTERNAL_KNOWLEDGE,
-                ),
+                available_modes=self.DUAL_MODES,
             )
         )
 
@@ -207,67 +221,66 @@ class AssistantModeSettingsTests(unittest.TestCase):
             "Atlas",
         )
 
+    def test_rejects_customer_support_citations(
+        self,
+    ):
+        request = self.build_request(
+            "Maya"
+        ).model_copy(
+            update={
+                "show_citations": True,
+            }
+        )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Citations cannot be enabled",
+        ):
+            apply_assistant_mode_settings_update(
+                self.build_config(),
+                mode=(
+                    AssistantMode.CUSTOMER_SUPPORT
+                ),
+                request=request,
+                available_modes=(
+                    self.CUSTOMER_SUPPORT_ONLY
+                ),
+            )
+
+    def test_allows_internal_citations(
+        self,
+    ):
+        request = self.build_request(
+            "Atlas"
+        ).model_copy(
+            update={
+                "show_citations": True,
+            }
+        )
+
+        updated = (
+            apply_assistant_mode_settings_update(
+                self.build_config(),
+                mode=(
+                    AssistantMode.INTERNAL_KNOWLEDGE
+                ),
+                request=request,
+                available_modes=self.DUAL_MODES,
+            )
+        )
+
+        self.assertTrue(
+            updated["modes"][
+                "internal_knowledge"
+            ]["show_citations"]
+        )
+
+        self.assertTrue(
+            updated["visibility"][
+                "internal_knowledge"
+            ]["show_citations"]
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
-
-def test_rejects_customer_support_citations(
-    self,
-):
-    request = self.build_request(
-        "Maya"
-    ).model_copy(
-        update={
-            "show_citations": True,
-        }
-    )
-
-    with self.assertRaisesRegex(
-        ValueError,
-        "Citations cannot be enabled",
-    ):
-        apply_assistant_mode_settings_update(
-            self.build_config(),
-            mode=(
-                AssistantMode.CUSTOMER_SUPPORT
-            ),
-            request=request,
-        )
-
-
-def test_allows_internal_citations(
-    self,
-):
-    request = self.build_request(
-        "Atlas"
-    ).model_copy(
-        update={
-            "show_citations": True,
-        }
-    )
-
-    updated = (
-        apply_assistant_mode_settings_update(
-            self.build_config(),
-            mode=(
-                AssistantMode.INTERNAL_KNOWLEDGE
-            ),
-            request=request,
-            available_modes=(
-                AssistantMode.CUSTOMER_SUPPORT,
-                AssistantMode.INTERNAL_KNOWLEDGE,
-            ),
-        )
-    )
-
-    self.assertTrue(
-        updated["modes"][
-            "internal_knowledge"
-        ]["show_citations"]
-    )
-
-    self.assertTrue(
-        updated["visibility"][
-            "internal_knowledge"
-        ]["show_citations"]
-    )

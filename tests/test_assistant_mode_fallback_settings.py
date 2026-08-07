@@ -17,6 +17,10 @@ from app.services.company_setup_service import (
 class AssistantModeFallbackSettingsTests(
     unittest.TestCase
 ):
+    CUSTOMER_SUPPORT_ONLY = (
+        AssistantMode.CUSTOMER_SUPPORT,
+    )
+
     def build_config(self) -> dict:
         return migrate_company_config_to_v2(
             {
@@ -117,6 +121,9 @@ class AssistantModeFallbackSettingsTests(
                     AssistantMode.CUSTOMER_SUPPORT
                 ),
                 request=self.build_request(),
+                available_modes=(
+                    self.CUSTOMER_SUPPORT_ONLY
+                ),
             )
         )
 
@@ -161,6 +168,9 @@ class AssistantModeFallbackSettingsTests(
                     email="",
                     include_email=True,
                 ),
+                available_modes=(
+                    self.CUSTOMER_SUPPORT_ONLY
+                ),
             )
 
     def test_rejects_unavailable_mode(self):
@@ -174,6 +184,9 @@ class AssistantModeFallbackSettingsTests(
                     AssistantMode.INTERNAL_KNOWLEDGE
                 ),
                 request=self.build_request(),
+                available_modes=(
+                    self.CUSTOMER_SUPPORT_ONLY
+                ),
             )
 
 
