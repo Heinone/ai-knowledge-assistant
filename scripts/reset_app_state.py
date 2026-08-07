@@ -13,6 +13,7 @@ RUNTIME_DIRECTORIES = (
     "data/rebuild_staging",
     "data/rebuild_backups",
     "data/processed",
+    "data/activation_staging",
 )
 
 RUNTIME_FILES = (
@@ -20,6 +21,7 @@ RUNTIME_FILES = (
     "data/documents/document_registry.sqlite3",
     "data/documents/document_registry.sqlite3-wal",
     "data/documents/document_registry.sqlite3-shm",
+    ".env.runtime",
 )
 
 COMPANY_ASSETS_DIRECTORY = "data/company/assets"
