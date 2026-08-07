@@ -1,265 +1,432 @@
-# AI Knowledge Assistant
+# Answer.ly
 
-A reusable Business Knowledge Base Agent built with RAG (Retrieval Augmented Generation).
+Answer.ly is a configurable Business Knowledge Base Agent built with RAG (Retrieval Augmented Generation).
 
-The system allows businesses to upload their own documents and provide a grounded AI assistant that answers questions using company-specific knowledge.
+Businesses can upload their own documents, configure one or more AI assistants, and provide grounded answers based on company knowledge.
 
-The same architecture can support:
-
-- Customer support assistants
-- Internal employee knowledge assistants
-- Product documentation assistants
-- Business process assistants
+The current project is designed as a consulting-grade demo showing how the same RAG platform can support both customer-facing and internal business assistants.
 
 ---
 
-# Demo Use Cases
+## Demo Companies
 
-## Aster & Loom — Customer Support Assistant
+### Aster & Loom
 
-A premium clothing brand example.
+Customer support assistant for a premium clothing brand.
 
-The assistant can answer questions about:
+The assistant answers questions about:
 
-- Product details
-- Materials and sourcing
-- Manufacturing locations
+- Products and materials
+- Manufacturing
 - Care instructions
-- Returns and shipping policies
-- Latest product drops
+- Shipping and returns
+- Store information
+- Product collections
 
-Example:
-
-> "Where is the Vale Linen Overshirt made?"
-
-The assistant retrieves the relevant product and manufacturing information and provides a grounded answer.
+This demo uses the `customer_support` assistant mode.
 
 ---
 
-## Vertex Systems — Internal Knowledge Assistant
+### Vertex Systems
 
-A software company example.
+Internal knowledge assistant for a software company.
 
-The assistant can help employees find information from:
+The assistant answers employee questions about:
 
-- Technical documentation
-- Internal processes
-- Engineering guidelines
-- Company policies
+- Production access
+- Engineering procedures
+- Incident escalation
+- Production change policies
+- Internal operational processes
 
-The same AI system is reused with a different knowledge base.
-
----
-
-# Architecture
-
-```
-User
- |
- v
-Chat Interface
- |
- v
-FastAPI Backend
- |
- +----------------+
- |                |
- v                v
-Retriever        LLM
- |
- v
-Vector Store
- |
- v
-Grounded Answer
-```
+This demo uses the `internal_knowledge` assistant mode and can display document citations.
 
 ---
 
-# Core Features
+### Northstar eBikes
 
-## Document ingestion
+Dual-assistant demo showing strict knowledge-base separation.
 
-Supports:
+It includes:
 
-- Markdown
-- TXT
-- PDF
+- Customer support assistant
+- Internal knowledge assistant
 
-Uploaded documents are:
+The customer assistant can answer warranty questions but cannot access internal approval procedures.
 
-1. Loaded
-2. Split into chunks
-3. Converted into embeddings
-4. Stored for semantic search
+The internal assistant can answer operational questions such as battery replacement approval rules.
+
+This demo demonstrates assistant-mode isolation within the same company deployment.
 
 ---
 
-## Retrieval Augmented Generation (RAG)
+## Core Features
 
-The assistant does not answer from general knowledge.
+### RAG-powered chat
 
-Flow:
+The request flow is:
 
 1. User asks a question
 2. Relevant document chunks are retrieved
 3. Retrieved context is added to the prompt
 4. The LLM generates a grounded answer
+5. Supporting document sources are returned when appropriate
+
+If the knowledge base does not contain enough information, the assistant returns a configured fallback instead of inventing an answer.
 
 ---
 
-## Grounding and Safety
+### Multiple assistant modes
+
+Answer.ly currently supports:
+
+- `customer_support`
+- `internal_knowledge`
+
+A deployment can provision either one mode or both.
+
+When only one mode is enabled, it is resolved automatically.
+
+When multiple modes are enabled, the request must explicitly specify the assistant mode.
+
+---
+
+### Document management
+
+Supported document formats:
+
+- PDF
+- TXT
+- Markdown
+
+The admin interface supports:
+
+- Uploading documents
+- Indexing documents
+- Viewing indexed documents
+- Deleting documents
+- Rebuilding the assistant knowledge base
+
+Documents and indexes are isolated by assistant mode.
+
+---
+
+### Assistant configuration
+
+Each assistant can configure:
+
+- Assistant name
+- Chat name
+- Tone
+- Response length
+- Default language
+- Supported languages
+- Greeting
+- Fallback message
+- Contact information
+
+Internal knowledge assistants can also enable document citations.
+
+---
+
+### Branding
+
+Company branding currently supports:
+
+- Logo
+- Favicon
+- Assistant avatar
+
+If no assistant avatar is configured, Answer.ly uses a default assistant avatar.
+
+Company chat-colour customization is retained in the configuration model but is not currently applied to the demo UI.
+
+---
+
+### Grounding and safety
 
 The system includes:
 
-- Refusal behaviour when information is unavailable
-- Prompt injection protection
+- Retrieval score thresholds
+- Grounded-answer prompting
+- Configurable refusal behaviour
 - Answer validation
+- Prompt-injection resistance
 - Source tracking
-- Evaluation tests
+- Assistant-mode knowledge isolation
+
+Fallback answers do not expose retrieved document sources.
 
 ---
 
-# Technology Stack
+## Architecture
 
-## Backend
+```text
+Browser
+   |
+   v
+HTML / CSS / JavaScript
+   |
+   v
+FastAPI
+   |
+   +---------------------+
+   |                     |
+   v                     v
+Retriever              LLM provider
+   |                     |
+   v                     v
+Vector index        Grounded answer
+   |
+   v
+Uploaded documents
+```
+
+The backend separates:
+
+- API routes
+- Application services
+- Configuration
+- Assistant modes
+- LLM providers
+- Vector storage
+
+The LLM layer uses a provider abstraction so additional model providers can be added without rewriting the RAG pipeline.
+
+---
+
+## Technology Stack
+
+### Backend
 
 - Python
 - FastAPI
-- OpenAI API
 - LlamaIndex
-- Supabase pgvector
+- OpenAI API
+- SQLite document registry
 
-## Frontend
-
-- HTML
-- CSS
-- JavaScript
-
-## AI
+### AI
 
 - OpenAI embeddings
 - GPT models
-- Optional multi-provider support
+- Provider abstraction for additional LLM APIs
+
+### Vector storage
+
+Current demo:
+
+- Local persisted vector indexes
+
+Also present:
+
+- Supabase / pgvector integration
+
+The local vector store is the primary path for the current demo.
+
+### Frontend
+
+- HTML
+- CSS
+- Vanilla JavaScript
 
 ---
 
-# Project Structure
+## Project Structure
 
-```
+```text
 app/
+├── config/
+├── llm/
+├── models/
+├── prompts/
 ├── routes/
 ├── services/
-├── llm/
 ├── vector_store/
-└── models/
-
-frontend/
-├── chat.html
-├── admin.html
-├── styles.css
-└── api.js
+└── main.py
 
 data/
-├── raw/
-│   ├── customer_demo/
-│   ├── internal_demo/
-│   └── test_fixtures/
-└── evals/
+├── answerly/
+├── company/
+├── documents/
+├── examples/
+├── indexes/
+└── uploads/
+
+frontend/
+├── assets/
+├── admin.html
+├── admin.js
+├── admin-assistants.js
+├── admin-onboarding.js
+├── api.js
+├── chat.html
+├── config.js
+└── styles.css
+
+scripts/
+├── activate_example_company.py
+├── reset_app_state.py
+└── ...
 
 tests/
+
+start-demo.sh
+pytest.ini
 ```
+
+Runtime company data, uploaded documents, indexes, and generated runtime configuration are intentionally kept separate from tracked demo fixtures.
 
 ---
 
-# Running Locally
+## Local Setup
 
-## 1. Create environment
+### 1. Create a virtual environment
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 ```
 
-## 2. Install dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 3. Add environment variables
+### 3. Configure environment variables
 
-Create:
-
-```
-.env
-```
+Create a root `.env` file.
 
 Example:
 
 ```env
 OPENAI_API_KEY=your_key_here
 DEFAULT_MODEL=gpt-5-mini
+VECTOR_STORE=local
+AVAILABLE_MODES=customer_support,internal_knowledge
 ```
 
-## 4. Start backend
+`.env.runtime` is generated automatically by the demo tooling and overrides deployment-specific runtime settings.
+
+Do not commit API keys.
+
+---
+
+## Start the Demo
+
+From the project root:
 
 ```bash
-uvicorn app.main:app --reload
+./start-demo.sh
 ```
 
-## 5. Open frontend
+The launcher provides four options:
 
-Serve the frontend:
-
-```bash
-cd frontend
-python3 -m http.server 5500
+```text
+1) Reset to Answer.ly
+2) Start Aster & Loom
+3) Start Vertex Systems
+4) Start Northstar eBikes
 ```
+
+When resetting to Answer.ly, you can choose:
+
+```text
+1) Internal knowledge
+2) Customer support
+3) Both
+```
+
+The launcher:
+
+- Resets or activates the selected demo configuration
+- Starts the FastAPI backend
+- Starts the frontend HTTP server
+- Stops both servers with `Ctrl+C`
 
 Open:
 
-```
+```text
+Admin
 http://localhost:5500/admin.html
-```
-Upload the knowledge documents (Current support for txt,md and pdf files). Then navigate to:
-```
+
+Chat
 http://localhost:5500/chat.html
 ```
 
----
+For Northstar's dual-mode demo:
 
-# Evaluation
+```text
+Customer support
+http://localhost:5500/chat.html?mode=customer_support
 
-The project includes RAG evaluation cases covering:
-
-- Answerable questions
-- Unanswerable questions
-- Ambiguous questions
-- Prompt injection attempts
-
-Run:
-
-```bash
-./run_eval.sh
+Internal knowledge
+http://localhost:5500/chat.html?mode=internal_knowledge
 ```
 
 ---
 
-# Future Improvements
+## Manual Demo Activation
 
-Planned:
+The demo companies can also be activated directly.
 
-- Multi-tenant business configuration
-- Authentication
-- Conversation memory
-- Production deployment
-- Analytics dashboard
-- Cost monitoring
-- Human escalation workflows
+```bash
+venv/bin/python -m scripts.activate_example_company aster_loom --apply
+
+venv/bin/python -m scripts.activate_example_company vertex_systems --apply
+
+venv/bin/python -m scripts.activate_example_company northstar_ebikes --apply
+```
+
+Reset all runtime state:
+
+```bash
+venv/bin/python -m scripts.reset_app_state
+```
 
 ---
 
-# Goal
+## Tests
 
-Build AI assistants that help businesses turn their existing knowledge into useful, reliable conversations.
+Run the unit test suite:
+
+```bash
+venv/bin/python -m pytest
+```
+
+The test suite covers areas including:
+
+- Assistant mode resolution
+- Deployment mode provisioning
+- Assistant settings
+- Fallback settings
+- Configuration migration
+- Document registry behaviour
+- Mode-isolated ingestion
+- Prompt construction
+
+---
+
+## Current Scope
+
+The current goal is a reliable client-demo and consulting prototype.
+
+Production features such as these would be added based on client requirements:
+
+- Authentication and authorization
+- SSO
+- Rate limiting
+- Production multi-tenancy
+- Cloud storage
+- Enterprise observability
+- Advanced analytics
+- Billing
+- Production deployment hardening
+
+---
+
+## Goal
+
+Answer.ly demonstrates how a business can turn its existing documents into grounded AI assistants while keeping different assistant use cases and knowledge bases isolated.
+
+The project is also designed to serve as a reusable foundation for client-specific AI knowledge systems.
