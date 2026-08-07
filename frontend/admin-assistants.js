@@ -79,6 +79,8 @@ function createAssistantCard(mode) {
   const responseLengthInputId = `${mode}ResponseLengthInput`;
   const defaultLanguageInputId = `${mode}DefaultLanguageInput`;
   const supportedLanguagesInputId = `${mode}SupportedLanguagesInput`;
+  const greetingEnabledInputId = `${mode}GreetingEnabledInput`;
+  const greetingMessageInputId = `${mode}GreetingMessageInput`;
   const contactEmailInputId = `${mode}ContactEmailInput`;
   const contactPhoneInputId = `${mode}ContactPhoneInput`;
   const fallbackBaseMessageInputId = `${mode}FallbackBaseMessageInput`;
@@ -250,7 +252,41 @@ function createAssistantCard(mode) {
             Separate multiple languages with commas.
           </small>
         </div>
+        <div class="configured-form-field assistant-citation-field">
+  <label
+    class="assistant-checkbox-control"
+    for="${greetingEnabledInputId}"
+  >
+    <input
+      id="${greetingEnabledInputId}"
+      data-role="greeting-enabled-input"
+      type="checkbox"
+    />
 
+    <span>
+      <strong>Show greeting</strong>
+
+      <small>
+        Display a greeting when the chat opens.
+      </small>
+    </span>
+  </label>
+</div>
+
+<div
+  class="configured-form-field assistant-citation-field"
+>
+  <label for="${greetingMessageInputId}">
+    Greeting message
+  </label>
+
+  <textarea
+    id="${greetingMessageInputId}"
+    data-role="greeting-message-input"
+    rows="3"
+    maxlength="500"
+  ></textarea>
+</div>
         ${citationFieldMarkup}
       </div>
 
@@ -604,6 +640,14 @@ async function initializeAssistantCard(card, mode) {
     '[data-role="supported-languages-input"]',
   );
 
+  const greetingEnabledInput = card.querySelector(
+  '[data-role="greeting-enabled-input"]',
+  );
+
+  const greetingMessageInput = card.querySelector(
+    '[data-role="greeting-message-input"]',
+  );
+
   const assistantSettingsNotice = card.querySelector(
     '[data-role="assistant-settings-notice"]',
   );
@@ -716,6 +760,15 @@ async function initializeAssistantCard(card, mode) {
     supportedLanguagesInput.value =
       assistant.supported_languages?.join(", ") || "English";
 
+    greetingEnabledInput.checked =
+      conversation.greeting?.enabled !== false;
+
+    greetingMessageInput.value =
+      conversation.greeting?.message ||
+      `Hello, I'm ${assistant.name || "your assistant"}. How can I help you today?`;
+
+    greetingMessageInput.disabled = !greetingEnabledInput.checked;
+
     if (showCitationsInput) {
       showCitationsInput.checked = currentModeConfig.show_citations === true;
     }
@@ -765,10 +818,10 @@ async function initializeAssistantCard(card, mode) {
         response_length: responseLengthInput.value,
 
         greeting: {
-          enabled: conversation.greeting?.enabled !== false,
+          enabled: greetingEnabledInput.checked,
 
           message:
-            conversation.greeting?.message?.trim() ||
+            greetingMessageInput.value.trim() ||
             `Hello, I'm ${assistantName}. How can I help you today?`,
         },
       },
@@ -827,11 +880,17 @@ async function initializeAssistantCard(card, mode) {
     responseLengthInput,
     defaultLanguageInput,
     supportedLanguagesInput,
+    greetingEnabledInput,
+    greetingMessageInput,
   ];
 
   if (showCitationsInput) {
     assistantSettingsFields.push(showCitationsInput);
   }
+
+    greetingEnabledInput.addEventListener("change", () => {
+    greetingMessageInput.disabled = !greetingEnabledInput.checked;
+  });
 
   assistantSettingsFields.forEach((field) => {
     field.addEventListener("input", updateAssistantSettingsDirtyState);
@@ -1157,6 +1216,17 @@ async function initializeAssistantCard(card, mode) {
       testSources.appendChild(sourceCard);
     });
   }
+
+  testQuestionInput.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.isComposing
+    ) {
+      event.preventDefault();
+      testChatForm.requestSubmit();
+    }
+  });
 
   testChatForm.addEventListener("submit", async (event) => {
     event.preventDefault();

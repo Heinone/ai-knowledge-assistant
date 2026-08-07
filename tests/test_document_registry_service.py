@@ -111,186 +111,185 @@ class DocumentRegistryServiceTests(unittest.TestCase):
             "support-document",
         )
 
-
-if __name__ == "__main__":
-    unittest.main()
-
-def test_replaces_only_selected_mode_records(self):
-    document_registry_service.create_document_record(
-        document_id="old-support",
-        company_id="company-1",
-        mode=AssistantMode.CUSTOMER_SUPPORT,
-        filename="old-support.txt",
-        stored_path="data/uploads/customer_support/old-support.txt",
-        size_bytes=100,
-    )
-
-    document_registry_service.create_document_record(
-        document_id="internal-document",
-        company_id="company-1",
-        mode=AssistantMode.INTERNAL_KNOWLEDGE,
-        filename="internal.txt",
-        stored_path="data/uploads/internal_knowledge/internal.txt",
-        size_bytes=200,
-    )
-
-    timestamp = "2026-08-04T12:00:00+00:00"
-
-    document_registry_service.replace_document_records_for_mode(
-        company_id="company-1",
-        mode=AssistantMode.CUSTOMER_SUPPORT,
-        documents=[
-            {
-                "document_id": "new-support",
-                "filename": "new-support.txt",
-                "stored_path": (
-                    "data/uploads/customer_support/new-support.txt"
-                ),
-                "size_bytes": 300,
-                "status": "indexed",
-                "documents_loaded": 1,
-                "error_message": None,
-                "uploaded_at": timestamp,
-                "updated_at": timestamp,
-            }
-        ],
-    )
-
-    support_documents = (
-        document_registry_service.list_document_records(
+    def test_replaces_only_selected_mode_records(self):
+        document_registry_service.create_document_record(
+            document_id="old-support",
             company_id="company-1",
             mode=AssistantMode.CUSTOMER_SUPPORT,
+            filename="old-support.txt",
+            stored_path="data/uploads/customer_support/old-support.txt",
+            size_bytes=100,
         )
-    )
 
-    internal_documents = (
-        document_registry_service.list_document_records(
+        document_registry_service.create_document_record(
+            document_id="internal-document",
             company_id="company-1",
             mode=AssistantMode.INTERNAL_KNOWLEDGE,
+            filename="internal.txt",
+            stored_path="data/uploads/internal_knowledge/internal.txt",
+            size_bytes=200,
         )
-    )
 
-    self.assertEqual(
-        [document["document_id"] for document in support_documents],
-        ["new-support"],
-    )
+        timestamp = "2026-08-04T12:00:00+00:00"
 
-    self.assertEqual(
-        [document["document_id"] for document in internal_documents],
-        ["internal-document"],
-    )
-
-
-def test_replacement_validation_does_not_delete_existing_records(self):
-    document_registry_service.create_document_record(
-        document_id="existing-document",
-        company_id="company-1",
-        mode=AssistantMode.CUSTOMER_SUPPORT,
-        filename="existing.txt",
-        stored_path="data/uploads/customer_support/existing.txt",
-        size_bytes=100,
-    )
-
-    with self.assertRaisesRegex(
-        ValueError,
-        "Duplicate document ID",
-    ):
         document_registry_service.replace_document_records_for_mode(
             company_id="company-1",
             mode=AssistantMode.CUSTOMER_SUPPORT,
             documents=[
                 {
-                    "document_id": "duplicate",
-                    "filename": "one.txt",
+                    "document_id": "new-support",
+                    "filename": "new-support.txt",
                     "stored_path": (
-                        "data/uploads/customer_support/one.txt"
+                        "data/uploads/customer_support/new-support.txt"
                     ),
-                    "size_bytes": 100,
+                    "size_bytes": 300,
                     "status": "indexed",
                     "documents_loaded": 1,
                     "error_message": None,
-                    "uploaded_at": "2026-08-04T12:00:00+00:00",
-                    "updated_at": "2026-08-04T12:00:00+00:00",
-                },
-                {
-                    "document_id": "duplicate",
-                    "filename": "two.txt",
-                    "stored_path": (
-                        "data/uploads/customer_support/two.txt"
-                    ),
-                    "size_bytes": 100,
-                    "status": "indexed",
-                    "documents_loaded": 1,
-                    "error_message": None,
-                    "uploaded_at": "2026-08-04T12:00:00+00:00",
-                    "updated_at": "2026-08-04T12:00:00+00:00",
-                },
+                    "uploaded_at": timestamp,
+                    "updated_at": timestamp,
+                }
             ],
         )
 
-    documents = document_registry_service.list_document_records(
-        company_id="company-1",
-        mode=AssistantMode.CUSTOMER_SUPPORT,
-    )
+        support_documents = (
+            document_registry_service.list_document_records(
+                company_id="company-1",
+                mode=AssistantMode.CUSTOMER_SUPPORT,
+            )
+        )
 
-    self.assertEqual(
-        [document["document_id"] for document in documents],
-        ["existing-document"],
-    )
+        internal_documents = (
+            document_registry_service.list_document_records(
+                company_id="company-1",
+                mode=AssistantMode.INTERNAL_KNOWLEDGE,
+            )
+        )
 
-def test_finds_document_only_for_correct_company_and_mode(self):
-    document_registry_service.create_document_record(
-        document_id="document-1",
-        company_id="company-1",
-        mode=AssistantMode.CUSTOMER_SUPPORT,
-        filename="policy.txt",
-        stored_path="data/uploads/customer_support/policy.txt",
-        size_bytes=100,
-    )
+        self.assertEqual(
+            [document["document_id"] for document in support_documents],
+            ["new-support"],
+        )
 
-    found = (
-        document_registry_service.find_document_record_for_mode(
+        self.assertEqual(
+            [document["document_id"] for document in internal_documents],
+            ["internal-document"],
+        )
+
+
+    def test_replacement_validation_does_not_delete_existing_records(self):
+        document_registry_service.create_document_record(
+            document_id="existing-document",
+            company_id="company-1",
+            mode=AssistantMode.CUSTOMER_SUPPORT,
+            filename="existing.txt",
+            stored_path="data/uploads/customer_support/existing.txt",
+            size_bytes=100,
+        )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Duplicate document ID",
+        ):
+            document_registry_service.replace_document_records_for_mode(
+                company_id="company-1",
+                mode=AssistantMode.CUSTOMER_SUPPORT,
+                documents=[
+                    {
+                        "document_id": "duplicate",
+                        "filename": "one.txt",
+                        "stored_path": (
+                            "data/uploads/customer_support/one.txt"
+                        ),
+                        "size_bytes": 100,
+                        "status": "indexed",
+                        "documents_loaded": 1,
+                        "error_message": None,
+                        "uploaded_at": "2026-08-04T12:00:00+00:00",
+                        "updated_at": "2026-08-04T12:00:00+00:00",
+                    },
+                    {
+                        "document_id": "duplicate",
+                        "filename": "two.txt",
+                        "stored_path": (
+                            "data/uploads/customer_support/two.txt"
+                        ),
+                        "size_bytes": 100,
+                        "status": "indexed",
+                        "documents_loaded": 1,
+                        "error_message": None,
+                        "uploaded_at": "2026-08-04T12:00:00+00:00",
+                        "updated_at": "2026-08-04T12:00:00+00:00",
+                    },
+                ],
+            )
+
+        documents = document_registry_service.list_document_records(
+            company_id="company-1",
+            mode=AssistantMode.CUSTOMER_SUPPORT,
+        )
+
+        self.assertEqual(
+            [document["document_id"] for document in documents],
+            ["existing-document"],
+        )
+
+    def test_finds_document_only_for_correct_company_and_mode(self):
+        document_registry_service.create_document_record(
+            document_id="document-1",
+            company_id="company-1",
+            mode=AssistantMode.CUSTOMER_SUPPORT,
+            filename="policy.txt",
+            stored_path="data/uploads/customer_support/policy.txt",
+            size_bytes=100,
+        )
+
+        found = (
+            document_registry_service.find_document_record_for_mode(
+                document_id="document-1",
+                company_id="company-1",
+                mode=AssistantMode.CUSTOMER_SUPPORT,
+            )
+        )
+
+        wrong_mode = (
+            document_registry_service.find_document_record_for_mode(
+                document_id="document-1",
+                company_id="company-1",
+                mode=AssistantMode.INTERNAL_KNOWLEDGE,
+            )
+        )
+
+        self.assertIsNotNone(found)
+        self.assertIsNone(wrong_mode)
+
+
+    def test_deletes_document_only_for_correct_owner(self):
+        document_registry_service.create_document_record(
+            document_id="document-1",
+            company_id="company-1",
+            mode=AssistantMode.CUSTOMER_SUPPORT,
+            filename="policy.txt",
+            stored_path="data/uploads/customer_support/policy.txt",
+            size_bytes=100,
+        )
+
+        deleted = document_registry_service.delete_document_record(
             document_id="document-1",
             company_id="company-1",
             mode=AssistantMode.CUSTOMER_SUPPORT,
         )
-    )
 
-    wrong_mode = (
-        document_registry_service.find_document_record_for_mode(
-            document_id="document-1",
-            company_id="company-1",
-            mode=AssistantMode.INTERNAL_KNOWLEDGE,
+        self.assertTrue(deleted)
+
+        remaining = (
+            document_registry_service.list_document_records(
+                company_id="company-1",
+                mode=AssistantMode.CUSTOMER_SUPPORT,
+            )
         )
-    )
 
-    self.assertIsNotNone(found)
-    self.assertIsNone(wrong_mode)
+        self.assertEqual(remaining, [])
 
-
-def test_deletes_document_only_for_correct_owner(self):
-    document_registry_service.create_document_record(
-        document_id="document-1",
-        company_id="company-1",
-        mode=AssistantMode.CUSTOMER_SUPPORT,
-        filename="policy.txt",
-        stored_path="data/uploads/customer_support/policy.txt",
-        size_bytes=100,
-    )
-
-    deleted = document_registry_service.delete_document_record(
-        document_id="document-1",
-        company_id="company-1",
-        mode=AssistantMode.CUSTOMER_SUPPORT,
-    )
-
-    self.assertTrue(deleted)
-
-    remaining = (
-        document_registry_service.list_document_records(
-            company_id="company-1",
-            mode=AssistantMode.CUSTOMER_SUPPORT,
-        )
-    )
-
-    self.assertEqual(remaining, [])
+if __name__ == "__main__":
+    unittest.main()

@@ -1,4 +1,5 @@
 import time
+import re
 
 from app.config.company_config import (
     get_enabled_assistant_modes,
@@ -18,6 +19,31 @@ from app.vector_store.supabase_store import SupabaseVectorStore
 
 
 MIN_SOURCE_SCORE = 0.30
+
+RUNTIME_DOCUMENT_NAME_PATTERN = re.compile(
+    r"^[0-9a-fA-F]{32}_(.+)$"
+)
+
+SOURCE_METADATA_PATTERN = re.compile(
+    r"\s*\[\[sources:\s*([^\]]+)\]\]\s*$",
+    re.IGNORECASE,
+)
+
+
+def _display_source_name(
+    filename: str | None,
+) -> str | None:
+    if not filename:
+        return None
+
+    match = RUNTIME_DOCUMENT_NAME_PATTERN.match(
+        filename
+    )
+
+    if match:
+        return match.group(1)
+
+    return filename
 
 def _answer_with_sources(
     *,
@@ -58,7 +84,7 @@ def _answer_with_sources(
 
         return {
             "answer": fallback_message,
-            "sources": sources,
+            "sources": [],
         }
 
     custom_prompt_guide = get_mode_prompt_guide(
@@ -83,11 +109,17 @@ def _answer_with_sources(
         time.perf_counter() - llm_started_at
     ) * 1000
 
+    generated_answer, cited_source_ids = (
+        _extract_answer_sources(
+            generation_result["answer"]
+        )
+    )
+
     validation = validate_answer(
-    question=question,
-    answer=generation_result["answer"],
-    sources=sources,
-    mode=mode,
+        question=question,
+        answer=generated_answer,
+        sources=sources,
+        mode=mode,
     )
 
     total_ms = (
@@ -111,9 +143,27 @@ def _answer_with_sources(
         }
     )
 
+    safe_answer = validation["safe_answer"]
+
+    is_fallback = (
+        safe_answer.strip() == fallback_message.strip()
+    )
+
+    cited_source_id_set = set(cited_source_ids)
+
+    supporting_sources = [
+        source
+        for source in sources
+        if source["id"] in cited_source_id_set
+    ]
+
     return {
-        "answer": validation["safe_answer"],
-        "sources": sources,
+        "answer": safe_answer,
+        "sources": (
+            supporting_sources
+            if validation["valid"] and not is_fallback
+            else []
+        ),
     }
 
 
@@ -158,7 +208,9 @@ def _answer_from_local(
                 "id": f"source_{len(sources) + 1}",
                 "text": node.text,
                 "score": node.score,
-                "source": node.metadata.get("file_name"),
+                "source": _display_source_name(
+                    node.metadata.get("file_name")
+                ),
             }
         )
 
@@ -249,3 +301,21 @@ def answer_question(
         question=question,
         mode=resolved_mode,
     )
+
+def _extract_answer_sources(
+    answer: str,
+) -> tuple[str, list[str]]:
+    match = SOURCE_METADATA_PATTERN.search(answer)
+
+    if not match:
+        return answer.strip(), []
+
+    source_ids = [
+        source_id.strip()
+        for source_id in match.group(1).split(",")
+        if source_id.strip()
+    ]
+
+    clean_answer = answer[:match.start()].strip()
+
+    return clean_answer, source_ids

@@ -5,7 +5,10 @@ let CONFIG_STATUS = null;
 const CONFIG_API_BASE_URL = "http://127.0.0.1:8000";
 
 async function loadCompanyConfig() {
-  const statusResponse = await fetch(`${CONFIG_API_BASE_URL}/config/status`);
+  const statusResponse = await fetch(
+    `${CONFIG_API_BASE_URL}/config/status`,
+    { cache: "no-store" },
+  );
 
   if (!statusResponse.ok) {
     throw new Error("Could not load configuration status");
@@ -13,9 +16,21 @@ async function loadCompanyConfig() {
 
   CONFIG_STATUS = await statusResponse.json();
 
+  const brandingResponse = await fetch(
+    `${CONFIG_API_BASE_URL}/config/answerly/branding.json`,
+    { cache: "no-store" },
+  );
+
+  if (!brandingResponse.ok) {
+    throw new Error("Could not load Answer.ly branding");
+  }
+
+  ANSWERLY_BRANDING = await brandingResponse.json();
+
   if (CONFIG_STATUS.has_active_company) {
     const companyResponse = await fetch(
       `${CONFIG_API_BASE_URL}/config/company.json`,
+      { cache: "no-store" },
     );
 
     if (!companyResponse.ok) {
@@ -23,17 +38,7 @@ async function loadCompanyConfig() {
     }
 
     COMPANY_CONFIG = await companyResponse.json();
-    ANSWERLY_BRANDING = null;
   } else {
-    const brandingResponse = await fetch(
-      `${CONFIG_API_BASE_URL}/config/answerly/branding.json`,
-    );
-
-    if (!brandingResponse.ok) {
-      throw new Error("Could not load Answer.ly branding");
-    }
-
-    ANSWERLY_BRANDING = await brandingResponse.json();
     COMPANY_CONFIG = null;
   }
 
@@ -62,9 +67,7 @@ function applyFavicon() {
 }
 
 function applyBranding() {
-  const colors = CONFIG_STATUS?.has_active_company
-    ? COMPANY_CONFIG?.branding?.colors
-    : ANSWERLY_BRANDING?.colors;
+  const colors = ANSWERLY_BRANDING?.colors;
 
   if (colors) {
     setBrandColor("--primary", colors.primary);
@@ -134,35 +137,42 @@ function applyAssistantAvatar(imageElement, fallbackElement) {
 
   const companyName = COMPANY_CONFIG.company_name || "Company";
   const avatarPath = COMPANY_CONFIG.branding?.assets?.assistant_avatar;
-  const logoPath = COMPANY_CONFIG.branding?.assets?.logo;
 
   fallbackElement.textContent = companyName.charAt(0).toUpperCase();
 
-  let assetName = null;
+  const imageCandidates = [];
 
   if (avatarPath) {
-    assetName = "assistant_avatar";
-  } else if (logoPath) {
-    assetName = "logo";
+    imageCandidates.push(
+      `${getBrandAssetUrl("assistant_avatar")}?version=${Date.now()}`,
+    );
   }
 
-  if (!assetName) {
-    imageElement.hidden = true;
-    fallbackElement.hidden = false;
-    return;
-  }
+  imageCandidates.push(
+    `./assets/default_assistant_avatar.png?version=${Date.now()}`,
+  );
+
+  let candidateIndex = 0;
+
+  const loadNextCandidate = () => {
+    if (candidateIndex >= imageCandidates.length) {
+      imageElement.hidden = true;
+      fallbackElement.hidden = false;
+      return;
+    }
+
+    imageElement.src = imageCandidates[candidateIndex];
+    candidateIndex += 1;
+  };
 
   imageElement.onload = () => {
     imageElement.hidden = false;
     fallbackElement.hidden = true;
   };
 
-  imageElement.onerror = () => {
-    imageElement.hidden = true;
-    fallbackElement.hidden = false;
-  };
+  imageElement.onerror = loadNextCandidate;
 
-  imageElement.classList.toggle("uses-company-logo", assetName === "logo");
+  imageElement.classList.remove("uses-company-logo");
 
-  imageElement.src = `${getBrandAssetUrl(assetName)}?version=${Date.now()}`;
+  loadNextCandidate();
 }

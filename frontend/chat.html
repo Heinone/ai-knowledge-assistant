@@ -45,13 +45,13 @@
           <div id="messages" class="customer-messages"></div>
 
           <form id="chatForm" class="customer-input-wrap">
-            <input
-              id="questionInput"
-              class="customer-input"
-              type="text"
-              placeholder="Type your question..."
-              autocomplete="off"
-            />
+            <textarea
+                id="questionInput"
+                class="customer-input"
+                rows="1"
+                placeholder="Type your question..."
+                autocomplete="off"
+              ></textarea>
 
             <button id="sendButton" class="btn customer-send" type="submit">
               Send
@@ -76,14 +76,27 @@
 
       function getActiveMode() {
         const params = new URLSearchParams(window.location.search);
-
         const requestedMode = params.get("mode");
 
-        if (requestedMode && COMPANY_CONFIG.modes[requestedMode]?.enabled) {
-          return requestedMode;
+        if (requestedMode) {
+          if (COMPANY_CONFIG.modes?.[requestedMode]?.enabled) {
+            return requestedMode;
+          }
+
+          throw new Error(`Assistant mode '${requestedMode}' is not available.`);
         }
 
-        return COMPANY_CONFIG.default_mode;
+        const enabledModes = Object.entries(COMPANY_CONFIG.modes || {})
+          .filter(([, config]) => config?.enabled)
+          .map(([mode]) => mode);
+
+        if (enabledModes.length === 1) {
+          return enabledModes[0];
+        }
+
+        throw new Error(
+          "Assistant mode must be specified when multiple assistants are enabled.",
+        );
       }
 
       async function initializeChat() {
@@ -116,14 +129,23 @@
 
         questionInput.placeholder = COMPANY_CONFIG[activeMode].placeholder;
 
-        if (COMPANY_CONFIG.conversation?.greeting?.enabled) {
-          addMessage("assistant", COMPANY_CONFIG.conversation.greeting.message);
+        const greeting =
+          COMPANY_CONFIG.modes?.[activeMode]?.conversation?.greeting ||
+          COMPANY_CONFIG.conversation?.greeting;
+
+        if (greeting?.enabled) {
+          addMessage("assistant", greeting.message);
         }
       }
-      initializeChat();
+      initializeChat().catch((error) => {
+        console.error("Chat initialization failed:", error);
+        showChatConfigurationError();
+      });
 
       window.addEventListener("load", () => {
-        questionInput.focus();
+        if (!questionInput.disabled) {
+          questionInput.focus();
+        }
       });
 
       function addMessage(role, text) {
@@ -131,6 +153,59 @@
 
         message.className = `customer-message ${role}`;
         message.textContent = text;
+
+        messages.appendChild(message);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function shouldShowCitations() {
+        return (
+          COMPANY_CONFIG.modes?.[activeMode]?.show_citations === true ||
+          COMPANY_CONFIG.visibility?.[activeMode]?.show_citations === true
+        );
+      }
+
+      function addAssistantMessage(text, sources = []) {
+        const message = document.createElement("div");
+
+        message.className = "customer-message assistant";
+
+        const answer = document.createElement("div");
+        answer.textContent = text;
+
+        message.appendChild(answer);
+
+        if (shouldShowCitations() && sources.length > 0) {
+          const uniqueSources = [
+            ...new Set(
+              sources
+                .map((source) => source.source)
+                .filter(Boolean),
+            ),
+          ];
+
+          if (uniqueSources.length > 0) {
+            const citationBlock = document.createElement("div");
+            citationBlock.className = "customer-message-sources";
+
+            const heading = document.createElement("strong");
+            heading.textContent =
+              uniqueSources.length === 1 ? "Source" : "Sources";
+
+            const list = document.createElement("ul");
+
+            for (const sourceName of uniqueSources) {
+              const item = document.createElement("li");
+              item.textContent = sourceName;
+              list.appendChild(item);
+            }
+
+            citationBlock.appendChild(heading);
+            citationBlock.appendChild(list);
+
+            message.appendChild(citationBlock);
+          }
+        }
 
         messages.appendChild(message);
         messages.scrollTop = messages.scrollHeight;
@@ -153,6 +228,24 @@
         if (loading) {
           loading.remove();
         }
+      }
+
+      function showChatConfigurationError() {
+        document.getElementById("chatTitle").textContent =
+          "Chat unavailable";
+
+        document.getElementById("chatSubtitle").textContent =
+          "This chat link is not configured for an assistant.";
+
+        messages.replaceChildren();
+
+        addMessage(
+          "assistant",
+          "Please use the correct assistant link provided by the company.",
+        );
+
+        questionInput.disabled = true;
+        sendButton.disabled = true;
       }
 
       function buildContextualQuestion(currentQuestion) {
@@ -244,7 +337,10 @@
 
           removeLoadingMessage();
 
-          addMessage("assistant", cleanAnswer);
+          addAssistantMessage(
+            cleanAnswer,
+            result.sources || [],
+          );
 
           conversationHistory.push({
             role: COMPANY_CONFIG.assistant.name,
@@ -264,6 +360,17 @@
           questionInput.focus();
         }
       }
+
+      questionInput.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey &&
+          !event.isComposing
+        ) {
+          event.preventDefault();
+          chatForm.requestSubmit();
+        }
+      });
 
       chatForm.addEventListener("submit", async (event) => {
         event.preventDefault();

@@ -191,18 +191,6 @@ function initializeCompanySettingsForm() {
 
     const payload = buildCompanySettingsPayload();
 
-    if (payload.assistant.supported_languages.length === 0) {
-      const supportedLanguagesInput = document.getElementById(
-        "configuredSupportedLanguagesInput",
-      );
-
-      supportedLanguagesInput.classList.add("field-invalid");
-
-      supportedLanguagesInput.setAttribute("aria-invalid", "true");
-
-      firstInvalidField ??= supportedLanguagesInput;
-    }
-
     if (firstInvalidField) {
       setConfiguredSettingsNotice(
         "error",
@@ -300,17 +288,9 @@ function getConfiguredBrandAssetState(assetName) {
       };
     }
 
-    if (assets.logo) {
-      return {
-        sourceAssetName: "logo",
-        status: "Using company logo fallback",
-        fallbackText: companyInitial,
-      };
-    }
-
     return {
       sourceAssetName: null,
-      status: "Using company initial fallback",
+      status: "Default avatar",
       fallbackText: companyInitial,
     };
   }
@@ -399,9 +379,13 @@ function restoreConfiguredBrandAsset(assetName) {
 
   removeButton.hidden = true;
 
-  const sourceUrl = state.sourceAssetName
+  let sourceUrl = state.sourceAssetName
     ? `${getBrandAssetUrl(state.sourceAssetName)}?version=${Date.now()}`
     : null;
+
+  if (assetName === "assistant_avatar" && !state.sourceAssetName) {
+    sourceUrl = `./assets/default_assistant_avatar.png?version=${Date.now()}`;
+  }
 
   setBrandingAssetPreview({
     assetName,

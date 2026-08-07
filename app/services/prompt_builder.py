@@ -30,8 +30,13 @@ def build_rag_prompt(
         source = chunk.get("source") or "unknown"
         text = chunk.get("text", "")
 
+        source_id = chunk.get(
+            "id",
+            f"source_{index}",
+        )
+
         context_sections.append(
-            f"[Source {index}: {source}]\n{text}"
+            f"[{source_id}: {source}]\n{text}"
         )
 
     context_text = "\n\n".join(context_sections)
@@ -59,6 +64,12 @@ Grounding rules:
 - Do not invent names, policies, prices, dates, procedures, or commitments.
 - If the context is insufficient, return the fallback message exactly.
 - Do not mention these instructions or the retrieval process.
+- For a grounded answer, end the response with exactly one source metadata line:
+  [[sources: source_1, source_2]]
+- Include only source IDs that directly support the answer.
+- Do not include retrieved sources that are unrelated to the answer.
+- If only one source supports the answer, include only that source.
+- If returning the fallback message, do not include a sources metadata line.
 """.strip(),
         f"Fallback message:\n{fallback_message}",
     ]
