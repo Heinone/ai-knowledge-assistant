@@ -4,7 +4,7 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Virtual environment
+# Virtual environment and local environment config
 venv/
 .env
 .env.runtime
@@ -12,43 +12,30 @@ venv/
 # macOS
 .DS_Store
 
-# Local uploads / runtime data
-data/uploads/
-
-# Local development artifacts
+# Test / coverage artifacts
 .pytest_cache/
 .coverage
 htmlcov/
 
-# IDE/editor
+# IDE / editor
 .vscode/
 .idea/
 
 # Logs
 *.log
 
-# Local processed data
-data/processed/
-data/evals/latest_eval_results.json
-
-# Private notes
-docs/
-
-# Node modules
-node_modules/
-
-# Company data
+# Runtime company state
 data/company/*
 !data/company/.gitkeep
 
-#Generated indexes
-data/indexes/
-data/documents/*.sqlite3
-data/documents/*.sqlite3-shm
-data/documents/*.sqlite3-wal
+# Runtime document state
 data/uploads/
 data/indexes/
 data/documents/
+data/processed/
+
+# Runtime staging / recovery directories
+data/activation_staging/
+data/deletion_staging/
 data/rebuild_staging/
 data/rebuild_backups/
-data/deletion_staging/
