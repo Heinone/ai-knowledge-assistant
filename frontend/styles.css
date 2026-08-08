@@ -1159,10 +1159,15 @@ body.customer-chat-page {
   font-weight: 800;
 }
 
+.assistant-avatar:has(img) {
+  background: transparent;
+}
+
 .assistant-avatar img {
   display: block;
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
 }
 
