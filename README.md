@@ -8,58 +8,6 @@ The current project is designed as a consulting-grade demo showing how the same 
 
 ---
 
-## Demo Companies
-
-### Aster & Loom
-
-Customer support assistant for a premium clothing brand.
-
-The assistant answers questions about:
-
-- Products and materials
-- Manufacturing
-- Care instructions
-- Shipping and returns
-- Store information
-- Product collections
-
-This demo uses the `customer_support` assistant mode.
-
----
-
-### Vertex Systems
-
-Internal knowledge assistant for a software company.
-
-The assistant answers employee questions about:
-
-- Production access
-- Engineering procedures
-- Incident escalation
-- Production change policies
-- Internal operational processes
-
-This demo uses the `internal_knowledge` assistant mode and can display document citations.
-
----
-
-### Northstar eBikes
-
-Dual-assistant demo showing strict knowledge-base separation.
-
-It includes:
-
-- Customer support assistant
-- Internal knowledge assistant
-
-The customer assistant can answer warranty questions but cannot access internal approval procedures.
-
-The internal assistant can answer operational questions such as battery replacement approval rules.
-
-This demo demonstrates assistant-mode isolation within the same company deployment.
-
----
-
 ## Core Features
 
 ### RAG-powered chat
@@ -363,6 +311,58 @@ http://localhost:5500/chat.html?mode=customer_support
 Internal knowledge
 http://localhost:5500/chat.html?mode=internal_knowledge
 ```
+
+---
+
+## Demo Companies
+
+### Aster & Loom
+
+Customer support assistant for a premium clothing brand.
+
+The assistant answers questions about:
+
+- Products and materials
+- Manufacturing
+- Care instructions
+- Shipping and returns
+- Store information
+- Product collections
+
+This demo uses the `customer_support` assistant mode.
+
+---
+
+### Vertex Systems
+
+Internal knowledge assistant for a software company.
+
+The assistant answers employee questions about:
+
+- Production access
+- Engineering procedures
+- Incident escalation
+- Production change policies
+- Internal operational processes
+
+This demo uses the `internal_knowledge` assistant mode and can display document citations.
+
+---
+
+### Northstar eBikes
+
+Dual-assistant demo showing strict knowledge-base separation.
+
+It includes:
+
+- Customer support assistant
+- Internal knowledge assistant
+
+The customer assistant can answer warranty questions but cannot access internal approval procedures.
+
+The internal assistant can answer operational questions such as battery replacement approval rules.
+
+This demo demonstrates assistant-mode isolation within the same company deployment.
 
 ---
 
