@@ -99,7 +99,7 @@ The system includes:
 - Grounded-answer prompting
 - Configurable refusal behaviour
 - Answer validation
-- Prompt-injection resistance
+- Basic prompt-injection defenses
 - Source tracking
 - Assistant-mode knowledge isolation
 
@@ -156,8 +156,8 @@ The LLM layer uses a provider abstraction so additional model providers can be a
 ### AI
 
 - OpenAI embeddings
-- GPT models
-- Provider abstraction for additional LLM APIs
+- OpenAI models as the default LLM
+- Provider abstraction for alternative LLM APIs
 
 ### Vector storage
 
@@ -253,6 +253,7 @@ DEFAULT_MODEL=gpt-5-mini
 VECTOR_STORE=local
 AVAILABLE_MODES=customer_support,internal_knowledge
 ```
+`.env.example` contains a list of configurable variables and example values.
 
 `.env.runtime` is generated automatically by the demo tooling and overrides deployment-specific runtime settings.
 
@@ -409,11 +410,23 @@ The test suite covers areas including:
 
 ## Current Scope
 
-The current goal is a reliable client-demo and consulting prototype.
+The current version is a functional consulting-grade demo and is still under active development.
+
+Future improvements include
+
+- Configurable company chat colours
+- More detailed assistant behaviour and response-style configuration
+- Improved and validated multilingual assistant behaviour
+- Configurable LLM provider and model selection
+- Cost and latency visibility for LLM requests
+- Authentication and authorization for the admin interface
+- Different user roles
+- Further admin UI/UX polish
+- Docker-based local and deployment setup
+- Automated CI checks
 
 Production features such as these would be added based on client requirements:
 
-- Authentication and authorization
 - SSO
 - Rate limiting
 - Production multi-tenancy
